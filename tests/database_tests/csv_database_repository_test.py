@@ -66,6 +66,12 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             "next_steps": ""
         })
 
+    def test_get_entry_by_date_not_found(self):
+        with self.assertRaises(ValueError) as context:
+            self.repo.get_entry_by_date("2025-06-06")
+
+        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-06")
+
     def test_update_entry(self):
         pass
 
