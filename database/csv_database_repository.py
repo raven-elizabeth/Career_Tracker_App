@@ -18,6 +18,7 @@ class CsvDatabaseRepository(DatabaseRepository):
 
         df["date"] = pd.to_datetime(df["date"])
         df.set_index("date").sort_index()
+        df.index.name = "date"
 
         header = not self.file_path.exists() or self.file_path.stat().st_size == 0
         df.to_csv(self.file_path, mode="a", header=header)
