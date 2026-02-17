@@ -1,8 +1,10 @@
 class Entry:
-    def __init__(self, entry_dict):
-        self.entry_dict = entry_dict
+    def __init__(self, **kwargs):
+        if not kwargs.get("date"):
+            raise ValueError("Unable to create entry: No date provided")
 
-    def store_entry(self, repository):
-        repository.save_entry(self.entry_dict)
+        self.fields = ["date", "work_contribution", "learning", "win", "challenge", "next_steps"]
+        self.entry_dict = {field: kwargs.get(field) for field in self.fields}
 
-#win=None, challenge=None, work_contribution=None, learning=None, next_steps=None
+        if not any(self.entry_dict[field] for field in self.fields if field != "date"):
+            raise ValueError("Unable to create entry: At least one value must not be empty")
