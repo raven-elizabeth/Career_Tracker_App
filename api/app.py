@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 
+
 class API:
     def __init__(self):
         self.app = Flask(__name__)
