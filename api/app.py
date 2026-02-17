@@ -1,3 +1,5 @@
+# This file defines the API class that sets up the Flask application and its routes.
+
 from flask import Flask, jsonify, request
 
 
