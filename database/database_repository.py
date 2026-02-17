@@ -10,12 +10,7 @@ class DatabaseRepository(ABC):
     def save_entry(self, entry):
         pass
 
-    # Implement logic to retrieve all entries from the database (READ)
-    @abstractmethod
-    def get_entries(self):
-        pass
-
-    # Implement logic to retrieve a specific entry by its ID (READ)
+    # Implement logic to retrieve a specific entry by its date (READ)
     @abstractmethod
     def get_entry_by_date(self, entry_date):
         pass

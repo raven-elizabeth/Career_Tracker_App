@@ -22,10 +22,6 @@ class CsvDatabaseRepository(DatabaseRepository):
         header = not self.file_path.exists() or self.file_path.stat().st_size == 0
         df.to_csv(self.file_path, mode="a", header=header)
 
-    def get_entries(self):
-        with open(self.file_path, 'r') as file:
-            pass
-
     def get_entry_by_date(self, entry_date):
        with open(self.file_path, 'r') as file:
             pass
