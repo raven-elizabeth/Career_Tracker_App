@@ -6,9 +6,10 @@ from domain.entry import Entry
 
 
 class API:
-    def __init__(self):
+    def __init__(self, repository=CsvDatabaseRepository()):
         self.app = Flask(__name__)
         self.setup_routes()
+        self.repository = repository
 
     def setup_routes(self):
 
@@ -24,9 +25,8 @@ class API:
             if not data:
                 return jsonify({'error': 'No data provided'}), 400
 
-            repository = CsvDatabaseRepository()
             entry = Entry(**data) # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
-            repository.save_entry(entry)
+            self.repository.save_entry(entry)
             return jsonify({'message': 'Entry saved successfully', 'entry': entry.entry_dict}), 201
 
     def run(self, debug=True):

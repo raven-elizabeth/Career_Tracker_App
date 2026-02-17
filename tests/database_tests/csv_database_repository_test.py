@@ -2,18 +2,14 @@
 # The tests use the AAA (Arrange, Act, Assert) pattern to structure the test cases.
 
 import csv
-from os import path
 import unittest
-import tempfile
-from database.csv_database_repository import CsvDatabaseRepository
 from domain.entry import Entry
+from tests.test_data import test_repository, test_dir
 
 
 class TestCsvDatabaseRepository(unittest.TestCase):
     def setUp(self):
-        self.test_dir = tempfile.TemporaryDirectory()
-        self.file_path = path.join(self.test_dir.name, "test_entries.csv")
-        self.repo = CsvDatabaseRepository(file_path=self.file_path)
+        self.repo = test_repository
         self.entry = Entry(date="2025-06-04", work_contribution="Completed unit tests for whole codebase")
         self.expected = {
             "date": "2025-06-04",
@@ -24,12 +20,15 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             "next_steps": ""
         }
 
+    def tearDown(self):
+        test_dir.cleanup()
+
     def test_save_entry(self):
         # Act
         self.repo.save_entry(self.entry)
 
         # Assert
-        with open(self.file_path, 'r') as file:
+        with open(self.repo.file_path, 'r') as file:
             reader = csv.DictReader(file)
             rows = list(reader)
             self.assertEqual(len(rows), 1)
