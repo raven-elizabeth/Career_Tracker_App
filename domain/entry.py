@@ -3,7 +3,7 @@
 # The entry dictionary is  created dynamically based on the fields.
 # .get() is used to retrieve values from kwargs because it defaults to None values if the key does not exist
 
-from fields import fields
+from domain.fields import fields
 
 
 class Entry:
