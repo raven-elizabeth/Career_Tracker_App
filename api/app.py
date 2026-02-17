@@ -1,6 +1,8 @@
 # This file defines the API class that sets up the Flask application and its routes.
 
 from flask import Flask, jsonify, request
+from database.csv_database_repository import CsvDatabaseRepository
+from domain.entry import Entry
 
 
 class API:
@@ -10,22 +12,22 @@ class API:
 
     def setup_routes(self):
 
-        @self.app.route('/api/entries', methods=['GET'])
+        @self.app.route('/api/csv/entries', methods=['GET'])
         def get_data():
             pass
             # Read data from csv...
             # Return data as JSON
 
-        @self.app.route('/api/entries', methods=['POST'])
+        @self.app.route('/api/csv/entries', methods=['POST'])
         def post_data():
-            entry = request.get_json()
-
-            if not entry:
+            data = request.get_json()
+            if not data:
                 return jsonify({'error': 'No data provided'}), 400
 
-            # Save entry to csv...
-
-            return jsonify({'message': 'Entry saved successfully', 'entry': entry}), 201
+            repository = CsvDatabaseRepository()
+            entry = Entry(**data) # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
+            repository.save_entry(entry)
+            return jsonify({'message': 'Entry saved successfully', 'entry': entry.entry_dict}), 201
 
     def run(self, debug=True):
         self.app.run(debug=debug)
