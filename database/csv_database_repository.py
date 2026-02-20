@@ -5,6 +5,7 @@
 from database.database_repository import DatabaseRepository
 import pandas as pd
 from pathlib import Path
+from domain.entry import Entry
 
 
 class CsvDatabaseRepository(DatabaseRepository):
@@ -16,24 +17,28 @@ class CsvDatabaseRepository(DatabaseRepository):
         data = entry.entry_dict
         df = pd.DataFrame([data])
 
-        df["date"] = pd.to_datetime(df["date"])
+        # Copilot suggested converting to datetime to ensure correct formatting and then saving as string prevents pandas adding time data
+        df["date"] = pd.to_datetime(df["date"]).dt.date.astype(str)
         df = df.set_index("date").sort_index()
 
         header = not self.file_path.exists() or self.file_path.stat().st_size == 0
         df.to_csv(self.file_path, mode="a", header=header)
 
-    def get_entries(self):
-        with open(self.file_path, 'r') as file:
-            pass
+    def get_entry_by_date(self, date):
+        if not self.file_path.exists() or self.file_path.stat().st_size == 0:
+            raise ValueError(f"No entry found for date: {date}")
 
-    def get_entry_by_date(self, entry_date):
-       with open(self.file_path, 'r') as file:
-            pass
+        df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
+
+        date_value = str(date)
+        if date_value in df.index:
+            # Locate the row by date index and convert to dictionary, then create an Entry object through unpacking
+            entry_data = df.loc[date_value].to_dict()
+            entry_data['date'] = date_value
+            return Entry(**entry_data)
 
     def update_entry(self, entry_id, updated_entry):
-        with open(self.file_path, 'r+') as file:
-            pass
+        pass
 
     def delete_entry(self, entry_id):
-        with open(self.file_path, 'r+') as file:
-            pass
+        pass
