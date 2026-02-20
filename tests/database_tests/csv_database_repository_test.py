@@ -43,9 +43,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
             self.assertEqual(len(rows), 1)
 
-            # The code below was modified with the help of GitHub Copilot
-            # Indexing is needed as rows is a list of each row from the CSV
-            # The assertion accepts both the "YYYY-MM-DD" or "YYYY-MM-DD 00:00:00" format that may be returned from pandas
+            # The code below was modified with the help of GitHub Copilot; The assertion accepts both the "YYYY-MM-DD" or "YYYY-MM-DD 00:00:00" format that may be returned from pandas
             self.assertTrue(rows[0]['date'].startswith(self.expected['date']))
             # The original suggestion for the line below was unnecessarily complex, comparing each field separately
             self.assertEqual(self.expected, rows[0])
@@ -64,15 +62,11 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         second_entry = Entry(**second_value)
         self._repo.save_entry(second_entry)
 
-        # Act:
-        with open(self._repo.file_path, 'r') as file:
-            reader = csv.DictReader(file)
-            rows = list(reader)
+        # Act
+        result = self._repo.get_entry_by_date("2025-06-05")
 
         # Assert
-        self.assertEqual(len(rows), 2)
-        self.assertEqual(self.expected, rows[0])
-        self.assertEqual(second_value, rows[1])
+        self.assertEqual(result.entry_dict, second_value)
 
     def test_get_entry_by_date_not_found(self):
         with self.assertRaises(ValueError) as context:

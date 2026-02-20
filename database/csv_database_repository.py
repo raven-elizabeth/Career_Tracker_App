@@ -28,7 +28,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         if not self.file_path.exists() or self.file_path.stat().st_size == 0:
             raise ValueError(f"No entry found for date: {date}")
 
-        df = pd.read_csv(self.file_path, index_col="date", dtype=str)
+        df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
 
         date_value = str(date)
         if date_value in df.index:
