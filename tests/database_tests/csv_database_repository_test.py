@@ -7,7 +7,6 @@ import os
 import unittest
 from domain.entry import Entry
 from database.csv_database_repository import CsvDatabaseRepository
-from domain.fields import fields
 
 
 class TestCsvDatabaseRepository(unittest.TestCase):
