@@ -5,6 +5,7 @@
 from database.database_repository import DatabaseRepository
 import pandas as pd
 from pathlib import Path
+from domain.entry import Entry
 
 
 class CsvDatabaseRepository(DatabaseRepository):
@@ -22,14 +23,29 @@ class CsvDatabaseRepository(DatabaseRepository):
         header = not self.file_path.exists() or self.file_path.stat().st_size == 0
         df.to_csv(self.file_path, mode="a", header=header)
 
-    def get_entry_by_date(self, entry_date):
-       with open(self.file_path, 'r') as file:
-            pass
+    def get_entry_by_date(self, date):
+        if not self.file_path.exists() or self.file_path.stat().st_size == 0:
+            raise ValueError(f"No entry found for date: {date}")
+
+        df = pd.read_csv(self.file_path, index_col="date", dtype=str)
+
+        if str(date) in df.index:
+            entry_data = df.loc[date].to_dict()
+            return Entry(**entry_data)
+        raise ValueError(f"No entry found for date: {date}")
+
 
     def update_entry(self, entry_id, updated_entry):
-        with open(self.file_path, 'r+') as file:
-            pass
+        pass
 
     def delete_entry(self, entry_id):
-        with open(self.file_path, 'r+') as file:
-            pass
+        pass
+
+        # # Read the CSV using string dtypes so empty fields remain empty strings (not NaN)
+        # df = pd.read_csv(self.file_path, index_col="date", dtype=str)
+        #
+        # # Ensure index values are strings so the passed entry_date (string) can be matched
+        # df.index = df.index.astype(str)
+        #
+        # if str(entry_date) in df.index:
+        #     entry_data = df.loc[str(entry_date)].to_dict()
