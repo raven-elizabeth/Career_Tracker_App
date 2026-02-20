@@ -22,13 +22,15 @@ class TestAPI(unittest.TestCase):
             "date": "2025-01-01",
             "work_contribution": "Completed unit tests for get route"
         }
-        self.client.post("api/csv/entries", json=entry)
+        self.client.post("/api/csv/entries", json=entry)
 
         # Act
         response = self.client.get("/api/csv/entries")
+        data = response.get_json().get("data")
 
         # Assert
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(data.get("date"), "2025-01-01")
         self.assertIn("2025-01-01,Completed unit tests for get route", response.get_json().get("data"))
 
     def test_get_data_by_date(self):
@@ -41,15 +43,17 @@ class TestAPI(unittest.TestCase):
             "date": "2025-01-03",
             "work_contribution": "Completed unit tests for get by date route"
         }
-        self.client.post("api/csv/entries", json=entry)
-        self.client.post("api/csv/entries", json=entry2)
+        self.client.post("/api/csv/entries", json=entry)
+        self.client.post("/api/csv/entries", json=entry2)
 
         # Act
         response = self.client.get("/api/csv/entries/2025-01-03")
+        data = response.get_json().get("data")
 
         # Assert
         self.assertEqual(response.status_code, 200)
-        self.assertIn("2025-01-03, Completed unit tests for get by date route", response.get_json().get("data"))
+        self.assertEqual(data.get("date"), "2025-01-03")
+        self.assertEqual(data.get("work_contribution"), "Completed unit tests for get by date route")
 
     def test_post_data(self):
         # Arrange
@@ -68,4 +72,3 @@ class TestAPI(unittest.TestCase):
         # Assert
         self.assertEqual(response.status_code, 201)
         self.assertEqual(date, "2024-12-31")
-
