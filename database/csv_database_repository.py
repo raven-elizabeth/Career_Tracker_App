@@ -42,12 +42,3 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     def delete_entry(self, entry_id):
         pass
-
-        # # Read the CSV using string dtypes so empty fields remain empty strings (not NaN)
-        # df = pd.read_csv(self.file_path, index_col="date", dtype=str)
-        #
-        # # Ensure index values are strings so the passed entry_date (string) can be matched
-        # df.index = df.index.astype(str)
-        #
-        # if str(entry_date) in df.index:
-        #     entry_data = df.loc[str(entry_date)].to_dict()
