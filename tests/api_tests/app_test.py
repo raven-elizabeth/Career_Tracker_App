@@ -16,23 +16,6 @@ class TestAPI(unittest.TestCase):
     def tearDown(self):
         self._test_dir.cleanup()
 
-    def test_get_all_data(self):
-        # Arrange
-        entry = {
-            "date": "2025-01-01",
-            "work_contribution": "Completed unit tests for get route"
-        }
-        self.client.post("/api/csv/entries", json=entry)
-
-        # Act
-        response = self.client.get("/api/csv/entries")
-        data = response.get_json().get("data")
-
-        # Assert
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data.get("date"), "2025-01-01")
-        self.assertIn("2025-01-01,Completed unit tests for get route", response.get_json().get("data"))
-
     def test_get_data_by_date(self):
         # Arrange
         entry = {

@@ -13,21 +13,26 @@ class API:
 
     def setup_routes(self):
 
-        @self.app.route('/api/csv/entries', methods=['GET'])
-        def get_data():
-            pass
-            # Read data from csv...
-            # Return data as JSON
+        @self.app.route('/api/csv/entries/<date>', methods=['GET'])
+        def get_data_by_date(date):
+            try:
+                entry = self.repository.get_entry_by_date(date)
+                return jsonify({"data": entry.entry_dict}), 200
+            except ValueError:
+                return jsonify({"error": f"No entry found for date: {date}"}), 404
 
         @self.app.route('/api/csv/entries', methods=['POST'])
         def post_data():
-            data = request.get_json()
-            if not data:
+            try:
+                data = request.get_json()
+                # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
+                entry = Entry(**data)
+                self.repository.save_entry(entry)
+                return jsonify({'message': 'Entry saved successfully', 'entry': entry.entry_dict}), 201
+            except ValueError:
                 return jsonify({'error': 'No data provided'}), 400
 
-            entry = Entry(**data) # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
-            self.repository.save_entry(entry)
-            return jsonify({'message': 'Entry saved successfully', 'entry': entry.entry_dict}), 201
+
 
     def run(self, debug=True):
         self.app.run(debug=debug)
