@@ -67,6 +67,7 @@ class API:
             if all(values == "" for values in update_items.values()):
                 return jsonify({"error": "No valid fields provided for update"}), 400
 
+            # Attempt creating Entry object to pass validation of request data
             try:
                 Entry(**update_request)
             except ValueError as e:
