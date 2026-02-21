@@ -13,6 +13,9 @@ class Entry:
 
         self.fields = fields
         self.entry_dict = {field: kwargs.get(field, "") for field in self.fields}
+        for k, v in self.entry_dict.items():
+            if v is None:
+                self.entry_dict[k] = ""
 
         if not any(self.entry_dict[field] for field in self.fields if field != "date"):
             raise ValueError("Unable to create entry: At least one value must not be empty")

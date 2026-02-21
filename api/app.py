@@ -6,10 +6,10 @@ from domain.entry import Entry
 
 
 class API:
-    def __init__(self, repository=CsvDatabaseRepository()):
+    def __init__(self, repository=None):
         self.app = Flask(__name__)
+        self.repository = repository if repository is not None else CsvDatabaseRepository()
         self.setup_routes()
-        self.repository = repository
 
     def setup_routes(self):
 
@@ -23,24 +23,38 @@ class API:
 
         @self.app.route("/api/csv/entries", methods=["POST"])
         def post_entry():
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "Invalid JSON body"}), 400
+
             try:
-                data = request.get_json()
                 # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
                 entry = Entry(**data)
+            except ValueError as e:
+                return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
+
+            try:
                 self.repository.save_entry(entry)
                 return jsonify({"message": "Entry saved successfully", "data": entry.entry_dict}), 201
             except ValueError:
                 return jsonify({"error": "Save unsuccessful"}), 400
 
         @self.app.route("/api/csv/entries/<date>", methods=["PUT"])
-        def update_entry(date):
+        def update_replace_entry(date):
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "Invalid JSON body"}), 400
+
             try:
-                data = request.get_json()
                 updated_entry = Entry(**data)
+            except ValueError as e:
+                return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
+
+            try:
                 self.repository.update_entry(date, updated_entry)
                 return jsonify({"message": "Entry updated successfully", "data": updated_entry.entry_dict}), 200
-            except ValueError:
-                return jsonify({"error": "Update unsuccessful"}), 404
+            except ValueError as e:
+                return jsonify({"error": f"Update unsuccessful: {str(e)}"}), 404
 
         @self.app.route("/api/csv/entries/<date>", methods=["DELETE"])
         def delete_entry(date):
