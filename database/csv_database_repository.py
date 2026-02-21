@@ -16,13 +16,30 @@ class CsvDatabaseRepository(DatabaseRepository):
     def save_entry(self, entry):
         data = entry.entry_dict
         df = pd.DataFrame([data])
+        df = self.set_date_index(df)
 
+        file_exists = self.file_path.exists()
+        file_size = self.file_path.stat().st_size if file_exists else 0
+
+        # Check for duplicate entry by date before saving
+        if file_exists and file_size > 0:
+            if self.entry_exists(str(entry.entry_dict["date"])):
+                raise ValueError(f"An entry with date {entry.entry_dict['date']} already exists.")
+
+        # Check if the file exists and is not empty to determine whether to write the header (only write if writing first entry)
+        header = not file_exists or file_size == 0
+        df.to_csv(self.file_path, mode="a", header=header)
+
+    def entry_exists(self, date):
+        existing_df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
+        return True if date in existing_df.index else False
+
+    @staticmethod
+    def set_date_index(df):
         # Copilot suggested converting to datetime to ensure correct formatting and then saving as string prevents pandas adding time data
         df["date"] = pd.to_datetime(df["date"]).dt.date.astype(str)
-        df = df.set_index("date").sort_index()
-
-        header = not self.file_path.exists() or self.file_path.stat().st_size == 0
-        df.to_csv(self.file_path, mode="a", header=header)
+        df = df.set_index("date")
+        return df
 
     def get_entry_by_date(self, date):
         if not self.file_path.exists() or self.file_path.stat().st_size == 0:
