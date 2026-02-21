@@ -13,45 +13,61 @@ class TestAPI(unittest.TestCase):
         self.api = API(repository=self._repo)
         self.client = self.api.app.test_client()
 
+        self.entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Completed unit tests for Flask routes"
+        }
+
+        self.expected = {
+            "date": "2025-01-02",
+            "work_contribution": "Completed unit tests for Flask routes",
+            "learning": "",
+            "win": "",
+            "challenge": "",
+            "next_steps": ""
+        }
+
     def tearDown(self):
         self._test_dir.cleanup()
 
-    def test_get_data_by_date(self):
+    def test_get_entry_by_date_returns_successful_response(self):
         # Arrange
-        entry = {
-            "date": "2025-01-02",
-            "work_contribution": "Completed unit tests for get by date route"
-        }
         entry2 = {
             "date": "2025-01-03",
             "work_contribution": "Completed unit tests for get by date route"
         }
-        self.client.post("/api/csv/entries", json=entry)
+        self.client.post("/api/csv/entries", json=self.entry)
         self.client.post("/api/csv/entries", json=entry2)
 
         # Act
-        response = self.client.get("/api/csv/entries/2025-01-03")
-        data = response.get_json().get("data")
+        response = self.client.get("/api/csv/entries/2025-01-02")
 
         # Assert
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data.get("date"), "2025-01-03")
-        self.assertEqual(data.get("work_contribution"), "Completed unit tests for get by date route")
+        self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
+        self.assertEqual(response.get_json().get("data"), self.expected)
 
-    def test_post_data(self):
-        # Arrange
-        entry = {
-            "date": "2024-12-31",
-            "work_contribution": "Completed unit tests for post route"
-        }
-
+    def test_get_entry_by_date_returns_not_found_response(self):
         # Act
-        response = self.client.post("/api/csv/entries", json=entry)
-        # The line below was modified with the help of GitHub Copilot to extract the date from the JSON response
-        # entry is the key created by the json response for the post_data route
-        # The empty dictionary is passed to avoid a key error on calling get('date') if entry is None
-        date = response.get_json().get('entry', {}).get('date')
+        response = self.client.get("/api/csv/entries/2025-01-04")
+
+        # Assert
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json().get("error"), "No entry found for date: 2025-01-04")
+
+    def test_post_entry_returns_successful_response(self):
+        # Act
+        response = self.client.post("/api/csv/entries", json=self.entry)
 
         # Assert
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(date, "2024-12-31")
+        self.assertEqual(response.get_json().get("message"), "Entry saved successfully")
+        self.assertEqual(response.get_json().get("data"), self.expected)
+
+    def test_post_entry_returns_bad_request_response(self):
+        # Act
+        response = self.client.post("/api/csv/entries", json={})
+
+        # Assert
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json().get("error"), "No data provided")
