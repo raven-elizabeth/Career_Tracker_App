@@ -51,6 +51,5 @@ class API:
                 return jsonify({"error": "Delete unsuccessful"}), 404
 
 
-
     def run(self, debug=True):
         self.app.run(debug=debug)
