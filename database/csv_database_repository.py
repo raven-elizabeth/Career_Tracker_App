@@ -55,8 +55,19 @@ class CsvDatabaseRepository(DatabaseRepository):
             return Entry(**entry_data)
         raise ValueError(f"No entry found for date: {date}")
 
-    def update_entry(self, entry_id, updated_entry):
-        pass
+    def update_entry(self, date, updated_entry):
+        if not self.file_path.exists() or self.file_path.stat().st_size == 0:
+            raise ValueError(f"No entry found for date: {date}")
 
-    def delete_entry(self, entry_id):
+        df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
+
+        if date in df.index:
+            updated_data = updated_entry.entry_dict
+            for field in updated_data:
+                df.at[date, field] = updated_data[field]
+            df.to_csv(self.file_path)
+        else:
+            raise ValueError(f"No entry found for date: {date}")
+
+    def delete_entry(self, date):
         pass
