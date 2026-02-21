@@ -27,7 +27,8 @@ class CsvDatabaseRepository(DatabaseRepository):
 
         # Check for duplicate entry by date before saving
         if file_exists and file_size > 0:
-            if self.entry_exists(str(entry.entry_dict["date"])):
+            date = str(entry.entry_dict["date"])
+            if self.entry_exists(date):
                 self.logger.warning("Attempted to save duplicate entry with date: %s", entry.entry_dict["date"])
                 raise ValueError(f"An entry with date {entry.entry_dict['date']} already exists.")
 
@@ -75,7 +76,7 @@ class CsvDatabaseRepository(DatabaseRepository):
 
             for field, value in updated_data.items():
                 if field != "date":
-                    df.at[date, field] = updated_data[field]
+                    df.at[date, field] = value
 
             df.to_csv(self.file_path)
             self.logger.info("Entry replaced successfully for date: %s", date)
