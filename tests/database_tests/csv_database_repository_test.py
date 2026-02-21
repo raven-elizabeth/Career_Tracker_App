@@ -148,3 +148,28 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
         # Assert
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-08")
+
+    def test_validate_file_raises_value_error_if_file_does_not_exist(self):
+        # Arrange
+        test_repo = CsvDatabaseRepository(file_path="non_existent_file.csv")
+
+        # Act
+        with self.assertRaises(ValueError) as context:
+            # Assert
+            test_repo.validate_file()
+
+        self.assertEqual(str(context.exception), f"File not found: {test_repo.file_path}")
+
+    def test_validate_file_raises_value_error_if_file_is_empty(self):
+        # Arrange
+        with open(self._test_file_path, 'w') as file:
+            pass
+
+        test_repo = CsvDatabaseRepository(self._test_file_path)
+
+        # Act
+        with self.assertRaises(ValueError) as context:
+            # Assert
+            test_repo.validate_file()
+
+        self.assertEqual(str(context.exception), f"No data found in file: {test_repo.file_path}")
