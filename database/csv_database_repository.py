@@ -53,7 +53,7 @@ class CsvDatabaseRepository(DatabaseRepository):
             return Entry(**entry_data)
         raise ValueError(f"No entry found for date: {date}")
 
-    def update_entry(self, date, updated_entry):
+    def replace_entry(self, date, updated_entry):
         self.validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
 
@@ -62,6 +62,20 @@ class CsvDatabaseRepository(DatabaseRepository):
             for field in updated_data:
                 df.at[date, field] = updated_data[field]
             df.to_csv(self.file_path)
+        else:
+            raise ValueError(f"No entry found for date: {date}")
+
+    def partially_update_entry(self, date, update_request):
+        self.validate_file()
+        df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
+
+        if date in df.index:
+            for field, value in update_request.items():
+                if field in df.columns and value != "":
+                    df.at[date, field] = value
+            df.to_csv(self.file_path)
+            return self.get_entry_by_date(date)
+
         else:
             raise ValueError(f"No entry found for date: {date}")
 

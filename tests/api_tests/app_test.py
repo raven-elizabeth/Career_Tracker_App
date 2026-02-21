@@ -87,12 +87,11 @@ class TestAPI(unittest.TestCase):
         }
 
         # Act
-        self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
-        response = self.client.get("/api/csv/entries/2025-01-02")
+        response = self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
 
         # Assert
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
+        self.assertEqual(response.get_json().get("message"), "Entry updated successfully")
         self.assertEqual(response.get_json().get("data"), updated_entry)
 
     def test_update_replace_nonexistent_entry_returns_not_found_response(self):
@@ -101,7 +100,9 @@ class TestAPI(unittest.TestCase):
             "date": "2025-01-04",
             "work_contribution": "Updated work contribution",
             "learning": "Added learning",
-            "challenge": "Added challenge"
+            "win": "",
+            "challenge": "Added challenge",
+            "next_steps": "Continue with testing"
         }
 
         # Act
@@ -111,7 +112,23 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn("Update unsuccessful", response.get_json().get("error"))
 
-    def test_partial_update_replace_entry_returns_successful_response(self):
+    def test_update_replace_missing_fields_returns_bad_request_response(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "New work contribution"
+        }
+
+        # Act
+        response = self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("Invalid JSON body", response.get_json().get("error"))
+
+    def test_partial_update_entry_returns_successful_response(self):
         # Arrange
         self.client.post("/api/csv/entries", json=self.entry)
 
@@ -130,15 +147,14 @@ class TestAPI(unittest.TestCase):
         }
 
         # Act
-        self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
-        response = self.client.get("/api/csv/entries/2025-01-02")
+        response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
 
         # Assert
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
+        self.assertEqual(response.get_json().get("message"), "Entry partially updated successfully")
         self.assertEqual(response.get_json().get("data"), expected_entry)
 
-    def test_partial_update_replace_nonexistent_entry_returns_not_found_response(self):
+    def test_partial_update_nonexistent_entry_returns_not_found_response(self):
         # Arrange
         updated_entry = {
             "date": "2025-01-04",
@@ -146,11 +162,38 @@ class TestAPI(unittest.TestCase):
         }
 
         # Act
-        response = self.client.put("/api/csv/entries/2025-01-04", json=updated_entry)
+        response = self.client.patch("/api/csv/entries/2025-01-04", json=updated_entry)
 
         # Assert
         self.assertEqual(response.status_code, 404)
-        self.assertIn("Update unsuccessful", response.get_json().get("error"))
+        self.assertIn("Partial update unsuccessful", response.get_json().get("error"))
+
+    def test_partial_update_entry_with_empty_fields_does_not_overwrite_existing_data(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": ""
+        }
+
+        expected_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Completed unit tests for Flask routes",
+            "learning": "",
+            "win": "",
+            "challenge": "",
+            "next_steps": "Continue with testing"
+        }
+
+        # Act
+        response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
+        entry = self.client.get("/api/csv/entries/2025-01-02").get_json()
+
+        # Assert
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("No valid fields provided for update", response.get_json().get("error"))
+        self.assertEqual(entry.get("data"), expected_entry)
 
     def test_delete_entry_returns_successful_response(self):
         # Arrange

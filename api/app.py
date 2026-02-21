@@ -3,6 +3,7 @@
 from flask import Flask, jsonify, request
 from database.csv_database_repository import CsvDatabaseRepository
 from domain.entry import Entry
+from domain.fields import fields
 
 
 class API:
@@ -42,7 +43,7 @@ class API:
         @self.app.route("/api/csv/entries/<date>", methods=["PUT"])
         def update_replace_entry(date):
             data = request.get_json()
-            if not data:
+            if not data or not all(field in data for field in fields):
                 return jsonify({"error": "Invalid JSON body"}), 400
 
             try:
@@ -51,10 +52,31 @@ class API:
                 return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
 
             try:
-                self.repository.update_entry(date, updated_entry)
+                self.repository.replace_entry(date, updated_entry)
                 return jsonify({"message": "Entry updated successfully", "data": updated_entry.entry_dict}), 200
             except ValueError as e:
                 return jsonify({"error": f"Update unsuccessful: {str(e)}"}), 404
+
+        @self.app.route("/api/csv/entries/<date>", methods=["PATCH"])
+        def partially_update_entry(date):
+            update_request = request.get_json()
+            if not update_request:
+                return jsonify({"error": "Invalid JSON body"}), 400
+
+            update_items = {k: v for k, v in update_request.items() if k != "date"}
+            if all(values == "" for values in update_items.values()):
+                return jsonify({"error": "No valid fields provided for update"}), 400
+
+            try:
+                update_fields_as_entry = Entry(**update_request)
+            except ValueError as e:
+                return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
+
+            try:
+                updated_entry = self.repository.partially_update_entry(date, update_fields_as_entry.entry_dict)
+                return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
+            except ValueError as e:
+                return jsonify({"error": f"Partial update unsuccessful: {str(e)}"}), 404
 
         @self.app.route("/api/csv/entries/<date>", methods=["DELETE"])
         def delete_entry(date):
