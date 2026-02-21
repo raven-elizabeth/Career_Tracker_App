@@ -48,7 +48,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
         self.assertEqual(response.get_json().get("data"), self.expected)
 
-    def test_get_entry_by_date_returns_not_found_response(self):
+    def test_get_nonexistent_entry_returns_not_found_response(self):
         # Act
         response = self.client.get("/api/csv/entries/2025-01-04")
 
@@ -65,7 +65,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.get_json().get("message"), "Entry saved successfully")
         self.assertEqual(response.get_json().get("data"), self.expected)
 
-    def test_post_entry_returns_bad_request_response(self):
+    def test_post_entry_no_json_returns_bad_request_response(self):
         # Act
         response = self.client.post("/api/csv/entries", json={})
 
@@ -95,8 +95,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
         self.assertEqual(response.get_json().get("data"), updated_entry)
 
-
-    def test_update_entry_returns_not_found_response(self):
+    def test_update_nonexistent_entry_returns_not_found_response(self):
         # Arrange
         updated_entry = {
             "date": "2025-01-04",
@@ -111,3 +110,22 @@ class TestAPI(unittest.TestCase):
         # Assert
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.get_json().get("error"), "Update unsuccessful")
+
+    def test_delete_entry_returns_successful_response(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
+        # Act
+        response = self.client.delete("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json().get("message"), "Entry deleted successfully")
+
+    def test_delete_nonexistent_entry_returns_not_found_response(self):
+        # Act
+        response = self.client.delete("/api/csv/entries/2025-01-04")
+
+        # Assert
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json().get("error"), "Delete unsuccessful")
