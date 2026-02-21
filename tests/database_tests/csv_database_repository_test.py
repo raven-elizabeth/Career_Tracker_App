@@ -128,10 +128,10 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_partially_update_entry_updates_only_provided_fields(self):
         # Arrange
-        updated_entry = Entry(
-            date="2025-06-04",
-            work_contribution="Partially update for work contribution"
-        )
+        updated_entry_items = {
+            "date": "2025-06-04",
+            "work_contribution": "Partially update for work contribution"
+        }
 
         expected_entry = {
             "date": "2025-06-04",
@@ -143,7 +143,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         }
 
         # Act
-        self._repo.partially_update_entry("2025-06-04", updated_entry)
+        self._repo.partially_update_entry("2025-06-04", updated_entry_items)
         response = self._repo.get_entry_by_date("2025-06-04")
 
         # Assert

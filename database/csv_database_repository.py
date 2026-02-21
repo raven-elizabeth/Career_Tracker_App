@@ -71,7 +71,7 @@ class CsvDatabaseRepository(DatabaseRepository):
 
         if date in df.index:
             for field, value in update_request.items():
-                if field in df.columns and value != "":
+                if field in df.columns:
                     df.at[date, field] = value
             df.to_csv(self.file_path)
             return self.get_entry_by_date(date)

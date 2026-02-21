@@ -68,12 +68,12 @@ class API:
                 return jsonify({"error": "No valid fields provided for update"}), 400
 
             try:
-                update_fields_as_entry = Entry(**update_request)
+                Entry(**update_request)
             except ValueError as e:
                 return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
 
             try:
-                updated_entry = self.repository.partially_update_entry(date, update_fields_as_entry.entry_dict)
+                updated_entry = self.repository.partially_update_entry(date, update_items)
                 return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
             except ValueError as e:
                 return jsonify({"error": f"Partial update unsuccessful: {str(e)}"}), 404
