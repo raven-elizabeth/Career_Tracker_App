@@ -24,7 +24,7 @@ class TestAPI(unittest.TestCase):
             "learning": "",
             "win": "",
             "challenge": "",
-            "next_steps": ""
+            "next_steps": "Continue with testing"
         }
 
     def tearDown(self):
@@ -71,3 +71,48 @@ class TestAPI(unittest.TestCase):
         # Assert
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.get_json().get("error"), "No data provided")
+
+    def test_update_entry_returns_successful_response(self):
+        # Arrange
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution",
+            "learning": "Added learning",
+            "challenge": "Added challenge"
+        }
+
+        expected_updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution",
+            "learning": "Added learning",
+            "win": "",
+            "challenge": "Added challenge",
+            "next_steps": ""
+        }
+
+        # Act
+        self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
+        response = self.client.get("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
+        self.assertEqual(response.get_json().get("data"), expected_updated_entry)
+
+
+
+    def test_update_entry_returns_not_found_response(self):
+        # Arrange
+        updated_entry = {
+            "date": "2025-01-04",
+            "work_contribution": "Updated work contribution",
+            "learning": "Added learning",
+            "challenge": "Added challenge"
+        }
+
+        # Act
+        response = self.client.put("/api/csv/entries/2025-01-04", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json().get("error"), "No entry found for date: 2025-01-04")
