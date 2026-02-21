@@ -29,13 +29,12 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             "next_steps": ""
         }
 
+        self._repo.save_entry(self.entry)
+
     def tearDown(self):
         self._testDir.cleanup()
 
     def test_save_entry(self):
-        # Act
-        self._repo.save_entry(self.entry)
-
         # Assert
         with open(self._repo.file_path, 'r') as file:
             reader = csv.DictReader(file)
@@ -50,7 +49,6 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_get_entry_by_date(self):
         # Arrange
-        self._repo.save_entry(self.entry)
         second_value = {
             "date": "2025-06-05",
             "work_contribution": "Completed unit tests for get_entries method",
@@ -63,19 +61,38 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self._repo.save_entry(second_entry)
 
         # Act
-        result = self._repo.get_entry_by_date("2025-06-05")
+        response = self._repo.get_entry_by_date("2025-06-05")
 
         # Assert
-        self.assertEqual(result.entry_dict, second_value)
+        self.assertEqual(response.entry_dict, second_value)
 
-    def test_get_entry_by_date_not_found(self):
+    def test_value_error_raised_when_get_date_not_found(self):
+        # Arrange
         with self.assertRaises(ValueError) as context:
+            # Act
             self._repo.get_entry_by_date("2025-06-06")
 
+        # Assert
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-06")
 
     def test_update_entry(self):
-        pass
+        # Arrange
+        updated_entry = Entry(
+            date="2025-06-04",
+            work_contribution="Updated work contribution",
+            learning="Updated learning",
+            win="Added win",
+            challenge="Added challenge",
+            next_steps="Added next steps"
+        )
+
+        # Act, Assert
+        response = self._repo.get_entry_by_date("2025-06-04")
+        self.assertEqual(response.entry_dict, self.expected)
+
+        self._repo.update_entry("2025-06-04", updated_entry)
+        response = self._repo.get_entry_by_date("2025-06-04")
+        self.assertEqual(response.entry_dict, updated_entry.entry_dict)
 
     def test_delete_entry(self):
         pass

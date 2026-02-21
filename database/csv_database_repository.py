@@ -36,6 +36,7 @@ class CsvDatabaseRepository(DatabaseRepository):
             entry_data = df.loc[date_value].to_dict()
             entry_data['date'] = date_value
             return Entry(**entry_data)
+        raise ValueError(f"No entry found for date: {date}")
 
     def update_entry(self, entry_id, updated_entry):
         pass
