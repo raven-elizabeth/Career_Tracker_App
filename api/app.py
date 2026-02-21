@@ -44,7 +44,11 @@ class API:
 
         @self.app.route("/api/csv/entries/<date>", methods=["DELETE"])
         def delete_entry(date):
-            pass
+            try:
+                self.repository.delete_entry(date)
+                return jsonify({"message": "Entry deleted successfully"}), 200
+            except ValueError:
+                return jsonify({"error": "Delete unsuccessful"}), 404
 
 
 
