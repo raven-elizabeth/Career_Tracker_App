@@ -126,4 +126,25 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
 
     def test_delete_existing_entry_deletes_entry(self):
-        pass
+        # Arrange
+        self._repo.save_entry(self.entry)
+        response = self._repo.get_entry_by_date("2025-06-04")
+        self.assertEqual(response.entry_dict, self.expected)
+
+        # Act
+        self._repo.delete_entry("2025-06-04")
+
+        # Assert
+        with self.assertRaises(ValueError) as context:
+            self._repo.get_entry_by_date("2025-06-04")
+
+        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-04")
+
+    def test_delete_nonexistent_entry_raises_value_error(self):
+        # Arrange
+        with self.assertRaises(ValueError) as context:
+            # Act
+            self._repo.delete_entry("2025-06-08")
+
+        # Assert
+        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-08")
