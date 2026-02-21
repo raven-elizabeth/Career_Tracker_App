@@ -18,13 +18,14 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.entry = Entry(
             date="2025-06-04",
             work_contribution="Completed unit tests for whole codebase",
-            learning="Discovered how to use setUp and tearDown in unittest"
+            learning="Discovered how to use setUp and tearDown in unittest",
+            win="Refactored code to be cleaner"
         )
         self.expected = {
             "date": "2025-06-04",
             "work_contribution": "Completed unit tests for whole codebase",
             "learning": "Discovered how to use setUp and tearDown in unittest",
-            "win": "",
+            "win": "Refactored code to be cleaner",
             "challenge": "",
             "next_steps": ""
         }
@@ -89,7 +90,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         # Assert
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-06")
 
-    def test_update_entry_updates_existing_entry(self):
+    def test_replace_entry_updates_existing_entry(self):
         # Arrange
         updated_entry = Entry(
             date="2025-06-04",
@@ -104,11 +105,11 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         response = self._repo.get_entry_by_date("2025-06-04")
         self.assertEqual(response.entry_dict, self.expected)
 
-        self._repo.update_entry("2025-06-04", updated_entry)
+        self._repo.replace_entry("2025-06-04", updated_entry)
         response = self._repo.get_entry_by_date("2025-06-04")
         self.assertEqual(response.entry_dict, updated_entry.entry_dict)
 
-    def test_update_nonexistent_entry_raises_value_error(self):
+    def test_replace_nonexistent_entry_raises_value_error(self):
         # Arrange
         updated_entry = Entry(
             date="2025-06-07",
@@ -121,7 +122,43 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
         # Act, Assert
         with self.assertRaises(ValueError) as context:
-            self._repo.update_entry("2025-06-07", updated_entry)
+            self._repo.replace_entry("2025-06-07", updated_entry)
+
+        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
+
+    def test_partially_update_entry_updates_only_provided_fields(self):
+        # Arrange
+        updated_entry = Entry(
+            date="2025-06-04",
+            work_contribution="Partially update for work contribution"
+        )
+
+        expected_entry = {
+            "date": "2025-06-04",
+            "work_contribution": "Partially update for work contribution",
+            "learning": "Discovered how to use setUp and tearDown in unittest",
+            "win": "Refactored code to be cleaner",
+            "challenge": "",
+            "next_steps": ""
+        }
+
+        # Act
+        self._repo.partially_update_entry("2025-06-04", updated_entry)
+        response = self._repo.get_entry_by_date("2025-06-04")
+
+        # Assert
+        self.assertEqual(response.entry_dict, expected_entry)
+
+    def test_partially_update_nonexistent_entry_raises_value_error(self):
+        # Arrange
+        updated_entry = Entry(
+            date="2025-06-07",
+            work_contribution="Partially update for work contribution"
+        )
+
+        # Act, Assert
+        with self.assertRaises(ValueError) as context:
+            self._repo.partially_update_entry("2025-06-07", updated_entry)
 
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
 
