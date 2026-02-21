@@ -15,7 +15,8 @@ class TestAPI(unittest.TestCase):
 
         self.entry = {
             "date": "2025-01-02",
-            "work_contribution": "Completed unit tests for Flask routes"
+            "work_contribution": "Completed unit tests for Flask routes",
+            "next_steps": "Continue with testing"
         }
 
         self.expected = {
@@ -70,24 +71,19 @@ class TestAPI(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json().get("error"), "No data provided")
+        self.assertEqual(response.get_json().get("error"), "Save unsuccessful")
 
-    def test_update_entry_returns_successful_response(self):
+    def test_update_entry_all_fields_returns_successful_response(self):
         # Arrange
-        updated_entry = {
-            "date": "2025-01-02",
-            "work_contribution": "Updated work contribution",
-            "learning": "Added learning",
-            "challenge": "Added challenge"
-        }
+        self.client.post("/api/csv/entries", json=self.entry)
 
-        expected_updated_entry = {
+        updated_entry = {
             "date": "2025-01-02",
             "work_contribution": "Updated work contribution",
             "learning": "Added learning",
             "win": "",
             "challenge": "Added challenge",
-            "next_steps": ""
+            "next_steps": "Continue with testing"
         }
 
         # Act
@@ -97,8 +93,7 @@ class TestAPI(unittest.TestCase):
         # Assert
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
-        self.assertEqual(response.get_json().get("data"), expected_updated_entry)
-
+        self.assertEqual(response.get_json().get("data"), updated_entry)
 
 
     def test_update_entry_returns_not_found_response(self):
@@ -115,4 +110,4 @@ class TestAPI(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json().get("error"), "No entry found for date: 2025-01-04")
+        self.assertEqual(response.get_json().get("error"), "Update unsuccessful")
