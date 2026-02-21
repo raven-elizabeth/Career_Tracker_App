@@ -4,87 +4,111 @@ from flask import Flask, jsonify, request
 from database.csv_database_repository import CsvDatabaseRepository
 from domain.entry import Entry
 from domain.fields import fields
+from logging_config import get_logger
 
 
 class API:
-    def __init__(self, repository=None):
+    def __init__(self, repository=None, logger=None):
         self.app = Flask(__name__)
         self.repository = repository if repository is not None else CsvDatabaseRepository()
+        self.logger = logger if logger is not None else get_logger(__name__)
         self.setup_routes()
 
     def setup_routes(self):
 
         @self.app.route("/api/csv/entries/<date>", methods=["GET"])
         def get_entry_by_date(date):
+            self.logger.debug("GET request received for entry with date: %s", date)
             try:
                 entry = self.repository.get_entry_by_date(date)
+                self.logger.info("Entry retrieved successfully for date: %s", date)
                 return jsonify({"message": "Entry retrieved successfully", "data": entry.entry_dict}), 200
             except ValueError:
+                self.logger.warning("Entry not found for date: %s", date)
                 return jsonify({"error": f"No entry found for date: {date}"}), 404
 
         @self.app.route("/api/csv/entries", methods=["POST"])
         def post_entry():
+            self.logger.debug("POST request received to create a new entry")
             data = request.get_json()
             if not data:
+                self.logger.warning("POST request missing JSON body")
                 return jsonify({"error": "Invalid JSON body"}), 400
 
             try:
                 # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
                 entry = Entry(**data)
             except ValueError as e:
+                self.logger.warning("POST request contains invalid data for Entry class: %s", str(e))
                 return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
 
             try:
                 self.repository.save_entry(entry)
+                self.logger.info("Entry saved successfully for date: %s", entry.entry_dict["date"])
                 return jsonify({"message": "Entry saved successfully", "data": entry.entry_dict}), 201
             except ValueError:
+                self.logger.warning("Failed to save entry for date: %s", entry.entry_dict["date"])
                 return jsonify({"error": "Save unsuccessful"}), 400
 
         @self.app.route("/api/csv/entries/<date>", methods=["PUT"])
         def update_replace_entry(date):
+            self.logger.debug("PUT request received to replace entry with date: %s", date)
             data = request.get_json()
             if not data or not all(field in data for field in fields):
+                self.logger.warning("PUT request missing JSON body or required fields for Entry class")
                 return jsonify({"error": "Invalid JSON body"}), 400
 
             try:
                 updated_entry = Entry(**data)
             except ValueError as e:
+                self.logger.warning("PUT request contains invalid data for Entry class: %s", str(e))
                 return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
 
             try:
                 self.repository.replace_entry(date, updated_entry)
+                self.logger.info("Entry replaced successfully for date: %s", date)
                 return jsonify({"message": "Entry updated successfully", "data": updated_entry.entry_dict}), 200
             except ValueError as e:
+                self.logger.warning("Failed to replace entry for date: %s. %s", date, str(e))
                 return jsonify({"error": f"Update unsuccessful: {str(e)}"}), 404
 
         @self.app.route("/api/csv/entries/<date>", methods=["PATCH"])
         def partially_update_entry(date):
+            self.logger.debug("PATCH request received to partially update entry with date: %s", date)
             update_request = request.get_json()
             if not update_request:
+                self.logger.warning("PATCH request missing JSON body")
                 return jsonify({"error": "Invalid JSON body"}), 400
 
             update_items = {k: v for k, v in update_request.items() if k != "date"}
             if all(values == "" for values in update_items.values()):
+                self.logger.warning("PATCH request contains no valid fields for update")
                 return jsonify({"error": "No valid fields provided for update"}), 400
 
             # Attempt creating Entry object to pass validation of request data
             try:
                 Entry(**update_request)
             except ValueError as e:
+                self.logger.warning("PATCH request contains invalid data for Entry class: %s", str(e))
                 return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
 
             try:
                 updated_entry = self.repository.partially_update_entry(date, update_items)
+                self.logger.info("Entry partially updated successfully for date: %s", date)
                 return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
             except ValueError as e:
+                self.logger.warning("Failed to partially update entry for date: %s. %s", date, str(e))
                 return jsonify({"error": f"Partial update unsuccessful: {str(e)}"}), 404
 
         @self.app.route("/api/csv/entries/<date>", methods=["DELETE"])
         def delete_entry(date):
+            self.logger.debug("DELETE request received to delete entry with date: %s", date)
             try:
                 self.repository.delete_entry(date)
+                self.logger.info("Entry deleted successfully for date: %s", date)
                 return jsonify({"message": "Entry deleted successfully"}), 200
-            except ValueError:
+            except ValueError as e:
+                self.logger.warning("Failed to delete entry for date: %s. %s", date, str(e))
                 return jsonify({"error": "Delete unsuccessful"}), 404
 
 

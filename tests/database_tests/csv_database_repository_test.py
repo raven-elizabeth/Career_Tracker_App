@@ -199,7 +199,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
     def test_validate_file_raises_value_error_if_file_is_empty(self):
         # Arrange
         with open(self._test_file_path, 'w') as file:
-            pass
+            file.close()
 
         test_repo = CsvDatabaseRepository(self._test_file_path)
 
