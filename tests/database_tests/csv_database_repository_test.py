@@ -127,7 +127,6 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_delete_existing_entry_deletes_entry(self):
         # Arrange
-        self._repo.save_entry(self.entry)
         response = self._repo.get_entry_by_date("2025-06-04")
         self.assertEqual(response.entry_dict, self.expected)
 

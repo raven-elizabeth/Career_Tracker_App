@@ -42,9 +42,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         return df
 
     def get_entry_by_date(self, date):
-        if not self.file_path.exists() or self.file_path.stat().st_size == 0:
-            raise ValueError(f"No entry found for date: {date}")
-
+        self.validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
 
         date_value = str(date)
@@ -56,9 +54,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         raise ValueError(f"No entry found for date: {date}")
 
     def update_entry(self, date, updated_entry):
-        if not self.file_path.exists() or self.file_path.stat().st_size == 0:
-            raise ValueError(f"No entry found for date: {date}")
-
+        self.validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
 
         if date in df.index:
@@ -70,4 +66,17 @@ class CsvDatabaseRepository(DatabaseRepository):
             raise ValueError(f"No entry found for date: {date}")
 
     def delete_entry(self, date):
-        pass
+        self.validate_file()
+        df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
+
+        if date in df.index:
+            df = df.drop(date)
+            df.to_csv(self.file_path)
+        else:
+            raise ValueError(f"No entry found for date: {date}")
+
+    def validate_file(self):
+        if not self.file_path.exists():
+            raise ValueError(f"File not found: {self.file_path}")
+        elif self.file_path.stat().st_size == 0:
+            raise ValueError(f"No data found in file: {self.file_path}")
