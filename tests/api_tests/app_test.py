@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 import os
+
 from api.app import API
 from database.csv_database_repository import CsvDatabaseRepository
 
@@ -48,8 +49,29 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
         self.assertEqual(response.get_json().get("data"), self.expected)
 
+    def test_get_entry_nonexistent_file_returns_503_status_code(self):
+        # Act
+        response = self.client.get("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), f"File unavailable")
+
+    def test_get_entry_empty_file_returns_503_status_code(self):
+        # Arrange
+        with open(self._test_file_path, "w") as f:
+            f.close()
+
+        # Act
+        response = self.client.get("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), f"File unavailable")
+
     def test_get_nonexistent_entry_returns_not_found_response(self):
         # Act
+        self.client.post("/api/csv/entries", json=self.entry)
         response = self.client.get("/api/csv/entries/2025-01-04")
 
         # Assert
@@ -96,6 +118,7 @@ class TestAPI(unittest.TestCase):
 
     def test_update_replace_nonexistent_entry_returns_not_found_response(self):
         # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
         updated_entry = {
             "date": "2025-01-04",
             "work_contribution": "Updated work contribution",
@@ -156,6 +179,7 @@ class TestAPI(unittest.TestCase):
 
     def test_partial_update_nonexistent_entry_returns_not_found_response(self):
         # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
         updated_entry = {
             "date": "2025-01-04",
             "work_contribution": "Updated work contribution"
@@ -206,8 +230,17 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json().get("message"), "Entry deleted successfully")
 
-    def test_delete_nonexistent_entry_returns_not_found_response(self):
+    def test_delete_entry_nonexistent_file_returns_503_status_code(self):
         # Act
+        response = self.client.delete("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), f"File unavailable: File not found: {self._test_file_path}")
+
+    def test_delete_nonexistent_entry_returns_503_status_code(self):
+        # Act
+        self.client.post("/api/csv/entries", json=self.entry)
         response = self.client.delete("/api/csv/entries/2025-01-04")
 
         # Assert

@@ -1,6 +1,7 @@
 # This file contains unit tests for the Entry class in the domain layer.
 
 import unittest
+
 from domain.entry import Entry
 from domain.fields import fields
 

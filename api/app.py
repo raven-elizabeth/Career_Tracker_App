@@ -1,7 +1,9 @@
 # This file defines the API class that sets up the Flask application and its routes.
 
 from flask import Flask, jsonify, request
+
 from database.csv_database_repository import CsvDatabaseRepository
+from database.exceptions import FileEmptyError
 from domain.entry import Entry
 from domain.fields import fields
 from logging_config import get_logger
@@ -23,6 +25,9 @@ class API:
                 entry = self.repository.get_entry_by_date(date)
                 self.logger.info("Entry retrieved successfully for date: %s", date)
                 return jsonify({"message": "Entry retrieved successfully", "data": entry.entry_dict}), 200
+            except (FileNotFoundError, FileEmptyError):
+                self.logger.error("File unavailable when attempting to retrieve entry for date: %s", date)
+                return jsonify({"error": "File unavailable"}), 503
             except ValueError:
                 self.logger.warning("Entry not found for date: %s", date)
                 return jsonify({"error": f"No entry found for date: {date}"}), 404
@@ -68,6 +73,9 @@ class API:
                 self.repository.replace_entry(date, updated_entry)
                 self.logger.info("Entry replaced successfully for date: %s", date)
                 return jsonify({"message": "Entry updated successfully", "data": updated_entry.entry_dict}), 200
+            except (FileNotFoundError, FileEmptyError) as e:
+                self.logger.error("File unavailable when attempting to retrieve entry for date: %s", date)
+                return jsonify({"error": f"File unavailable: {e}"}), 503
             except ValueError as e:
                 self.logger.warning("Failed to replace entry for date: %s. %s", date, str(e))
                 return jsonify({"error": f"Update unsuccessful: {str(e)}"}), 404
@@ -96,6 +104,9 @@ class API:
                 updated_entry = self.repository.partially_update_entry(date, update_items)
                 self.logger.info("Entry partially updated successfully for date: %s", date)
                 return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
+            except (FileNotFoundError, FileEmptyError) as e:
+                self.logger.error("File unavailable when attempting to retrieve entry for date: %s", date)
+                return jsonify({"error": f"File unavailable: {e}"}), 503
             except ValueError as e:
                 self.logger.warning("Failed to partially update entry for date: %s. %s", date, str(e))
                 return jsonify({"error": f"Partial update unsuccessful: {str(e)}"}), 404
@@ -107,6 +118,9 @@ class API:
                 self.repository.delete_entry(date)
                 self.logger.info("Entry deleted successfully for date: %s", date)
                 return jsonify({"message": "Entry deleted successfully"}), 200
+            except (FileNotFoundError, FileEmptyError) as e:
+                self.logger.error("File unavailable when attempting to retrieve entry for date: %s", date)
+                return jsonify({"error": f"File unavailable: {e}"}), 503
             except ValueError as e:
                 self.logger.warning("Failed to delete entry for date: %s. %s", date, str(e))
                 return jsonify({"error": "Delete unsuccessful"}), 404

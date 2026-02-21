@@ -5,6 +5,8 @@ import csv
 import tempfile
 import os
 import unittest
+
+from database.exceptions import FileEmptyError
 from domain.entry import Entry
 from database.csv_database_repository import CsvDatabaseRepository
 
@@ -185,18 +187,18 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         # Assert
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-08")
 
-    def test_validate_file_raises_value_error_if_file_does_not_exist(self):
+    def test_validate_file_raises_file_not_found_error_if_file_does_not_exist(self):
         # Arrange
         test_repo = CsvDatabaseRepository(file_path="non_existent_file.csv")
 
         # Act
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(FileNotFoundError) as context:
             # Assert
             test_repo.validate_file()
 
         self.assertEqual(str(context.exception), f"File not found: {test_repo.file_path}")
 
-    def test_validate_file_raises_value_error_if_file_is_empty(self):
+    def test_validate_file_raises_file_empty_error_if_file_is_empty(self):
         # Arrange
         with open(self._test_file_path, 'w') as file:
             file.close()
@@ -204,7 +206,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         test_repo = CsvDatabaseRepository(self._test_file_path)
 
         # Act
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(FileEmptyError) as context:
             # Assert
             test_repo.validate_file()
 

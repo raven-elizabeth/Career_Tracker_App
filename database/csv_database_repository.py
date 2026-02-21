@@ -2,9 +2,11 @@
 # Pandas handles the file operations, with to_csv() automatically closing the file after writing and using mode "a" to append rather than overwrite.
 # Using Pandas DataFrame simplifies the data manipulation.
 
-from database.database_repository import DatabaseRepository
 import pandas as pd
 from pathlib import Path
+
+from database.database_repository import DatabaseRepository
+from database.exceptions import FileEmptyError
 from domain.entry import Entry
 from logging_config import get_logger
 
@@ -119,7 +121,7 @@ class CsvDatabaseRepository(DatabaseRepository):
     def validate_file(self):
         if not self.file_path.exists():
             self.logger.error("File not found: %s", self.file_path)
-            raise ValueError(f"File not found: {self.file_path}")
+            raise FileNotFoundError(f"File not found: {self.file_path}")
         elif self.file_path.stat().st_size == 0:
             self.logger.error("No data found in file: %s", self.file_path)
-            raise ValueError(f"No data found in file: {self.file_path}")
+            raise FileEmptyError(f"No data found in file: {self.file_path}")
