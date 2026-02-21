@@ -72,8 +72,11 @@ class CsvDatabaseRepository(DatabaseRepository):
 
         if date in df.index:
             updated_data = updated_entry.entry_dict
-            for field in updated_data:
-                df.at[date, field] = updated_data[field]
+
+            for field, value in updated_data.items():
+                if field != "date":
+                    df.at[date, field] = updated_data[field]
+
             df.to_csv(self.file_path)
             self.logger.info("Entry replaced successfully for date: %s", date)
         else:
@@ -89,6 +92,8 @@ class CsvDatabaseRepository(DatabaseRepository):
             for field, value in update_request.items():
                 if field in df.columns:
                     df.at[date, field] = value
+                else:
+                    self.logger.debug("Field '%s' not found in existing entry for date: %s. Skipping update for this field.", field, date)
             df.to_csv(self.file_path)
             self.logger.info("Entry partially updated successfully for date: %s", date)
             return self.get_entry_by_date(date)
