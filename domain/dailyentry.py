@@ -6,7 +6,7 @@
 from domain.fields import FIELDS
 
 
-class Entry:
+class DailyEntry:
     def __init__(self, **kwargs):
         if not kwargs.get("date"):
             raise ValueError("Unable to create entry: No date provided")

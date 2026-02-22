@@ -7,7 +7,7 @@ from pathlib import Path
 
 from database.database_repository import DatabaseRepository
 from database.exceptions import FileEmptyError, DuplicateEntryError
-from domain.entry import Entry
+from domain.dailyentry import DailyEntry
 from logging_config import get_logger
 
 
@@ -63,7 +63,7 @@ class CsvDatabaseRepository(DatabaseRepository):
             entry_data = df.loc[date].to_dict()
             # Ensure the date is included in the entry data
             entry_data["date"] = date
-            return Entry(**entry_data)
+            return DailyEntry(**entry_data)
 
         self._logger.warning("No entry found for date: %s", date)
         raise ValueError(f"No entry found for date: {date}")

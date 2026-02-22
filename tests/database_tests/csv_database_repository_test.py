@@ -7,7 +7,7 @@ import os
 import unittest
 
 from database.exceptions import FileEmptyError, DuplicateEntryError
-from domain.entry import Entry
+from domain.dailyentry import DailyEntry
 from database.csv_database_repository import CsvDatabaseRepository
 
 
@@ -17,7 +17,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self._test_file_path = os.path.join(self._test_dir.name, "test_entries.csv")
         self._repo = CsvDatabaseRepository(file_path=self._test_file_path)
 
-        self.entry = Entry(
+        self.entry = DailyEntry(
             date="2025-06-04",
             work_contribution="Completed unit tests for whole codebase",
             learning="Discovered how to use setUp and tearDown in unittest",
@@ -52,7 +52,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_saving_existing_entry_raises_duplicate_error(self):
         # Arrange
-        duplicate_entry = Entry(
+        duplicate_entry = DailyEntry(
             date="2025-06-04",
             work_contribution="Attempting to save duplicate entry"
         )
@@ -74,7 +74,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             "challenge": "Had to learn how to use temp file module for testing",
             "next_steps": "Continue adding more tests and refactor code as needed"
         }
-        second_entry = Entry(**second_value)
+        second_entry = DailyEntry(**second_value)
         self._repo.save_entry(second_entry)
 
         # Act
@@ -94,7 +94,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_replace_entry_updates_existing_entry(self):
         # Arrange
-        updated_entry = Entry(
+        updated_entry = DailyEntry(
             date="2025-06-04",
             work_contribution="Updated work contribution",
             learning="Updated learning",
@@ -113,7 +113,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_replace_nonexistent_entry_raises_value_error(self):
         # Arrange
-        updated_entry = Entry(
+        updated_entry = DailyEntry(
             date="2025-06-07",
             work_contribution="Updated work contribution",
             learning="Updated learning",
@@ -153,7 +153,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_partially_update_nonexistent_entry_raises_value_error(self):
         # Arrange
-        updated_entry = Entry(
+        updated_entry = DailyEntry(
             date="2025-06-07",
             work_contribution="Partially update for work contribution"
         )
