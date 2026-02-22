@@ -10,14 +10,15 @@ class HomeScreen(Frame):
         # Make the grid layout responsive by configuring column and row weights
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=3)   # First row
         self.grid_rowconfigure(4, weight=1) # Row between header and buttons
-        self.grid_rowconfigure(10, weight=1)   # Last row
+        self.grid_rowconfigure(10, weight=3)   # Last row
 
         self.heading_font, self.subheading_font, self.italic_font = self._setup_fonts()
 
         # Copilot suggested using separate frames to make it easier to create a border for multiple widgets
         # This also allows sections to be isolated and styled together
-        self.row = 0
+        self.row = 1
         self._create_header_frame()
         self._create_options_frame()
 
