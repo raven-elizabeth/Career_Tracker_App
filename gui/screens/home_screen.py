@@ -18,8 +18,8 @@ class HomeScreen(Frame):
         # Copilot suggested using separate frames to make it easier to create a border for multiple widgets
         # This also allows sections to be isolated and styled together
         self.row = 0
-        self._setup_header_frame()
-        self._setup_options_frame()
+        self._create_header_frame()
+        self._create_options_frame()
 
 
     @staticmethod
@@ -35,7 +35,7 @@ class HomeScreen(Frame):
 
         return heading_font, sub_heading_font, italic_font
 
-    def _setup_header_frame(self):
+    def _create_header_frame(self):
         self.header_frame = Frame(self, relief="solid", borderwidth=3)
         self.header_frame.grid(row=self.row, column=0, columnspan=2, padx=20, pady=(10, 10), sticky="nsew")
         self.header_frame.grid_columnconfigure(0, weight=1)
@@ -58,23 +58,30 @@ class HomeScreen(Frame):
         self.description.grid(row=self.row, column=0, columnspan=2, padx=10, pady=(0, 20))
         self.row += 2
 
-    def _setup_options_frame(self):
+    def _create_options_frame(self):
         self.options_frame = Frame(self, relief="solid", borderwidth=3)
         self.options_frame.grid(row=self.row, column=0, columnspan=2, padx=20, pady=(0, 20), sticky="nsew")
         self.options_frame.grid_columnconfigure(0, weight=1)
         self.options_frame.grid_rowconfigure(0, weight=1)
 
         self.options_label = Label(self.options_frame, text="What would you like to do?", font=self.subheading_font)
-        self.options_label.grid(row=self.row, column=0, padx=10, pady=(10, 20))
+        self.options_label.grid(row=self.row, column=0, padx=10, pady=(10, 0), sticky="w")
+        self.row += 1
+
+        self._create_simple_separator(self.options_frame)
         self.row += 1
 
         self.new_entry_btn = Button(self.options_frame, text="➕ New Entry", font=self.subheading_font, width=15, height=2)
-        self.new_entry_btn.grid(row=self.row, column=0, padx=20, pady=0, sticky="ew")
+        self.new_entry_btn.grid(row=self.row, column=0, padx=20, pady=0, sticky="nsew")
         self.row += 1
 
         self.search_entries_btn = Button(self.options_frame, text="🔍 Browse Entries", font=self.subheading_font, width=15, height=2)
-        self.search_entries_btn.grid(row=self.row, column=0, padx=20, pady=20, sticky="ew")
+        self.search_entries_btn.grid(row=self.row, column=0, padx=20, pady=20, sticky="nsew")
         self.row += 1
+
+    def _create_simple_separator(self, parent):
+        self.separator_frame = Frame(parent, height=2, bg="black")
+        self.separator_frame.grid(row=self.row, column=0, columnspan=2, padx=10, pady=(0, 20), sticky="ew")
 
 
 if __name__ == "__main__":
