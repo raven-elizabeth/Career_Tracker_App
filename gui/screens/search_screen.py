@@ -1,8 +1,7 @@
 import datetime
-from tkinter import Frame
+from tkcalendar import Calendar
 
 from gui.screens.screen import Screen
-from tkcalendar import Calendar
 
 
 class SearchScreen(Screen):
@@ -11,7 +10,11 @@ class SearchScreen(Screen):
 
         self._make_calendar()
         self.display_frame = self._create_frame(row=2)
-        self._create_inner_frame(self.display_frame)
+        self.inner_frame = self._create_inner_frame(self.display_frame)
+        self.default_msg = self._create_label(
+            self.inner_frame, row=1, text="Select a date to view your entries...",
+            font=self.italic_font, bg="white", pad_y=10
+        )
 
     def _make_responsive(self):
         self.grid_columnconfigure(0, weight=1)
@@ -24,18 +27,6 @@ class SearchScreen(Screen):
     def _make_calendar(self):
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
         self.calendar.grid(row=1, column=0, columnspan=2, padx=60, sticky="nsew")
-
-    def _create_inner_frame(self, parent):
-        self.inner_frame = Frame(parent, bg="white", relief="solid", borderwidth=self.BORDER_WIDTH)
-        self.inner_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
-        self.inner_frame.grid_columnconfigure(0, weight=1)
-        self.inner_frame.grid_rowconfigure(0, weight=1)  # Top padding
-        self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom padding
-
-        self.default_msg = self._create_label(
-            self.inner_frame, row=1, text="Select a date to view your entries...",
-            font=self.italic_font, bg="white", pad_y=10
-        )
 
 
 if __name__ == "__main__":
