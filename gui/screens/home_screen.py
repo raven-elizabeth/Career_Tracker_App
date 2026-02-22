@@ -72,13 +72,33 @@ class HomeScreen(Frame):
         self._create_simple_separator(self.options_frame)
         self.row += 1
 
-        self.new_entry_btn = Button(self.options_frame, text="➕ New Entry", font=self.subheading_font, width=15, height=2)
-        self.new_entry_btn.grid(row=self.row, column=0, padx=20, pady=0, sticky="nsew")
+        self.new_entry_btn = self._create_button(
+            self.options_frame,
+            title="➕ New Entry",
+            subtitle="Create a new daily entry"
+        )
+        self.new_entry_btn.grid(row=self.row, column=0, padx=20, pady=(0, 10), sticky="nsew")
         self.row += 1
 
-        self.search_entries_btn = Button(self.options_frame, text="🔍 Browse Entries", font=self.subheading_font, width=15, height=2)
-        self.search_entries_btn.grid(row=self.row, column=0, padx=20, pady=20, sticky="nsew")
+        self.search_entries_btn = self._create_button(
+            self.options_frame,
+            title="🔍 Browse Entries",
+            subtitle="Search all daily entries"
+        )
+        self.search_entries_btn.grid(row=self.row, column=0, padx=20, pady=(0, 20), sticky="ew")
         self.row += 1
+
+    def _create_button(self, parent, title, subtitle):
+        btn_frame = Frame(parent, relief="solid", borderwidth=1, cursor="hand2")
+        btn_frame.grid_columnconfigure(0, weight=1)
+
+        title_label = Label(btn_frame, text=title, font=self.subheading_font, anchor="w")
+        title_label.grid(row=0, column=0, padx=10, pady=(8, 0), sticky="ew")
+
+        subtitle_label = Label(btn_frame, text=subtitle, font=self.italic_font, anchor="w")
+        subtitle_label.grid(row=1, column=0, padx=10, pady=(0, 8), sticky="ew")
+
+        return btn_frame
 
     def _create_simple_separator(self, parent):
         self.separator_frame = Frame(parent, height=2, bg="black")
