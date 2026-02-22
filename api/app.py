@@ -45,8 +45,8 @@ class API:
                 # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
                 entry = Entry(**data)
             except ValueError as e:
-                self.logger.warning("POST request contains invalid data for Entry class: %s", str(e))
-                return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
+                self.logger.warning("POST request contains invalid data for Entry class: %s", e)
+                return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
 
             try:
                 self.repository.save_entry(entry)
@@ -54,7 +54,7 @@ class API:
                 return jsonify({"message": "Entry saved successfully", "data": entry.entry_dict}), 201
             except DuplicateEntryError:
                 self.logger.warning("Attempted to save duplicate entry with date: %s", entry.entry_dict["date"])
-                return jsonify({"error": "Entry with date already exists: {entry.entry_dict['date']}"}), 409
+                return jsonify({"error": f"Entry with date already exists: {entry.entry_dict['date']}"}), 409
             except ValueError:
                 self.logger.warning("Failed to save entry for date: %s", entry.entry_dict["date"])
                 return jsonify({"error": "Save unsuccessful"}), 400
@@ -70,8 +70,8 @@ class API:
             try:
                 updated_entry = Entry(**data)
             except ValueError as e:
-                self.logger.warning("PUT request contains invalid data for Entry class: %s", str(e))
-                return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
+                self.logger.warning("PUT request contains invalid data for Entry class: %s", e)
+                return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
 
             try:
                 self.repository.replace_entry(date, updated_entry)
@@ -81,8 +81,8 @@ class API:
                 self.logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
                 return jsonify({"error": "File unavailable"}), 503
             except ValueError as e:
-                self.logger.warning("Failed to replace entry for date: %s. %s", date, str(e))
-                return jsonify({"error": f"Update unsuccessful: {str(e)}"}), 404
+                self.logger.warning("Failed to replace entry for date: %s. %s", date, e)
+                return jsonify({"error": f"Update unsuccessful: {e}"}), 404
 
         @self.app.route("/api/csv/entries/<date>", methods=["PATCH"])
         def partially_update_entry(date):
@@ -101,8 +101,8 @@ class API:
             try:
                 Entry(**update_request)
             except ValueError as e:
-                self.logger.warning("PATCH request contains invalid data for Entry class: %s", str(e))
-                return jsonify({"error": f"Invalid data for Entry class: {str(e)}"}), 400
+                self.logger.warning("PATCH request contains invalid data for Entry class: %s", e)
+                return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
 
             try:
                 updated_entry = self.repository.partially_update_entry(date, update_items)
@@ -112,8 +112,8 @@ class API:
                 self.logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
                 return jsonify({"error": "File unavailable"}), 503
             except ValueError as e:
-                self.logger.warning("Failed to partially update entry for date: %s. %s", date, str(e))
-                return jsonify({"error": f"Partial update unsuccessful: {str(e)}"}), 404
+                self.logger.warning("Failed to partially update entry for date: %s. %s", date, e)
+                return jsonify({"error": f"Partial update unsuccessful: {e}"}), 404
 
         @self.app.route("/api/csv/entries/<date>", methods=["DELETE"])
         def delete_entry(date):
@@ -126,5 +126,5 @@ class API:
                 self.logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
                 return jsonify({"error": "File unavailable"}), 503
             except ValueError as e:
-                self.logger.warning("Failed to delete entry for date: %s. %s", date, str(e))
-                return jsonify({"error": "Delete unsuccessful"}), 404
+                self.logger.warning("Failed to delete entry for date: %s. %s", date, e)
+                return jsonify({"error": f"Delete unsuccessful: {e}"}), 404

@@ -340,4 +340,4 @@ class TestAPI(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json().get("error"), "Delete unsuccessful")
+        self.assertIn("Delete unsuccessful", response.get_json().get("error"))
