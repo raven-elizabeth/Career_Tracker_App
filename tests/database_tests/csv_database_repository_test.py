@@ -13,8 +13,8 @@ from database.csv_database_repository import CsvDatabaseRepository
 
 class TestCsvDatabaseRepository(unittest.TestCase):
     def setUp(self):
-        self._testDir = tempfile.TemporaryDirectory()
-        self._test_file_path = os.path.join(self._testDir.name, "test_entries.csv")
+        self._test_dir = tempfile.TemporaryDirectory()
+        self._test_file_path = os.path.join(self._test_dir.name, "test_entries.csv")
         self._repo = CsvDatabaseRepository(file_path=self._test_file_path)
 
         self.entry = Entry(
@@ -35,7 +35,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self._repo.save_entry(self.entry)
 
     def tearDown(self):
-        self._testDir.cleanup()
+        self._test_dir.cleanup()
 
     def test_save_partial_entry_saves_all_fields_with_defaults(self):
         # Assert
@@ -194,7 +194,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         # Act
         with self.assertRaises(FileNotFoundError) as context:
             # Assert
-            test_repo.validate_file()
+            test_repo._validate_file()
 
         self.assertEqual(str(context.exception), f"File not found: {test_repo.file_path}")
 
@@ -208,6 +208,6 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         # Act
         with self.assertRaises(FileEmptyError) as context:
             # Assert
-            test_repo.validate_file()
+            test_repo._validate_file()
 
         self.assertEqual(str(context.exception), f"No data found in file: {test_repo.file_path}")
