@@ -1,39 +1,14 @@
 from tkinter import Frame, Label
-from tkinter.font import nametofont
+from gui.screens.screen import Screen
 from gui.root import Root
 
 
-class HomeScreen(Frame):
+class HomeScreen(Screen):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, bg=Root.PRIMARY_COLOR, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        # Make app responsive by configuring grid weights to encourage resizing
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)  # Top padding
-        self.grid_rowconfigure(1, weight=2)  # Header frame
-        self.grid_rowconfigure(2, weight=1)  # Middle padding
-        self.grid_rowconfigure(3, weight=2)  # Options frame
-        self.grid_rowconfigure(4, weight=1)  # Bottom spacer
-
-        self.heading_font, self.subheading_font, self.italic_font = self._setup_fonts()
-
-        # Copilot suggested using multiple frames to separate sections and manage layout more easily
         self._create_header_frame()
         self._create_options_frame()
-
-    @staticmethod
-    def _setup_fonts():
-        heading_font = nametofont("TkHeadingFont").copy()
-        heading_font.config(size=Root.HEADING_SIZE, weight="bold")
-
-        subheading_font = nametofont("TkHeadingFont").copy()
-        subheading_font.config(size=Root.SUBHEADING_SIZE)
-
-        italic_font = nametofont("TkTextFont").copy()
-        italic_font.config(size=Root.BODY_SIZE, slant="italic")
-
-        return heading_font, subheading_font, italic_font
 
     def _create_frame(self, row):
         frame = Frame(self, relief="solid", borderwidth=Root.BORDER_WIDTH, bg=Root.SECONDARY_COLOR)
