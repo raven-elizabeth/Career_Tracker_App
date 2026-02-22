@@ -1,4 +1,5 @@
 from tkinter import Frame, Label
+
 from gui.screens.screen import Screen
 
 
