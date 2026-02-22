@@ -14,5 +14,6 @@ class Root(Tk):
         self.title("Career Tracker App")
 
 
-root = Root()
-root.mainloop()
+if __name__ == "__main__":
+    root = Root()
+    root.mainloop()
