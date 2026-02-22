@@ -7,6 +7,11 @@ class HomeScreen(Screen):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        column_weights = {0: 1, 1: 1}
+        # Row weights set to create more space for header and options frames, with padding rows at top, middle, and bottom
+        row_weights = {0: 1, 1: 2, 2: 1, 3: 2, 4: 1}
+        self._make_responsive(column_weights, row_weights)
+
         self._create_header_frame()
         self._create_options_frame()
 

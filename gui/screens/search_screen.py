@@ -8,6 +8,12 @@ class SearchScreen(Screen):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        column_weights = {0: 1, 1: 1}
+        # Row weights set to create more space for calendar and display frame, with padding rows at top, middle, and bottom
+        # Display frame has more weight than calendar to allow for more space to show entry data
+        row_weights = {0: 1, 1: 2, 2: 6, 3: 1}
+        self._make_responsive(column_weights, row_weights)
+
         self._make_calendar()
         self.display_frame = self._create_frame(row=2)
         self.inner_frame = self._create_inner_frame(self.display_frame)
@@ -15,14 +21,6 @@ class SearchScreen(Screen):
             self.inner_frame, row=1, text="Select a date to view your entries...",
             font=self.italic_font, bg="white", pad_y=10
         )
-
-    def _make_responsive(self):
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)  # Top padding
-        self.grid_rowconfigure(1, weight=2)  # Calendar row
-        self.grid_rowconfigure(2, weight=6)  # Display frame row
-        self.grid_rowconfigure(3, weight=1)  # Bottom padding
 
     def _make_calendar(self):
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())

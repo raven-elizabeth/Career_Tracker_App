@@ -17,18 +17,19 @@ class Screen(Frame):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, bg=self.PRIMARY_COLOR, **kwargs)
-        self._make_responsive()
         self.heading_font, self.subheading_font, self.italic_font = self._setup_fonts()
 
-    def _make_responsive(self):
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)  # Top padding
-        self.grid_rowconfigure(1, weight=2)  # First content row
-        self.grid_rowconfigure(2, weight=1)  # Middle padding
-        self.grid_rowconfigure(3, weight=2)  # Second content row
-        self.grid_rowconfigure(4, weight=1)  # Bottom padding
+    # Helper methods for screen setup
 
+    # Set column and row weights for responsive design
+    def _make_responsive(self, col_dict, row_dict):
+        for k, v in col_dict.items():
+            self.grid_columnconfigure(k, weight=v)
+
+        for k, v in row_dict.items():
+            self.grid_rowconfigure(k, weight=v)
+
+    # Create custom fonts based on default Tkinter fonts
     def _setup_fonts(self):
         heading_font = nametofont("TkHeadingFont").copy()
         heading_font.config(size=self.HEADING_SIZE, weight="bold")
@@ -41,6 +42,7 @@ class Screen(Frame):
 
         return heading_font, subheading_font, italic_font
 
+    # Create a frame with consistent styling and padding
     def _create_frame(self, row):
         frame = Frame(
             self, relief="solid",
@@ -54,6 +56,7 @@ class Screen(Frame):
         frame.grid_rowconfigure(0, weight=1)
         return frame
 
+    # Create an inner frame with white background for content display
     def _create_inner_frame(self, parent):
         frame = Frame(parent, bg="white", relief="solid", borderwidth=self.BORDER_WIDTH)
         frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
@@ -62,12 +65,14 @@ class Screen(Frame):
         frame.grid_rowconfigure(2, weight=1)
         return frame
 
+    # Create a label with consistent styling and padding
     @staticmethod
     def _create_label(parent, row, text, font, bg, pad_y):
         label = Label(parent, text=text, font=font, bg=bg)
         label.grid(row=row, padx=10, pady=pad_y)
         return label
 
+    # Create a simple horizontal separator line
     @staticmethod
     def _create_simple_separator(parent, row):
         separator = Frame(parent, height=2, bg="black")
