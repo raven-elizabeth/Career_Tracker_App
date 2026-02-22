@@ -1,5 +1,3 @@
-from tkinter import Frame, Label
-
 from gui.screens.screen import Screen
 
 
@@ -60,35 +58,16 @@ class HomeScreen(Screen):
         self._create_simple_separator(self.options_frame, frame_row)
         frame_row += 1
 
-        self.new_entry_btn = self._create_button(
+        self.new_entry_btn = self._create_stylised_button(
             self.options_frame, frame_row,
             title="➕ New Entry", subtitle="Create a new daily entry"
         )
         frame_row += 1
 
-        self.search_entries_btn = self._create_button(
+        self.search_entries_btn = self._create_stylised_button(
             self.options_frame, frame_row,
             title="🔍 Browse Entries", subtitle="Search all daily entries"
         )
-
-    def _create_button(self, parent, frame_row, title, subtitle):
-        btn_frame = Frame(parent, relief="solid", borderwidth=1, cursor="hand2", bg=self.TERTIARY_COLOR)
-        btn_frame.grid_columnconfigure(0, weight=1)
-
-        title_label = Label(
-            btn_frame, text=title, font=self.subheading_font,
-            fg="white", anchor="w", bg=self.TERTIARY_COLOR
-        )
-        title_label.grid(row=0, column=0, padx=10, pady=(8, 0), sticky="ew")
-
-        subtitle_label = Label(
-            btn_frame, text=subtitle, font=self.italic_font,
-            fg="white", anchor="w", bg=self.TERTIARY_COLOR
-        )
-        subtitle_label.grid(row=1, column=0, padx=10, pady=(0, 8), sticky="ew")
-
-        btn_frame.grid(row=frame_row, column=0, padx=self.FRAME_PADDING, pady=(0, 10), sticky="ew")
-        return btn_frame
 
 
 if __name__ == "__main__":
