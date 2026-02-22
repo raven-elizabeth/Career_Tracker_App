@@ -1,4 +1,4 @@
-from tkinter import Frame, Label, Entry, Button
+from tkinter import Frame, Label, Button
 from tkinter.font import nametofont
 from gui.root import Root
 
@@ -18,12 +18,9 @@ class HomeScreen(Frame):
         # Copilot suggested using separate frames to make it easier to create a border for multiple widgets
         # This also allows sections to be isolated and styled together
         self.row = 0
-        self.header_frame = None
-        self.icon = None
-        self.header = None
-        self.welcome_msg = None
-        self.description = None
-        self.setup_header_frame()
+        self._setup_header_frame()
+        self._setup_options_frame()
+
 
     @staticmethod
     def _setup_fonts():
@@ -38,10 +35,11 @@ class HomeScreen(Frame):
 
         return heading_font, sub_heading_font, italic_font
 
-    def setup_header_frame(self):
+    def _setup_header_frame(self):
         self.header_frame = Frame(self, relief="solid", borderwidth=3)
-        self.header_frame.grid(row=self.row, column=0, columnspan=2, padx=20, pady=(10, 20), sticky="ew")
+        self.header_frame.grid(row=self.row, column=0, columnspan=2, padx=20, pady=(10, 10), sticky="nsew")
         self.header_frame.grid_columnconfigure(0, weight=1)
+        self.header_frame.grid_rowconfigure(0, weight=1)
 
         self.icon = Label(self.header_frame, text="📖", font=self.heading_font)
         self.icon.grid(row=self.row, column=0, columnspan=2, padx=10, pady=(10, 0))
@@ -59,6 +57,24 @@ class HomeScreen(Frame):
                                  font=self.italic_font)
         self.description.grid(row=self.row, column=0, columnspan=2, padx=10, pady=(0, 20))
         self.row += 2
+
+    def _setup_options_frame(self):
+        self.options_frame = Frame(self, relief="solid", borderwidth=3)
+        self.options_frame.grid(row=self.row, column=0, columnspan=2, padx=20, pady=(0, 20), sticky="nsew")
+        self.options_frame.grid_columnconfigure(0, weight=1)
+        self.options_frame.grid_rowconfigure(0, weight=1)
+
+        self.options_label = Label(self.options_frame, text="What would you like to do?", font=self.subheading_font)
+        self.options_label.grid(row=self.row, column=0, padx=10, pady=(10, 20))
+        self.row += 1
+
+        self.new_entry_btn = Button(self.options_frame, text="➕ New Entry", font=self.subheading_font, width=15, height=2)
+        self.new_entry_btn.grid(row=self.row, column=0, padx=20, pady=0, sticky="ew")
+        self.row += 1
+
+        self.search_entries_btn = Button(self.options_frame, text="🔍 Browse Entries", font=self.subheading_font, width=15, height=2)
+        self.search_entries_btn.grid(row=self.row, column=0, padx=20, pady=20, sticky="ew")
+        self.row += 1
 
 
 if __name__ == "__main__":
