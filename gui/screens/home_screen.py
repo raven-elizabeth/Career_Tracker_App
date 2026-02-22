@@ -71,7 +71,6 @@ class HomeScreen(Screen):
         )
 
     def _add_button(self, parent, row, title, subtitle):
-        """Create and grid a button at the given row."""
         btn = self._create_stylised_button(parent, title=title, subtitle=subtitle)
         btn.grid(row=row, column=0, padx=self.FRAME_PADDING, pady=(0, 10), sticky="ew")
         return btn

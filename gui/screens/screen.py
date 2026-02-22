@@ -90,4 +90,3 @@ class Screen(Frame):
         subtitle_label.grid(row=1, column=0, padx=10, pady=(0, 8), sticky="ew")
 
         return btn_frame
-
