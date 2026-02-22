@@ -17,32 +17,25 @@ class Screen(Frame):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, bg=self.PRIMARY_COLOR, **kwargs)
-        self.heading_font, self.subheading_font, self.italic_font = self._setup_fonts()
+        self._setup_fonts()
 
-    # Helper methods for screen setup
-
-    # Set column and row weights for responsive design
-    def _make_responsive(self, col_dict, row_dict):
-        for k, v in col_dict.items():
-            self.grid_columnconfigure(k, weight=v)
-
-        for k, v in row_dict.items():
-            self.grid_rowconfigure(k, weight=v)
-
-    # Create custom fonts based on default Tkinter fonts
     def _setup_fonts(self):
-        heading_font = nametofont("TkHeadingFont").copy()
-        heading_font.config(size=self.HEADING_SIZE, weight="bold")
+        self.heading_font = nametofont("TkHeadingFont").copy()
+        self.heading_font.config(size=self.HEADING_SIZE, weight="bold")
 
-        subheading_font = nametofont("TkHeadingFont").copy()
-        subheading_font.config(size=self.SUBHEADING_SIZE)
+        self.subheading_font = nametofont("TkHeadingFont").copy()
+        self.subheading_font.config(size=self.SUBHEADING_SIZE)
 
-        italic_font = nametofont("TkTextFont").copy()
-        italic_font.config(size=self.BODY_SIZE, slant="italic")
+        self.italic_font = nametofont("TkTextFont").copy()
+        self.italic_font.config(size=self.BODY_SIZE, slant="italic")
 
-        return heading_font, subheading_font, italic_font
+    # Set column and row weights to make the screen responsive to resizing
+    def _make_responsive(self, col_dict, row_dict):
+        for col, weight in col_dict.items():
+            self.grid_columnconfigure(col, weight=weight)
+        for row, weight in row_dict.items():
+            self.grid_rowconfigure(row, weight=weight)
 
-    # Create a frame with consistent styling and padding
     def _create_frame(self, row):
         frame = Frame(
             self, relief="solid",
@@ -79,7 +72,7 @@ class Screen(Frame):
         separator.grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
 
     # Create a button-like frame with title and subtitle labels
-    def _create_stylised_button(self, parent, frame_row, title, subtitle):
+    def _create_stylised_button(self, parent, title, subtitle):
         btn_frame = Frame(parent, relief="solid", borderwidth=1, cursor="hand2", bg=self.TERTIARY_COLOR)
         btn_frame.grid_columnconfigure(0, weight=1)
 
@@ -95,5 +88,5 @@ class Screen(Frame):
         )
         subtitle_label.grid(row=1, column=0, padx=10, pady=(0, 8), sticky="ew")
 
-        btn_frame.grid(row=frame_row, column=0, padx=self.FRAME_PADDING, pady=(0, 10), sticky="ew")
         return btn_frame
+

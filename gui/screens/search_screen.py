@@ -9,8 +9,7 @@ class SearchScreen(Screen):
         super().__init__(*args, **kwargs)
 
         column_weights = {0: 1, 1: 1}
-        # Row weights set to create more space for calendar and display frame, with padding rows at top, middle, and bottom
-        # Display frame has more weight than calendar to allow for more space to show entry data
+        # Row weights set; display frame has more weight than calendar to show more entry data.
         row_weights = {0: 1, 1: 2, 2: 6, 3: 1}
         self._make_responsive(column_weights, row_weights)
 
