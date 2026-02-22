@@ -2,7 +2,7 @@
 
 import unittest
 
-from domain.entry import Entry
+from domain.dailyentry import DailyEntry
 from domain.fields import FIELDS
 
 
@@ -19,7 +19,7 @@ class TestEntry(unittest.TestCase):
         }
 
         # Act
-        entry = Entry(**provided_values)
+        entry = DailyEntry(**provided_values)
 
         # Assert
         self.assertEqual(entry.entry_dict, provided_values)
@@ -30,19 +30,19 @@ class TestEntry(unittest.TestCase):
         expected = {value: provided_values.get(value, "") for value in FIELDS}
 
         # Act
-        entry = Entry(**provided_values)
+        entry = DailyEntry(**provided_values)
 
         # Assert
         self.assertEqual(entry.entry_dict, expected)
 
     def test_no_date_raises_value_error(self):
         with self.assertRaises(ValueError) as context:
-            Entry()
+            DailyEntry()
 
         self.assertEqual(str(context.exception), "Unable to create entry: No date provided")
 
     def test_no_values_raises_value_error(self):
         with self.assertRaises(ValueError) as context:
-            Entry(date="2026-02-17")
+            DailyEntry(date="2026-02-17")
 
         self.assertEqual("Unable to create entry: At least one value must not be empty", str(context.exception))

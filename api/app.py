@@ -4,7 +4,7 @@ from flask import Flask, jsonify, request
 
 from database.csv_database_repository import CsvDatabaseRepository
 from database.exceptions import FileEmptyError, DuplicateEntryError
-from domain.entry import Entry
+from domain.dailyentry import DailyEntry
 from domain.fields import FIELDS
 from logging_config import get_logger
 
@@ -43,7 +43,7 @@ class API:
 
             try:
                 # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
-                entry = Entry(**data)
+                entry = DailyEntry(**data)
             except ValueError as e:
                 self._logger.warning("POST request contains invalid data for Entry class: %s", e)
                 return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
@@ -68,7 +68,7 @@ class API:
                 return jsonify({"error": "Invalid JSON body"}), 400
 
             try:
-                updated_entry = Entry(**data)
+                updated_entry = DailyEntry(**data)
             except ValueError as e:
                 self._logger.warning("PUT request contains invalid data for Entry class: %s", e)
                 return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
@@ -99,7 +99,7 @@ class API:
 
             # Attempt creating Entry object to pass validation of request data
             try:
-                Entry(**update_request)
+                DailyEntry(**update_request)
             except ValueError as e:
                 self._logger.warning("PATCH request contains invalid data for Entry class: %s", e)
                 return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
