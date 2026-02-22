@@ -9,7 +9,7 @@ class HomeScreen(Screen):
         # Row weights set to create more space for header and options frames
         # Includes padding rows at top, middle, and bottom
         row_weights = {0: 1, 1: 2, 2: 1, 3: 2, 4: 1}
-        self._make_responsive(column_weights, row_weights)
+        self._configure_responsive_grid(column_weights, row_weights)
 
         self._create_header_frame()
         self._create_options_frame()
@@ -56,22 +56,22 @@ class HomeScreen(Screen):
         )
         frame_row += 1
 
-        self._create_simple_separator(self.options_frame, frame_row)
+        self._create_separator(self.options_frame, frame_row)
         frame_row += 1
 
-        self.new_entry_btn = self._create_button(
+        self.new_entry_btn = self._add_button(
             self.options_frame, frame_row,
             title="➕ New Entry", subtitle="Create a new daily entry"
         )
         frame_row += 1
 
-        self.search_entries_btn = self._create_button(
+        self.search_entries_btn = self._add_button(
             self.options_frame, frame_row,
             title="🔍 Browse Entries", subtitle="Search all daily entries"
         )
 
-    def _create_button(self, parent, row, title, subtitle):
-        """Create and grid a stylised button at the given row."""
+    def _add_button(self, parent, row, title, subtitle):
+        """Create and grid a button at the given row."""
         btn = self._create_stylised_button(parent, title=title, subtitle=subtitle)
         btn.grid(row=row, column=0, padx=self.FRAME_PADDING, pady=(0, 10), sticky="ew")
         return btn

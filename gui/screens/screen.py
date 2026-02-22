@@ -4,6 +4,7 @@ from tkinter.font import nametofont
 
 class Screen(Frame):
     # Colours checked for accessibility using WebAIM contrast checker - all above 4.5:1 ratio
+    # Values stored here to align with DRY principle (Don't Repeat Yourself) for easy updates & consistency
     PRIMARY_COLOR = "#0C2340"
     SECONDARY_COLOR = "#A8D5E2"
     TERTIARY_COLOR = "#1D5A87"
@@ -30,7 +31,7 @@ class Screen(Frame):
         self.italic_font.config(size=self.BODY_SIZE, slant="italic")
 
     # Set column and row weights to make the screen responsive to resizing
-    def _make_responsive(self, col_dict, row_dict):
+    def _configure_responsive_grid(self, col_dict, row_dict):
         for col, weight in col_dict.items():
             self.grid_columnconfigure(col, weight=weight)
         for row, weight in row_dict.items():
@@ -67,7 +68,7 @@ class Screen(Frame):
 
     # Create a simple horizontal separator line
     @staticmethod
-    def _create_simple_separator(parent, row):
+    def _create_separator(parent, row):
         separator = Frame(parent, height=2, bg="black")
         separator.grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
 
