@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 import os
+
 from api.app import API
 from database.csv_database_repository import CsvDatabaseRepository
 
@@ -48,8 +49,29 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
         self.assertEqual(response.get_json().get("data"), self.expected)
 
+    def test_get_entry_nonexistent_file_returns_503_status_code(self):
+        # Act
+        response = self.client.get("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
+
+    def test_get_entry_empty_file_returns_503_status_code(self):
+        # Arrange
+        with open(self._test_file_path, "w") as f:
+            f.close()
+
+        # Act
+        response = self.client.get("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
+
     def test_get_nonexistent_entry_returns_not_found_response(self):
         # Act
+        self.client.post("/api/csv/entries", json=self.entry)
         response = self.client.get("/api/csv/entries/2025-01-04")
 
         # Assert
@@ -71,9 +93,20 @@ class TestAPI(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json().get("error"), "Save unsuccessful")
+        self.assertEqual(response.get_json().get("error"), "Invalid JSON body")
 
-    def test_update_entry_all_fields_returns_successful_response(self):
+    def test_post_duplicate_entry_returns_conflict_response(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
+        # Act
+        response = self.client.post("/api/csv/entries", json=self.entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("Entry with date already exists", response.get_json().get("error"))
+
+    def test_update_replace_entry_all_fields_returns_successful_response(self):
         # Arrange
         self.client.post("/api/csv/entries", json=self.entry)
 
@@ -87,21 +120,23 @@ class TestAPI(unittest.TestCase):
         }
 
         # Act
-        self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
-        response = self.client.get("/api/csv/entries/2025-01-02")
+        response = self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
 
         # Assert
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
+        self.assertEqual(response.get_json().get("message"), "Entry updated successfully")
         self.assertEqual(response.get_json().get("data"), updated_entry)
 
-    def test_update_nonexistent_entry_returns_not_found_response(self):
+    def test_update_replace_nonexistent_entry_returns_not_found_response(self):
         # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
         updated_entry = {
             "date": "2025-01-04",
             "work_contribution": "Updated work contribution",
             "learning": "Added learning",
-            "challenge": "Added challenge"
+            "win": "",
+            "challenge": "Added challenge",
+            "next_steps": "Continue with testing"
         }
 
         # Act
@@ -109,7 +144,161 @@ class TestAPI(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json().get("error"), "Update unsuccessful")
+        self.assertIn("Update unsuccessful", response.get_json().get("error"))
+
+    def test_update_replace_missing_fields_returns_bad_request_response(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "New work contribution"
+        }
+
+        # Act
+        response = self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("Invalid JSON body", response.get_json().get("error"))
+
+    def test_update_replace_nonexistent_file_returns_503_status_code(self):
+        # Arrange
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution",
+            "learning": "Added learning",
+            "win": "",
+            "challenge": "Added challenge",
+            "next_steps": "Continue with testing"
+        }
+
+        # Act
+        response = self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
+
+    def test_update_replace_empty_file_returns_503_status_code(self):
+        # Arrange
+        with open(self._test_file_path, "w") as f:
+            f.close()
+
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution",
+            "learning": "Added learning",
+            "win": "",
+            "challenge": "Added challenge",
+            "next_steps": "Continue with testing"
+        }
+
+        # Act
+        response = self.client.put("/api/csv/entries/2025-01-02", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
+
+    def test_partial_update_entry_returns_successful_response(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution"
+        }
+
+        expected_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution",
+            "learning": "",
+            "win": "",
+            "challenge": "",
+            "next_steps": "Continue with testing"
+        }
+
+        # Act
+        response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json().get("message"), "Entry partially updated successfully")
+        self.assertEqual(response.get_json().get("data"), expected_entry)
+
+    def test_partial_update_nonexistent_entry_returns_not_found_response(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+        updated_entry = {
+            "date": "2025-01-04",
+            "work_contribution": "Updated work contribution"
+        }
+
+        # Act
+        response = self.client.patch("/api/csv/entries/2025-01-04", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Partial update unsuccessful", response.get_json().get("error"))
+
+    def test_partial_update_entry_with_empty_fields_does_not_overwrite_existing_data(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": ""
+        }
+
+        expected_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Completed unit tests for Flask routes",
+            "learning": "",
+            "win": "",
+            "challenge": "",
+            "next_steps": "Continue with testing"
+        }
+
+        # Act
+        response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
+        entry = self.client.get("/api/csv/entries/2025-01-02").get_json()
+
+        # Assert
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("No valid fields provided for update", response.get_json().get("error"))
+        self.assertEqual(entry.get("data"), expected_entry)
+
+    def test_partial_update_nonexistent_file_returns_503_status_code(self):
+        # Arrange
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution"
+        }
+
+        # Act
+        response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
+
+    def test_partial_update_empty_file_returns_503_status_code(self):
+        # Arrange
+        with open(self._test_file_path, "w") as f:
+            f.close()
+
+        updated_entry = {
+            "date": "2025-01-02",
+            "work_contribution": "Updated work contribution"
+        }
+
+        # Act
+        response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
 
     def test_delete_entry_returns_successful_response(self):
         # Arrange
@@ -122,10 +311,33 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json().get("message"), "Entry deleted successfully")
 
+    def test_delete_entry_empty_file_returns_503_status_code(self):
+        # Arrange
+        with open(self._test_file_path, "w") as f:
+            f.close()
+
+        # Act
+        response = self.client.delete("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
+
+    def test_delete_entry_nonexistent_file_returns_503_status_code(self):
+        # Act
+        response = self.client.delete("/api/csv/entries/2025-01-02")
+
+        # Assert
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json().get("error"), "File unavailable")
+
     def test_delete_nonexistent_entry_returns_not_found_response(self):
+        # Arrange
+        self.client.post("/api/csv/entries", json=self.entry)
+
         # Act
         response = self.client.delete("/api/csv/entries/2025-01-04")
 
         # Assert
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json().get("error"), "Delete unsuccessful")
+        self.assertIn("Delete unsuccessful", response.get_json().get("error"))

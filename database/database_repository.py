@@ -15,9 +15,14 @@ class DatabaseRepository(ABC):
     def get_entry_by_date(self, entry_date):
         pass
 
-    # Implement logic to update an existing entry in the database (UPDATE)
+    # Implement logic to update an existing entry in the database (UPDATE: PUT)
     @abstractmethod
-    def update_entry(self, entry_date, updated_entry):
+    def replace_entry(self, entry_date, updated_entry):
+        pass
+
+    # Implement logic to partially update an existing entry in the database (UPDATE: PATCH)
+    @abstractmethod
+    def partially_update_entry(self, entry_date, updated_fields):
         pass
 
     # Implement logic to delete an entry from the database (DELETE)

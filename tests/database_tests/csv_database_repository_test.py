@@ -5,26 +5,29 @@ import csv
 import tempfile
 import os
 import unittest
+
+from database.exceptions import FileEmptyError, DuplicateEntryError
 from domain.entry import Entry
 from database.csv_database_repository import CsvDatabaseRepository
 
 
 class TestCsvDatabaseRepository(unittest.TestCase):
     def setUp(self):
-        self._testDir = tempfile.TemporaryDirectory()
-        self._test_file_path = os.path.join(self._testDir.name, "test_entries.csv")
+        self._test_dir = tempfile.TemporaryDirectory()
+        self._test_file_path = os.path.join(self._test_dir.name, "test_entries.csv")
         self._repo = CsvDatabaseRepository(file_path=self._test_file_path)
 
         self.entry = Entry(
             date="2025-06-04",
             work_contribution="Completed unit tests for whole codebase",
-            learning="Discovered how to use setUp and tearDown in unittest"
+            learning="Discovered how to use setUp and tearDown in unittest",
+            win="Refactored code to be cleaner"
         )
         self.expected = {
             "date": "2025-06-04",
             "work_contribution": "Completed unit tests for whole codebase",
             "learning": "Discovered how to use setUp and tearDown in unittest",
-            "win": "",
+            "win": "Refactored code to be cleaner",
             "challenge": "",
             "next_steps": ""
         }
@@ -32,7 +35,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self._repo.save_entry(self.entry)
 
     def tearDown(self):
-        self._testDir.cleanup()
+        self._test_dir.cleanup()
 
     def test_save_partial_entry_saves_all_fields_with_defaults(self):
         # Assert
@@ -47,7 +50,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             # The original suggestion for the line below was unnecessarily complex, comparing each field separately
             self.assertEqual(self.expected, rows[0])
 
-    def test_saving_existing_entry_raises_value_error(self):
+    def test_saving_existing_entry_raises_duplicate_error(self):
         # Arrange
         duplicate_entry = Entry(
             date="2025-06-04",
@@ -55,7 +58,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         )
 
         # Act
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(DuplicateEntryError) as context:
             self._repo.save_entry(duplicate_entry)
 
         # Assert
@@ -89,7 +92,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         # Assert
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-06")
 
-    def test_update_entry_updates_existing_entry(self):
+    def test_replace_entry_updates_existing_entry(self):
         # Arrange
         updated_entry = Entry(
             date="2025-06-04",
@@ -104,11 +107,11 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         response = self._repo.get_entry_by_date("2025-06-04")
         self.assertEqual(response.entry_dict, self.expected)
 
-        self._repo.update_entry("2025-06-04", updated_entry)
+        self._repo.replace_entry("2025-06-04", updated_entry)
         response = self._repo.get_entry_by_date("2025-06-04")
         self.assertEqual(response.entry_dict, updated_entry.entry_dict)
 
-    def test_update_nonexistent_entry_raises_value_error(self):
+    def test_replace_nonexistent_entry_raises_value_error(self):
         # Arrange
         updated_entry = Entry(
             date="2025-06-07",
@@ -121,7 +124,43 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
         # Act, Assert
         with self.assertRaises(ValueError) as context:
-            self._repo.update_entry("2025-06-07", updated_entry)
+            self._repo.replace_entry("2025-06-07", updated_entry)
+
+        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
+
+    def test_partially_update_entry_updates_only_provided_fields(self):
+        # Arrange
+        updated_entry_items = {
+            "date": "2025-06-04",
+            "work_contribution": "Partially update for work contribution"
+        }
+
+        expected_entry = {
+            "date": "2025-06-04",
+            "work_contribution": "Partially update for work contribution",
+            "learning": "Discovered how to use setUp and tearDown in unittest",
+            "win": "Refactored code to be cleaner",
+            "challenge": "",
+            "next_steps": ""
+        }
+
+        # Act
+        self._repo.partially_update_entry("2025-06-04", updated_entry_items)
+        response = self._repo.get_entry_by_date("2025-06-04")
+
+        # Assert
+        self.assertEqual(response.entry_dict, expected_entry)
+
+    def test_partially_update_nonexistent_entry_raises_value_error(self):
+        # Arrange
+        updated_entry = Entry(
+            date="2025-06-07",
+            work_contribution="Partially update for work contribution"
+        )
+
+        # Act, Assert
+        with self.assertRaises(ValueError) as context:
+            self._repo.partially_update_entry("2025-06-07", updated_entry)
 
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
 
@@ -148,27 +187,27 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         # Assert
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-08")
 
-    def test_validate_file_raises_value_error_if_file_does_not_exist(self):
+    def test_validate_file_raises_file_not_found_error_if_file_does_not_exist(self):
         # Arrange
         test_repo = CsvDatabaseRepository(file_path="non_existent_file.csv")
 
         # Act
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(FileNotFoundError) as context:
             # Assert
-            test_repo.validate_file()
+            test_repo._validate_file()
 
         self.assertEqual(str(context.exception), f"File not found: {test_repo.file_path}")
 
-    def test_validate_file_raises_value_error_if_file_is_empty(self):
+    def test_validate_file_raises_file_empty_error_if_file_is_empty(self):
         # Arrange
         with open(self._test_file_path, 'w') as file:
-            pass
+            file.close()
 
         test_repo = CsvDatabaseRepository(self._test_file_path)
 
         # Act
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(FileEmptyError) as context:
             # Assert
-            test_repo.validate_file()
+            test_repo._validate_file()
 
         self.assertEqual(str(context.exception), f"No data found in file: {test_repo.file_path}")

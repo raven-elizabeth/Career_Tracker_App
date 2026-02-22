@@ -1,4 +1,4 @@
-fields = [
+FIELDS = [
     "date",
     "work_contribution",
     "learning",

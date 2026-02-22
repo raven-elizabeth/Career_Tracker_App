@@ -1,8 +1,9 @@
 # This file contains unit tests for the Entry class in the domain layer.
 
 import unittest
+
 from domain.entry import Entry
-from domain.fields import fields
+from domain.fields import FIELDS
 
 
 class TestEntry(unittest.TestCase):
@@ -26,7 +27,7 @@ class TestEntry(unittest.TestCase):
     def test_missing_optional_values_defaults_to_none(self):
         # Arrange
         provided_values = {"date": "2026-02-17", "work_contribution": "Completed unit tests for whole codebase"}
-        expected = {value: provided_values.get(value, "") for value in fields}
+        expected = {value: provided_values.get(value, "") for value in FIELDS}
 
         # Act
         entry = Entry(**provided_values)
