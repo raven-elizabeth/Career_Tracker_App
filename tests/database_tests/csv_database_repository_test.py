@@ -6,7 +6,7 @@ import tempfile
 import os
 import unittest
 
-from database.exceptions import FileEmptyError
+from database.exceptions import FileEmptyError, DuplicateEntryError
 from domain.entry import Entry
 from database.csv_database_repository import CsvDatabaseRepository
 
@@ -50,7 +50,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             # The original suggestion for the line below was unnecessarily complex, comparing each field separately
             self.assertEqual(self.expected, rows[0])
 
-    def test_saving_existing_entry_raises_value_error(self):
+    def test_saving_existing_entry_raises_duplicate_error(self):
         # Arrange
         duplicate_entry = Entry(
             date="2025-06-04",
@@ -58,7 +58,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         )
 
         # Act
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(DuplicateEntryError) as context:
             self._repo.save_entry(duplicate_entry)
 
         # Assert

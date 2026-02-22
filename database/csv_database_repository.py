@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 
 from database.database_repository import DatabaseRepository
-from database.exceptions import FileEmptyError
+from database.exceptions import FileEmptyError, DuplicateEntryError
 from domain.entry import Entry
 from logging_config import get_logger
 
@@ -32,7 +32,7 @@ class CsvDatabaseRepository(DatabaseRepository):
             date = str(entry.entry_dict["date"])
             if self.entry_exists(date):
                 self.logger.warning("Attempted to save duplicate entry with date: %s", entry.entry_dict["date"])
-                raise ValueError(f"An entry with date {entry.entry_dict['date']} already exists.")
+                raise DuplicateEntryError(f"An entry with date {entry.entry_dict['date']} already exists.")
 
         # Check if the file exists and is not empty to determine whether to write the header (only write if writing first entry)
         header = not file_exists or file_size == 0
