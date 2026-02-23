@@ -3,7 +3,7 @@ from tkinter import Tk
 
 class Root(Tk):
     START_WIDTH = 700
-    START_HEIGHT = 1000
+    START_HEIGHT = 975
     MIN_WIDTH = 585
     MIN_HEIGHT = 800
 
