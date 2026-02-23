@@ -12,7 +12,10 @@ class App:
             on_new_entry=lambda: self.show_new_entry(),
             on_search=lambda: self.show_search()
         )
-        self._search_screen = SearchScreen(self._root)
+        self._search_screen = SearchScreen(
+            self._root,
+            on_home=lambda: self.show_home()
+        )
         self._new_entry_screen = NewEntryScreen(self._root)
 
         self.show_home()

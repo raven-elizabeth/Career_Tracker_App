@@ -5,7 +5,7 @@ from gui.screens.screen import Screen
 
 
 class SearchScreen(Screen):
-    def __init__(self, *args, on_valid_date=None, on_home=None, **kwargs):
+    def __init__(self, *args, on_valid_date=None, on_home, **kwargs):
         super().__init__(*args, **kwargs)
         self._on_valid_date = on_valid_date
         self._on_home = on_home
