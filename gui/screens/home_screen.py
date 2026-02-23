@@ -2,8 +2,11 @@ from gui.screens.screen import Screen
 
 
 class HomeScreen(Screen):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, on_new_entry, on_search, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self._on_new_entry = on_new_entry
+        self._on_search = on_search
 
         column_weights = {0: 1, 1: 1}
         # Row weights set to create more space for header and options frames
@@ -61,17 +64,19 @@ class HomeScreen(Screen):
 
         self.new_entry_btn = self._add_button(
             self.options_frame, frame_row,
-            title="➕ New Entry", subtitle="Create a new daily entry"
+            title="➕ New Entry", subtitle="Create a new daily entry",
+            func=self._on_new_entry
         )
         frame_row += 1
 
         self.search_entries_btn = self._add_button(
             self.options_frame, frame_row,
-            title="🔍 Browse Entries", subtitle="Search all daily entries"
+            title="🔍 Browse Entries", subtitle="Search all daily entries",
+            func=self._on_search
         )
 
-    def _add_button(self, parent, row, title, subtitle):
-        btn = self._create_stylised_button(parent, title=title, subtitle=subtitle)
+    def _add_button(self, parent, row, title, subtitle, func):
+        btn = self._create_stylised_button(parent=parent, title=title, subtitle=subtitle, func=func)
         btn.grid(row=row, column=0, padx=self.FRAME_PADDING, pady=(0, 10), sticky="ew")
         return btn
 
