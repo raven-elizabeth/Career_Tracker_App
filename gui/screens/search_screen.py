@@ -12,7 +12,7 @@ class SearchScreen(Screen):
 
         column_weights = {0: 1, 1: 1}
         # Row weights set; display frame has more weight than calendar to show more entry data.
-        row_weights = {0: 1, 1: 2, 2: 6, 3: 1, 4: 1}
+        row_weights = {0: 1, 1: 2, 2: 10, 3: 1, 4: 1}
         self._configure_responsive_grid(column_weights, row_weights)
 
         self._setup_calendar()
@@ -43,11 +43,3 @@ class SearchScreen(Screen):
             pady=(30, 0), sticky="ew"
         )
         return btn
-
-
-if __name__ == "__main__":
-    from gui.root import Root
-    root = Root()
-    search_screen = SearchScreen(root)
-    search_screen.pack(fill="both", expand=True)
-    root.mainloop()
