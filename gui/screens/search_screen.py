@@ -5,7 +5,7 @@ from gui.screens.screen import Screen
 
 
 class SearchScreen(Screen):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, on_new_entry=None, on_home_screen=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         column_weights = {0: 1, 1: 1}

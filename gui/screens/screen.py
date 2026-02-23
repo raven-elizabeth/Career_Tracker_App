@@ -83,13 +83,20 @@ class Screen(Frame):
             fg="white", anchor="w", bg=self.TERTIARY_COLOR
         )
         title_label.grid(row=0, column=0, padx=10, pady=(8, 0), sticky="ew")
-        title_label.bind("<Button-1>", func)
+
+        # Since this is a Frame with Label widgets (not a Button), we must use .bind() instead of command=
+        # tkinter .bind() always passes an Event object as the first argument to the callback
+
+        # lambda event: func() could be used but best practise captures func as an argument due to potential issues with loops
+        # 'lambda event' takes care of the event argument and ignores it
+        # f=func captures func arg, with : f() delaying the function call until the time of the event
+        title_label.bind("<Button-1>", lambda event, f=func: f())
 
         subtitle_label = Label(
             btn_frame, text=subtitle, font=self.italic_font,
             fg="white", anchor="w", bg=self.TERTIARY_COLOR
         )
         subtitle_label.grid(row=1, column=0, padx=10, pady=(0, 8), sticky="ew")
-        subtitle_label.bind("<Button-1>", func)
+        subtitle_label.bind("<Button-1>", lambda event, f=func: f())
 
         return btn_frame
