@@ -8,8 +8,8 @@ class App:
     def __init__(self):
         self._root = Root()
         self._home_screen = HomeScreen(
-            on_new_entry=self.show_new_entry,
-            on_search=self.show_search
+            on_new_entry=lambda: self.show_new_entry,
+            on_search=lambda: self.show_search
         )
         self._search_screen = SearchScreen()
         self._new_entry_screen = NewEntryScreen()
