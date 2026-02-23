@@ -12,7 +12,7 @@ class SearchScreen(Screen):
 
         column_weights = {0: 1, 1: 1}
         # Row weights set; display frame has more weight than calendar to show more entry data.
-        row_weights = {0: 1, 1: 2, 2: 10, 3: 1, 4: 1}
+        row_weights = {0: 1, 1: 2, 2: 12, 3: 0, 4: 1}
         self._configure_responsive_grid(column_weights, row_weights)
 
         self._setup_calendar()
