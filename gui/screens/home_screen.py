@@ -62,28 +62,32 @@ class HomeScreen(Screen):
         self._create_separator(self.options_frame, frame_row)
         frame_row += 1
 
-        self.new_entry_btn = self._add_button(
-            self.options_frame, frame_row,
-            title="➕ New Entry", subtitle="Create a new daily entry",
-            func=self._on_new_entry
-        )
+        self.new_entry_btn = self._add_new_entry_button(frame_row)
         frame_row += 1
 
-        self.search_entries_btn = self._add_button(
-            self.options_frame, frame_row,
-            title="🔍 Browse Entries", subtitle="Search all daily entries",
-            func=self._on_search
-        )
+        self.search_entries_btn = self._add_search_button(frame_row)
 
     def _add_button(self, parent, row, title, subtitle, func):
         btn = self._create_stylised_button(parent=parent, title=title, subtitle=subtitle, func=func)
         btn.grid(row=row, column=0, padx=self.FRAME_PADDING, pady=(0, 10), sticky="ew")
         return btn
 
+    def _add_new_entry_button(self, row):
+        search_btn_settings = {
+            "title": "➕ New Entry",
+            "subtitle": "Create a new daily entry",
+            "func": self._on_new_entry,
+            "row": row,
+            "parent": self.options_frame
+        }
+        return self._add_button(**search_btn_settings)
 
-if __name__ == "__main__":
-    from gui.root import Root
-    root = Root()
-    home_screen = HomeScreen(root)
-    home_screen.pack(fill="both", expand=True)
-    root.mainloop()
+    def _add_search_button(self, row):
+        search_btn_settings = {
+            "title": "🔍 Browse Entries",
+            "subtitle": "Search all daily entries",
+            "func": self._on_search,
+            "row": row,
+            "parent": self.options_frame
+        }
+        return self._add_button(**search_btn_settings)
