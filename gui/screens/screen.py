@@ -37,6 +37,7 @@ class Screen(Frame):
         for row, weight in row_dict.items():
             self.grid_rowconfigure(row, weight=weight)
 
+    # Create a reusable frame with consistent styling with secondary colour
     def _create_frame(self, row):
         frame = Frame(
             self, relief="solid",
