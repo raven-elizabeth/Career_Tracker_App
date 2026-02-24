@@ -53,7 +53,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         return df
 
     def get_entry_by_date(self, date):
-        self._logger.debug("Retrieving entry with date: %s", date)
+        self._logger.debug("Searching for entry with date: %s", date)
         self._validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
 
@@ -66,7 +66,7 @@ class CsvDatabaseRepository(DatabaseRepository):
             return DailyEntry(**entry_data)
 
         self._logger.warning("No entry found for date: %s", date)
-        raise ValueError(f"No entry found for date: {date}")
+        return None
 
     def replace_entry(self, date, updated_entry):
         self._logger.debug("Replacing entry with date: %s", date)
