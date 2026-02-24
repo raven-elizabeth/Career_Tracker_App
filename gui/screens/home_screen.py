@@ -11,7 +11,7 @@ class HomeScreen(Screen):
         column_weights = {0: 1, 1: 1}
         # Row weights set to create more space for header and options frames
         # Includes padding rows at top, middle, and bottom
-        row_weights = {0: 1, 1: 2, 2: 1, 3: 2, 4: 1}
+        row_weights = {0: 1, 1: 4, 2: 1, 3: 4, 4: 1}
         self._configure_responsive_grid(column_weights, row_weights)
 
         self._create_header_frame()
