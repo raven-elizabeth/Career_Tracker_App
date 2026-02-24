@@ -13,7 +13,7 @@ class Screen(Frame):
     SUBHEADING_SIZE = 14
     BODY_SIZE = 12
 
-    FRAME_PADDING = 20
+    OUTER_PADDING = 60
     BORDER_WIDTH = 3
 
     def __init__(self, *args, **kwargs):
@@ -30,29 +30,43 @@ class Screen(Frame):
         self.italic_font = nametofont("TkTextFont").copy()
         self.italic_font.config(size=self.BODY_SIZE, slant="italic")
 
-    # Set column and row weights to make the screen responsive to resizing
     def _configure_responsive_grid(self, col_dict, row_dict):
+        """Set column and row weights to make the screen responsive to resizing."""
         for col, weight in col_dict.items():
             self.grid_columnconfigure(col, weight=weight)
         for row, weight in row_dict.items():
             self.grid_rowconfigure(row, weight=weight)
 
-    # Create a reusable frame with consistent styling with secondary colour
-    def _create_frame(self, row):
+    def _create_frame(self, row=1, column=0, colspan=2):
+        """Create a reusable frame with consistent styling and secondary colour."""
         frame = Frame(
             self, relief="solid",
             borderwidth=self.BORDER_WIDTH, bg=self.SECONDARY_COLOR
         )
-        frame.grid(
-            row=row, column=0, columnspan=2,
-            padx=self.FRAME_PADDING, pady=10, sticky="nsew"
-        )
+        self._position_frame(frame, row=row, column=column, colspan=colspan)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         return frame
 
-    # Create an inner frame with white background for content display
+    def _position_frame(self, parent, row, column, colspan=2, pad_x=None, pad_y=None):
+        """Grid a frame with consistent padding and stretch behaviour."""
+        pad_x = pad_x if pad_x is not None else self.OUTER_PADDING
+        pad_y = pad_y if pad_y is not None else 10
+        parent.grid(
+            row=row, column=column, columnspan=colspan,
+            padx=pad_x, pady=pad_y, sticky="nsew"
+        )
+
+    def _position_button(self, btn, row, column=0, colspan=2, pad_x=None, pad_y=(0, 10), sticky="ew"):
+        """Grid a stylised button with consistent padding."""
+        pad_x = pad_x if pad_x is not None else self.OUTER_PADDING
+        btn.grid(
+            row=row, column=column, columnspan=colspan,
+            padx=pad_x, pady=pad_y, sticky=sticky
+        )
+
     def _create_inner_frame(self, parent):
+        """Create an inner frame with white background for content display."""
         frame = Frame(parent, bg="white", relief="solid", borderwidth=self.BORDER_WIDTH)
         frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
         frame.grid_columnconfigure(0, weight=1)
@@ -60,21 +74,27 @@ class Screen(Frame):
         frame.grid_rowconfigure(2, weight=1)
         return frame
 
-    # Create a label with consistent styling and padding
     @staticmethod
-    def _create_label(parent, row, text, font, bg, pad_y):
-        label = Label(parent, text=text, font=font, bg=bg)
-        label.grid(row=row, padx=10, pady=pad_y)
+    def _create_label(parent, row, text, font, bg, pad_y=0, pad_x=10, anchor="center"):
+        """Create a label with consistent styling and padding."""
+        label = Label(parent, text=text, font=font, bg=bg, anchor=anchor)
+        label.grid(row=row, padx=pad_x, pady=pad_y, sticky="ew" if anchor != "center" else "")
         return label
 
-    # Create a simple horizontal separator line
     @staticmethod
-    def _create_separator(parent, row):
+    def _create_separator(parent, row, pad_x=10):
+        """Create a simple horizontal separator line."""
         separator = Frame(parent, height=2, bg="black")
-        separator.grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
+        separator.grid(row=row, column=0, padx=pad_x, pady=(0, 10), sticky="ew")
 
-    # Create a button-like frame with title and subtitle labels
     def _create_stylised_button(self, parent, title, subtitle, func):
+        """Create a clickable frame styled as a button with a title and subtitle.
+
+        Uses Frame + Labels with .bind() instead of a Button widget, as this
+        allows for multi-line content and custom styling not available on Button.
+        Each label captures func via a default argument to avoid late-binding issues with looping.
+
+        """
         btn_frame = Frame(parent, relief="solid", borderwidth=1, cursor="hand2", bg=self.TERTIARY_COLOR)
         btn_frame.grid_columnconfigure(0, weight=1)
 
@@ -83,13 +103,6 @@ class Screen(Frame):
             fg="white", anchor="w", bg=self.TERTIARY_COLOR
         )
         title_label.grid(row=0, column=0, padx=10, pady=(8, 0), sticky="ew")
-
-        # Since this is a Frame with Label widgets (not a Button), we must use .bind() instead of command=
-        # tkinter .bind() always passes an Event object as the first argument to the callback
-
-        # lambda event: func() could be used but best practise captures func as an argument due to potential issues with loops
-        # 'lambda event' takes care of the event argument and ignores it
-        # f=func captures func arg, with : f() delaying the function call until the time of the event
         title_label.bind("<Button-1>", lambda event, f=func: f())
 
         subtitle_label = Label(
