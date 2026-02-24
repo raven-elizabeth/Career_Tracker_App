@@ -10,14 +10,17 @@ class SearchScreen(Screen):
         self._on_valid_date = on_valid_date
         self._on_home = on_home
 
-        column_weights = {0: 1, 1: 1}
-        # Row weights set; display frame has more weight than calendar to show more entry data.
-        row_weights = {0: 0, 1: 1, 2: 10, 3: 1}
-        self._configure_responsive_grid(column_weights, row_weights)
+        self._configure_grid()
 
         self._add_back_button()
         self._setup_calendar()
         self._setup_display_frame()
+
+    def _configure_grid(self):
+        column_weights = {0: 1, 1: 1}
+        # Row weights set; display frame has more weight than calendar to show more entry data.
+        row_weights = {0: 0, 1: 1, 2: 10, 3: 1}
+        self._configure_responsive_grid(column_weights, row_weights)
 
     def _setup_calendar(self):
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
