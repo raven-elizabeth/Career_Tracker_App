@@ -12,34 +12,34 @@ class SearchScreen(Screen):
 
         column_weights = {0: 1, 1: 1}
         # Row weights set; display frame has more weight than calendar to show more entry data.
-        row_weights = {0: 1, 1: 2, 2: 12, 3: 0, 4: 1}
+        row_weights = {0: 0, 1: 1, 2: 10, 3: 1}
         self._configure_responsive_grid(column_weights, row_weights)
 
+        self._add_back_button()
         self._setup_calendar()
         self._setup_display_frame()
-        self._add_home_button()
 
     def _setup_calendar(self):
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
-        self.calendar.grid(row=1, column=0, columnspan=2, padx=60, sticky="nsew")
+        self.calendar.grid(row=2, column=0, padx=60, pady=20, sticky="nsew")
 
     def _setup_display_frame(self):
-        self.display_frame = self._create_frame(row=2)
+        self.display_frame = self._create_frame(row=2, column=1, colspan=False)
         self.inner_frame = self._create_inner_frame(self.display_frame)
         self.default_msg = self._create_label(
             self.inner_frame, row=1, text="Select a date to view your entries...",
             font=self.italic_font, bg="white", pad_y=10
         )
 
-    def _add_home_button(self):
+    def _add_back_button(self):
         btn = self._create_stylised_button(
-            parent=self,title="🛖 Home",
+            parent=self,title="⬅️ Back",
             subtitle="Return to home screen",
             func=self._on_home
         )
         btn.grid(
-            row=3, column=0,
+            row=0, column=0,
             columnspan=2, padx=self.FRAME_PADDING * 10,
-            pady=(30, 0), sticky="ew"
+            pady=40, sticky="ew"
         )
         return btn
