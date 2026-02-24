@@ -89,10 +89,11 @@ class SearchScreen(Screen):
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             self._create_label(
                 self.inner_frame, row=row,
-                text=f"{field.capitalize()}: {value if value else 'N/A'}",
+                text=f"{field.replace('_', ' ').title()}: {value.capitalize() if value else 'N/A'}",
                 font=self.subheading_font, bg="white",
                 anchor="w", pad_y=5
             )
+        self.inner_frame.grid_rowconfigure(len(entry.entry_dict), weight=1)
 
     def _reset_widgets(self, default=True):
         # Clear screen (destroy widgets, hide default message)
