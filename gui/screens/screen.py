@@ -13,7 +13,7 @@ class Screen(Frame):
     SUBHEADING_SIZE = 14
     BODY_SIZE = 12
 
-    FRAME_PADDING = 20
+    FRAME_PADDING = 60
     BORDER_WIDTH = 3
 
     def __init__(self, *args, **kwargs):
