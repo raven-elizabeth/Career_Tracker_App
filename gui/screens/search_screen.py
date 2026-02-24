@@ -8,9 +8,9 @@ class SearchScreen(Screen):
     WRAP_LAYOUT_WIDTH = 1000
     INNER_PADDING = 20
 
-    def __init__(self, *args, on_valid_date, on_home, **kwargs):
+    def __init__(self, *args, on_date, on_home, **kwargs):
         super().__init__(*args, **kwargs)
-        self._on_valid_date = on_valid_date
+        self._on_date = on_date
         self._on_home = on_home
         self._wrap_layout = False
 
@@ -69,6 +69,39 @@ class SearchScreen(Screen):
     def _setup_calendar(self):
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
         self._position_calendar(row=2, colspan=1)
+        self.calendar.bind("<<CalendarSelected>>",self._on_date_selected)
+
+    def _on_date_selected(self, event):
+        selected_date = self.calendar.get_date()
+        entry = self._on_date(selected_date)
+        if entry:
+            self._on_valid_date(entry)
+        else:
+            self._reset_widgets()
+
+    def _on_valid_date(self, entry):
+        self._reset_widgets(default=False)
+        self._display_entry(entry)
+
+
+    def _display_entry(self, entry):
+        for field, value in entry.entry_dict.items():
+            self._create_label(
+                self.inner_frame, row=0,
+                text=f"{field.capitalize()}: {value}",
+                font=self.subheading_font, bg="white",
+                anchor="w", pad_y=5
+            )
+
+    def _reset_widgets(self, default=True):
+        # Clear screen (destroy widgets, hide default message)
+        widgets = self.inner_frame.winfo_children()
+        widgets.remove(self.default_msg)
+        for widget in widgets:
+            widget.destroy()
+
+        if not default:
+            self.default_msg.grid_remove()
 
     def _position_calendar(self, row, colspan):
         """Grid the calendar with consistent padding."""

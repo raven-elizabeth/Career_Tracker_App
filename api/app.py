@@ -128,3 +128,7 @@ class API:
             except ValueError as e:
                 self._logger.warning("Failed to delete entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Delete unsuccessful: {e}"}), 404
+
+if __name__ == "__main__":
+    api = API()
+    api.app.run()
