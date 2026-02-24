@@ -43,19 +43,22 @@ class Screen(Frame):
             self, relief="solid",
             borderwidth=self.BORDER_WIDTH, bg=self.SECONDARY_COLOR
         )
+        self._position_frame(frame, row, column, colspan)
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(0, weight=1)
+        return frame
+
+    def _position_frame(self, parent, row, column, colspan=True):
         if colspan:
-            frame.grid(
+            parent.grid(
                 row=row, column=column, columnspan=2,
                 padx=self.FRAME_PADDING, pady=10, sticky="nsew"
             )
         else:
-            frame.grid(
+            parent.grid(
                 row=row, column=column,
                 padx=self.FRAME_PADDING, pady=10, sticky="nsew"
             )
-        frame.grid_columnconfigure(0, weight=1)
-        frame.grid_rowconfigure(0, weight=1)
-        return frame
 
     # Create an inner frame with white background for content display
     def _create_inner_frame(self, parent):
