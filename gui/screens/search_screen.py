@@ -102,8 +102,20 @@ class SearchScreen(Screen):
         for widget in widgets:
             widget.destroy()
 
+        # Reset the spacer rows used by default message centering
+        self.inner_frame.grid_rowconfigure(0, weight=0)
+        self.inner_frame.grid_rowconfigure(2, weight=0)
+        # Reset the trailing spacer row added after entry labels
+        self.inner_frame.grid_rowconfigure(len(self.inner_frame.grid_slaves()), weight=0)
+
+        # Show default message if default=True, otherwise hide it
         if not default:
             self.default_msg.grid_remove()
+        else:
+            # Restore spacer rows for centered default message
+            self.inner_frame.grid_rowconfigure(0, weight=1)
+            self.inner_frame.grid_rowconfigure(2, weight=1)
+            self.default_msg.grid(row=1, padx=10, pady=10)
 
     def _position_calendar(self, row, colspan):
         """Grid the calendar with consistent padding."""
@@ -121,6 +133,8 @@ class SearchScreen(Screen):
             pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
         )
         self.inner_frame = self._create_inner_frame(self.display_frame)
+        self.inner_frame.grid_rowconfigure(0, weight=1)  # Top spacer
+        self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom spacer
         self.default_msg = self._create_label(
             self.inner_frame, row=1, text="Select a date to view your entries...",
             font=self.italic_font, bg="white", pad_y=10
