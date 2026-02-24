@@ -38,7 +38,7 @@ class Screen(Frame):
             self.grid_rowconfigure(row, weight=weight)
 
     # Create a reusable frame with consistent styling with secondary colour
-    def _create_frame(self, row=1, column=0, colspan=True):
+    def _create_frame(self, row=1, column=0, colspan=2):
         frame = Frame(
             self, relief="solid",
             borderwidth=self.BORDER_WIDTH, bg=self.SECONDARY_COLOR
@@ -48,17 +48,11 @@ class Screen(Frame):
         frame.grid_rowconfigure(0, weight=1)
         return frame
 
-    def _position_frame(self, parent, row, column, colspan=True):
-        if colspan:
-            parent.grid(
-                row=row, column=column, columnspan=2,
-                padx=self.FRAME_PADDING, pady=10, sticky="nsew"
-            )
-        else:
-            parent.grid(
-                row=row, column=column,
-                padx=self.FRAME_PADDING, pady=10, sticky="nsew"
-            )
+    def _position_frame(self, parent, row, column, colspan=2):
+        parent.grid(
+            row=row, column=column, columnspan=colspan,
+            padx=self.FRAME_PADDING, pady=10, sticky="nsew"
+        )
 
     # Create an inner frame with white background for content display
     def _create_inner_frame(self, parent):
