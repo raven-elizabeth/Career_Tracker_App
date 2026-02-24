@@ -18,7 +18,7 @@ class App:
         self._search_screen = SearchScreen(
             self._root,
             on_home=self.show_home,
-            on_valid_date=self._repository.get_entry_by_date
+            on_date=self._repository.get_entry_by_date
         )
         self._new_entry_screen = NewEntryScreen(self._root)
 
