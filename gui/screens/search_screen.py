@@ -98,5 +98,5 @@ class SearchScreen(Screen):
             subtitle="Return to home screen",
             func=self._on_home
         )
-        self._position_button(button, row=0, colspan=2, sticky="w")
+        self._position_button(button, row=0, colspan=2, pad_y=(20, 10), sticky="w")
         return button

@@ -57,12 +57,12 @@ class Screen(Frame):
             padx=pad_x, pady=pad_y, sticky="nsew"
         )
 
-    def _position_button(self, btn, row, column=0, colspan=2, pad_x=None, sticky="ew"):
+    def _position_button(self, btn, row, column=0, colspan=2, pad_x=None, pad_y=(0, 10), sticky="ew"):
         """Grid a stylised button with consistent padding."""
         pad_x = pad_x if pad_x is not None else self.OUTER_PADDING
         btn.grid(
             row=row, column=column, columnspan=colspan,
-            padx=pad_x, pady=(0, 10), sticky=sticky
+            padx=pad_x, pady=pad_y, sticky=sticky
         )
 
     def _create_inner_frame(self, parent):
