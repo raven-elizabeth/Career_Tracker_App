@@ -18,7 +18,7 @@ class HomeScreen(Screen):
         self._create_options_frame()
 
     def _create_header_frame(self):
-        self.header_frame = self._create_frame(row=1)
+        self.header_frame = self._create_frame()
         self.header_frame.grid_rowconfigure(0, weight=1)  # Top padding
         self.header_frame.grid_rowconfigure(5, weight=1)  # Bottom padding
         frame_row = 1

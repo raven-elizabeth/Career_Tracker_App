@@ -38,15 +38,21 @@ class Screen(Frame):
             self.grid_rowconfigure(row, weight=weight)
 
     # Create a reusable frame with consistent styling with secondary colour
-    def _create_frame(self, row):
+    def _create_frame(self, row=1, column=0, colspan=True):
         frame = Frame(
             self, relief="solid",
             borderwidth=self.BORDER_WIDTH, bg=self.SECONDARY_COLOR
         )
-        frame.grid(
-            row=row, column=0, columnspan=2,
-            padx=self.FRAME_PADDING, pady=10, sticky="nsew"
-        )
+        if colspan:
+            frame.grid(
+                row=row, column=column, columnspan=2,
+                padx=self.FRAME_PADDING, pady=10, sticky="nsew"
+            )
+        else:
+            frame.grid(
+                row=row, column=column,
+                padx=self.FRAME_PADDING, pady=10, sticky="nsew"
+            )
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         return frame
