@@ -57,11 +57,12 @@ class HomeScreen(Screen):
 
         self.options_label = self._create_label(
             self.options_frame, frame_row, "What would you like to do?",
-            self.subheading_font, self.SECONDARY_COLOR, pad_y=(10, 0)
+            self.subheading_font, self.SECONDARY_COLOR,
+            pad_y=(10, 0), pad_x=self.OUTER_PADDING, anchor="w"
         )
         frame_row += 1
 
-        self._create_separator(self.options_frame, frame_row)
+        self._create_separator(self.options_frame, frame_row, pad_x=self.OUTER_PADDING)
         frame_row += 1
 
         self.new_entry_btn = self._add_button(

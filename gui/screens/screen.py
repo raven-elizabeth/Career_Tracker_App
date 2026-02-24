@@ -75,17 +75,17 @@ class Screen(Frame):
         return frame
 
     @staticmethod
-    def _create_label(parent, row, text, font, bg, pad_y=0):
+    def _create_label(parent, row, text, font, bg, pad_y=0, pad_x=10, anchor="center"):
         """Create a label with consistent styling and padding."""
-        label = Label(parent, text=text, font=font, bg=bg)
-        label.grid(row=row, padx=10, pady=pad_y)
+        label = Label(parent, text=text, font=font, bg=bg, anchor=anchor)
+        label.grid(row=row, padx=pad_x, pady=pad_y, sticky="ew" if anchor != "center" else "")
         return label
 
     @staticmethod
-    def _create_separator(parent, row):
+    def _create_separator(parent, row, pad_x=10):
         """Create a simple horizontal separator line."""
         separator = Frame(parent, height=2, bg="black")
-        separator.grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
+        separator.grid(row=row, column=0, padx=pad_x, pady=(0, 10), sticky="ew")
 
     def _create_stylised_button(self, parent, title, subtitle, func):
         """Create a clickable frame styled as a button with a title and subtitle.
