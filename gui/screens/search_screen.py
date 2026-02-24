@@ -73,7 +73,8 @@ class SearchScreen(Screen):
 
     def _on_date_selected(self, event):
         selected_date = self.calendar.get_date()
-        entry = self._on_date(selected_date)
+        date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
+        entry = self._on_date(date)
         if entry:
             self._on_valid_date(entry)
         else:
@@ -85,10 +86,10 @@ class SearchScreen(Screen):
 
 
     def _display_entry(self, entry):
-        for field, value in entry.entry_dict.items():
+        for row, (field, value) in enumerate(entry.entry_dict.items()):
             self._create_label(
-                self.inner_frame, row=0,
-                text=f"{field.capitalize()}: {value}",
+                self.inner_frame, row=row,
+                text=f"{field.capitalize()}: {value if value else 'N/A'}",
                 font=self.subheading_font, bg="white",
                 anchor="w", pad_y=5
             )
