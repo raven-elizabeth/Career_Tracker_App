@@ -24,14 +24,13 @@ class API:
             self._logger.debug("GET request received for entry with date: %s", date)
             try:
                 entry = self._repository.get_entry_by_date(date)
-                self._logger.info("Entry retrieved successfully for date: %s", date)
-                return jsonify({"message": "Entry retrieved successfully", "data": entry.entry_dict}), 200
+                if entry:
+                    self._logger.info("Entry retrieved successfully for date: %s", date)
+                    return jsonify({"message": "Entry retrieved successfully", "data": entry.entry_dict}), 200
+                return jsonify("No entry found for date: %s" % date), 204
             except (FileNotFoundError, FileEmptyError) as e:
                 self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
                 return jsonify({"error": "File unavailable"}), 503
-            except ValueError:
-                self._logger.warning("Entry not found for date: %s", date)
-                return jsonify({"error": f"No entry found for date: {date}"}), 404
 
         @self.app.route("/api/csv/entries", methods=["POST"])
         def post_entry():
@@ -128,3 +127,7 @@ class API:
             except ValueError as e:
                 self._logger.warning("Failed to delete entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Delete unsuccessful: {e}"}), 404
+
+if __name__ == "__main__":
+    api = API()
+    api.app.run()

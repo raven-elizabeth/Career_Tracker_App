@@ -12,8 +12,10 @@ from logging_config import get_logger
 
 
 class CsvDatabaseRepository(DatabaseRepository):
-    def __init__(self, file_path="entries.csv", logger=None):
+    def __init__(self, file_path=None, logger=None):
         super().__init__()
+        if file_path is None:
+            file_path = Path(__file__).parent / "entries.csv"
         self.file_path = Path(file_path)
         self._logger = logger if logger else get_logger(__name__)
         self._logger.debug("CsvDatabaseRepository initialized with file path: %s", self.file_path)
@@ -53,7 +55,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         return df
 
     def get_entry_by_date(self, date):
-        self._logger.debug("Retrieving entry with date: %s", date)
+        self._logger.debug("Searching for entry with date: %s", date)
         self._validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
 
@@ -66,7 +68,7 @@ class CsvDatabaseRepository(DatabaseRepository):
             return DailyEntry(**entry_data)
 
         self._logger.warning("No entry found for date: %s", date)
-        raise ValueError(f"No entry found for date: {date}")
+        return None
 
     def replace_entry(self, date, updated_entry):
         self._logger.debug("Replacing entry with date: %s", date)

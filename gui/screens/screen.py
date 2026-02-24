@@ -70,8 +70,6 @@ class Screen(Frame):
         frame = Frame(parent, bg="white", relief="solid", borderwidth=self.BORDER_WIDTH)
         frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
         frame.grid_columnconfigure(0, weight=1)
-        frame.grid_rowconfigure(0, weight=1)
-        frame.grid_rowconfigure(2, weight=1)
         return frame
 
     @staticmethod
