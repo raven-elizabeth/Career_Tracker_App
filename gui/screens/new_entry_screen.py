@@ -12,9 +12,10 @@ MULTILINE_FIELDS = {"work_contribution", "learning"}
 class NewEntryScreen(Screen):
     TEXT_HEIGHT = 4
 
-    def __init__(self, *args, on_home, **kwargs):
+    def __init__(self, *args, on_home, on_valid_save, **kwargs):
         super().__init__(*args, **kwargs)
         self._on_home = on_home
+        self._on_valid_save = on_valid_save
         self._text_widgets = {}
 
         self._configure_grid()
@@ -66,14 +67,17 @@ class NewEntryScreen(Screen):
             bg=self.PRIMARY_COLOR,
         ).grid(row=0, column=0, pady=(0, 4))
 
+        # Store options for today up to the past year in YYYY-MM-DD format
         today = datetime.date.today()
         dates = [
             (today - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
             for i in range(365)
         ]
-        self._date_var = StringVar(value=dates[0])
+
+        # Combobox requires StringVar to track selected value; default to today's date and use readonly to prevent invalid input
+        self._selected_date = StringVar(value=dates[0])
         date_dropdown = ttk.Combobox(
-            date_frame, textvariable=self._date_var,
+            date_frame, textvariable=self._selected_date,
             values=dates, state="readonly", width=20
         )
         date_dropdown.grid(row=1, column=0)
@@ -138,24 +142,59 @@ class NewEntryScreen(Screen):
         )
         save_btn.grid(padx=self.OUTER_PADDING)
 
-    def _on_save(self):
+    def _input_is_valid(self, raw_data):
+        valid = True
+        if not raw_data or not any(raw_data[field] for field in ENTRY_FIELDS):
+            self._show_error("No input detected", "Please fill in at least one field before saving.")
+            valid = False
+
+        for field, value in raw_data:
+            if value > 2000:
+                self._show_error(f"Input for {field} too long", "Please limit each field to 2000 characters.")
+                valid = False
+
+        return valid
+
+    @staticmethod
+    def _get_filtered_data(raw_data):
+        filtered_data = {
+            field: value.strip() for field, value in raw_data.items()
+            if value is not None and value.strip() != ""
+        }
+        return filtered_data
+
+    def _on_save(self, edited=False):
         """Collect field values and submit via the save callback."""
-        pass
+        new_data = self.get_entry_data()
+        if self._input_is_valid(new_data):
+            data = self._get_filtered_data(new_data)
+            self._on_valid_save(data)
+
+            if edited:
+                validate_update()
+
+
+
 
     def get_entry_data(self):
         """Return a dict of the current date and field values."""
-        data = {"date": self._date_var.get()}
+        # Use get() to extract string value from StringVar
+        data = {"date": self._selected_date.get()}
         for field, widget in self._text_widgets.items():
             if isinstance(widget, Text):
+                # Use get() to extract text content from Text widget
+                # Start from line 1, character 0
+                # End at the end minus 1 character to exclude trailing newline added by Text widget
                 data[field] = widget.get("1.0", "end-1c").strip()
             else:
+                # Use get() to extract string value from Entry widget
                 data[field] = widget.get().strip()
         return data
 
     def clear_fields(self):
         """Clear all fields and reset date to today."""
         today = datetime.date.today().strftime("%Y-%m-%d")
-        self._date_var.set(today)
+        self._selected_date.set(today)
         for widget in self._text_widgets.values():
             if isinstance(widget, Text):
                 widget.delete("1.0", "end")
