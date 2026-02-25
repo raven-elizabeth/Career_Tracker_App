@@ -88,7 +88,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         entry = self._repo.get_entry_by_date("2025-06-06")
 
         # Assert
-        self.assertEqual(entry, None)
+        self.assertIsNone(entry)
 
     def test_replace_entry_updates_existing_entry(self):
         # Arrange
@@ -143,7 +143,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         }
 
         # Act
-        self._repo.partially_update_entry("2025-06-04", updated_entry_items)
+        self._repo.partially_update_entry(updated_entry_items)
         response = self._repo.get_entry_by_date("2025-06-04")
 
         # Assert
@@ -158,23 +158,22 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
         # Act, Assert
         with self.assertRaises(ValueError) as context:
-            self._repo.partially_update_entry("2025-06-07", updated_entry)
+            self._repo.partially_update_entry(updated_entry.entry_dict)
 
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
 
     def test_delete_existing_entry_deletes_entry(self):
         # Arrange
-        response = self._repo.get_entry_by_date("2025-06-04")
-        self.assertEqual(response.entry_dict, self.expected)
+        get_response = self._repo.get_entry_by_date("2025-06-04")
+        self.assertEqual(get_response.entry_dict, self.expected)
 
         # Act
         self._repo.delete_entry("2025-06-04")
+        deleted_entry_get_response = self._repo.get_entry_by_date("2025-06-04")
 
         # Assert
-        with self.assertRaises(ValueError) as context:
-            self._repo.get_entry_by_date("2025-06-04")
+        self.assertIsNone(deleted_entry_get_response)
 
-        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-04")
 
     def test_delete_nonexistent_entry_raises_value_error(self):
         # Arrange

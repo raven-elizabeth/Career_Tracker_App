@@ -88,7 +88,8 @@ class CsvDatabaseRepository(DatabaseRepository):
             self._logger.warning("No entry found to replace for date: %s", date)
             raise ValueError(f"No entry found for date: {date}")
 
-    def partially_update_entry(self, date, update_request):
+    def partially_update_entry(self, update_request):
+        date = update_request["date"]
         self._logger.debug("Partially updating entry with date: %s", date)
         self._validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)

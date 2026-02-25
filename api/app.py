@@ -31,7 +31,7 @@ class API:
                 if entry:
                     self._logger.info("Entry retrieved successfully for date: %s", date)
                     return jsonify({"message": "Entry retrieved successfully", "data": entry.entry_dict}), 200
-                return jsonify("No entry found for date: %s" % date), 204
+                return jsonify({"message": f"No entry found for date: {date}", "entry": entry}), 404
             except (FileNotFoundError, FileEmptyError) as e:
                 return self._file_unavailable_response(date, e)
 
@@ -90,20 +90,15 @@ class API:
                 self._logger.warning("PATCH request missing JSON body")
                 return jsonify({"error": "Invalid JSON body"}), 400
 
-            update_items = {k: v for k, v in update_request.items() if k != "date"}
-            if all(values == "" for values in update_items.values()):
-                self._logger.warning("PATCH request contains no valid fields for update")
-                return jsonify({"error": "No valid fields provided for update"}), 400
-
             # Attempt creating Entry object to pass validation of request data
             try:
-                DailyEntry(**update_request)
+                DailyEntry.from_partial_update_request(update_request)
             except ValueError as e:
                 self._logger.warning("PATCH request contains invalid data for Entry class: %s", e)
                 return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
 
             try:
-                updated_entry = self._repository.partially_update_entry(date, update_items)
+                updated_entry = self._repository.partially_update_entry(update_request)
                 self._logger.info("Entry partially updated successfully for date: %s", date)
                 return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
             except (FileNotFoundError, FileEmptyError) as e:
@@ -118,7 +113,7 @@ class API:
             try:
                 self._repository.delete_entry(date)
                 self._logger.info("Entry deleted successfully for date: %s", date)
-                return jsonify({"message": "Entry deleted successfully"}), 200
+                return "", 204
             except (FileNotFoundError, FileEmptyError) as e:
                 return self._file_unavailable_response(date, e)
             except ValueError as e:

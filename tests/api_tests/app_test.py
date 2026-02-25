@@ -49,7 +49,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.get_json().get("message"), "Entry retrieved successfully")
         self.assertEqual(response.get_json().get("data"), self.expected)
 
-    def test_get_entry_nonexistent_file_returns_503_status_code(self):
+    def test_get_entry_nonexistent_file_returns_service_unavailable_status_code(self):
         # Act
         response = self.client.get("/api/csv/entries/2025-01-02")
 
@@ -57,7 +57,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.get_json().get("error"), "File unavailable")
 
-    def test_get_entry_empty_file_returns_503_status_code(self):
+    def test_get_entry_empty_file_returns_service_unavailable_status_code(self):
         # Arrange
         with open(self._test_file_path, "w") as f:
             f.close()
@@ -69,14 +69,16 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.get_json().get("error"), "File unavailable")
 
-    def test_get_nonexistent_entry_returns_not_found_response(self):
-        # Act
+    def test_get_nonexistent_entry_returns_no_content_response(self):
+        # Arrange
         self.client.post("/api/csv/entries", json=self.entry)
+
+        # Act
         response = self.client.get("/api/csv/entries/2025-01-04")
 
         # Assert
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json().get("error"), "No entry found for date: 2025-01-04")
+        self.assertEqual(response.get_json().get("message"), "No entry found for date: 2025-01-04")
 
     def test_post_entry_returns_successful_response(self):
         # Act
@@ -160,9 +162,12 @@ class TestAPI(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 400)
-        self.assertEqual("Invalid JSON body", response.get_json().get("error"))
+        self.assertEqual(
+            "Invalid data for Entry class: PUT request requires replacement data for all fields in the Entry class",
+            response.get_json().get("error")
+        )
 
-    def test_update_replace_nonexistent_file_returns_503_status_code(self):
+    def test_update_replace_nonexistent_file_returns_service_unavailable_status_code(self):
         # Arrange
         updated_entry = {
             "date": "2025-01-02",
@@ -180,7 +185,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.get_json().get("error"), "File unavailable")
 
-    def test_update_replace_empty_file_returns_503_status_code(self):
+    def test_update_replace_empty_file_returns_service_unavailable_status_code(self):
         # Arrange
         with open(self._test_file_path, "w") as f:
             f.close()
@@ -266,10 +271,13 @@ class TestAPI(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 400)
-        self.assertEqual("No valid fields provided for update", response.get_json().get("error"))
+        self.assertEqual(
+            "Invalid data for Entry class: Unable to create entry: At least one value must not be empty",
+            response.get_json().get("error")
+        )
         self.assertEqual(entry.get("data"), expected_entry)
 
-    def test_partial_update_nonexistent_file_returns_503_status_code(self):
+    def test_partial_update_nonexistent_file_returns_service_unavailable_status_code(self):
         # Arrange
         updated_entry = {
             "date": "2025-01-02",
@@ -283,7 +291,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.get_json().get("error"), "File unavailable")
 
-    def test_partial_update_empty_file_returns_503_status_code(self):
+    def test_partial_update_empty_file_returns_service_unavailable_status_code(self):
         # Arrange
         with open(self._test_file_path, "w") as f:
             f.close()
@@ -308,10 +316,10 @@ class TestAPI(unittest.TestCase):
         response = self.client.delete("/api/csv/entries/2025-01-02")
 
         # Assert
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json().get("message"), "Entry deleted successfully")
+        self.assertEqual(response.status_code, 204)
+        self.assertIsNone(response.get_json())
 
-    def test_delete_entry_empty_file_returns_503_status_code(self):
+    def test_delete_entry_empty_file_returns_service_unavailable_status_code(self):
         # Arrange
         with open(self._test_file_path, "w") as f:
             f.close()
@@ -323,7 +331,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.get_json().get("error"), "File unavailable")
 
-    def test_delete_entry_nonexistent_file_returns_503_status_code(self):
+    def test_delete_entry_nonexistent_file_returns_service_unavailable_status_code(self):
         # Act
         response = self.client.delete("/api/csv/entries/2025-01-02")
 

@@ -24,3 +24,9 @@ class DailyEntry:
         if not update_dict or not all(field in update_dict for field in FIELDS):
             raise ValueError("PUT request requires replacement data for all fields in the Entry class")
         return cls(**update_dict)
+
+    @classmethod
+    def from_partial_update_request(cls, update_dict):
+        if all(values.strip() == "" for values in update_dict.values()):
+            raise ValueError("PATCH request requires at least one non-empty value for update")
+        return cls(**update_dict)
