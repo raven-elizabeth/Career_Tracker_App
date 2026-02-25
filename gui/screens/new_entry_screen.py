@@ -132,9 +132,9 @@ class NewEntryScreen(Screen):
 
         save_btn = self._create_stylised_button(
             parent=container,
-            title="✔️ Save Entry",
-            subtitle="Save this entry to your tracker",
-            func=self._on_save,
+            title="✔️ Save",
+            subtitle="Save entry & return to Home",
+            func=self._on_save
         )
         save_btn.grid(padx=self.OUTER_PADDING)
 
