@@ -19,7 +19,7 @@ class NewEntryScreen(Screen):
 
         self._configure_grid()
         self._create_header_row()
-        self._create_date_row()
+        self._create_date_dropdown()
         self._create_fields_frame()
         self._create_save_button()
 
@@ -50,7 +50,7 @@ class NewEntryScreen(Screen):
             pad_x=(10, self.OUTER_PADDING), pad_y=(20, 10), sticky="e"
         )
 
-    def _create_date_row(self):
+    def _create_date_dropdown(self):
         """Centred date dropdown spanning both columns."""
         date_frame = Frame(self, bg=self.PRIMARY_COLOR)
         date_frame.grid(
@@ -98,7 +98,7 @@ class NewEntryScreen(Screen):
 
             Label(
                 inner,
-                text=field.upper() + ":",
+                text=field.upper().replace("_", " ") + ":",
                 font=self.subheading_font,
                 bg="white",
                 anchor="w",
