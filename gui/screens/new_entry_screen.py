@@ -57,7 +57,7 @@ class NewEntryScreen(Screen):
             pady=(20, 10), sticky="w"
         )
 
-        back_btn = self._add_back_button(func=self._on_home)
+        back_btn = self._add_back_button(func=self._on_home, title="❌ Cancel")
         self._position_button(
             back_btn, row=0, column=1, colspan=1,
             pad_x=(10, self.OUTER_PADDING), pad_y=(20, 10), sticky="e"

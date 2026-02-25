@@ -112,12 +112,12 @@ class Screen(Frame):
 
         return btn_frame
 
-    def _add_back_button(self, func):
+    def _add_back_button(self, func, title="⬅️ Back", subtitle="Return to home screen"):
         """Create a styled back button; caller is responsible for positioning."""
         return self._create_stylised_button(
             parent=self,
-            title="⬅️ Back",
-            subtitle="Return to home screen",
+            title=title,
+            subtitle=subtitle,
             func=func,
         )
 
