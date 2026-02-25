@@ -28,6 +28,16 @@ class SearchScreen(Screen):
 
         self.bind("<Configure>", self._on_resize)
 
+    def refresh(self):
+        """Refresh the display frame based on the currently selected calendar date."""
+        selected_date = self.calendar.get_date()
+        date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
+        entry = self._on_date(date)
+        if entry:
+            self._on_valid_date(entry)
+        else:
+            self._reset_widgets(default=True)
+
     def _on_resize(self, event):
         """Switch between adjacent and wrap layouts based on window width."""
         if event.widget != self:
@@ -108,7 +118,8 @@ class SearchScreen(Screen):
             )
         # Action buttons sit on the row after the last label
         self._action_buttons.grid(
-            row=len(entry.entry_dict) + 1, column=0, columnspan=2, pady=(20, 10)
+            row=len(entry.entry_dict) + 1, column=0, columnspan=2,
+            padx=10, pady=(20, 10), sticky="ew"
         )
 
     def _reset_widgets(self, default=True):
@@ -177,8 +188,8 @@ class SearchScreen(Screen):
     def _create_action_buttons(self):
         """Create Edit and Delete stylised buttons in a frame pinned to the bottom of the inner frame."""
         btn_frame = Frame(self.inner_frame, bg="white")
-        btn_frame.grid_columnconfigure(0, weight=1)
-        btn_frame.grid_columnconfigure(1, weight=1)
+        btn_frame.grid_columnconfigure(0, weight=1, uniform="btn")
+        btn_frame.grid_columnconfigure(1, weight=1, uniform="btn")
 
         edit_btn = self._create_stylised_button(
             parent=btn_frame,
@@ -186,7 +197,7 @@ class SearchScreen(Screen):
             subtitle="Edit this entry",
             func=lambda: self._on_edit(self._current_entry.entry_dict)
         )
-        edit_btn.grid(row=0, column=0, padx=(10, 5), pady=(5, 10), sticky="ew")
+        edit_btn.grid(row=0, column=0, padx=(0, 5), sticky="ew")
 
         delete_btn = self._create_stylised_button(
             parent=btn_frame,
@@ -194,7 +205,7 @@ class SearchScreen(Screen):
             subtitle="Delete this entry",
             func=self._show_delete_confirmation
         )
-        delete_btn.grid(row=0, column=1, padx=(5, 10), pady=(5, 10), sticky="ew")
+        delete_btn.grid(row=0, column=1, padx=(5, 0), sticky="ew")
 
         return btn_frame
 
