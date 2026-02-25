@@ -87,7 +87,6 @@ class SearchScreen(Screen):
         self._reset_widgets(default=False)
         self._display_entry(entry)
 
-
     def _display_entry(self, entry):
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             label = self._create_label(
@@ -154,4 +153,3 @@ class SearchScreen(Screen):
             self.inner_frame, row=1, text="Select a date to view your entries...",
             font=self.italic_font, bg="white", pad_y=10
         )
-
