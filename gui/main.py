@@ -23,7 +23,10 @@ class App:
         self._new_entry_screen = NewEntryScreen(
             self._root,
             on_home=self.show_home,
-            on_valid_save=self._api_client.
+            on_valid_save=self._api_client.save_entry,
+            on_date=self._api_client.get_entry_by_date,
+            on_full_replace=self._api_client.replace_entry,
+            on_partial_update=self._api_client.update_entry
         )
 
         self.show_home()
@@ -40,6 +43,7 @@ class App:
 
     def show_new_entry(self):
         self._home_screen.pack_forget()
+        self._new_entry_screen.refresh()
         self._new_entry_screen.pack(fill="both", expand=True)
 
     def run(self):
