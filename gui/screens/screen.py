@@ -111,3 +111,13 @@ class Screen(Frame):
         subtitle_label.bind("<Button-1>", lambda event, f=func: f())
 
         return btn_frame
+
+    def _add_back_button(self, func):
+        """Create a styled back button; caller is responsible for positioning."""
+        return self._create_stylised_button(
+            parent=self,
+            title="⬅️ Back",
+            subtitle="Return to home screen",
+            func=func,
+        )
+
