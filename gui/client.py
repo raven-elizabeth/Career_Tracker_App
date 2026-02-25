@@ -19,3 +19,19 @@ class ApiClient:
             return response.json().get("data")
         else:
             raise ValueError(f"Failed to save entry: {response.json().get('error', 'Unknown error')}")
+
+    def replace_entry(self, updated_data):
+        date = updated_data.get("date")
+        response = requests.put(f"{self.BASE_URL}/{date}", json=updated_data)
+        if response.status_code == 200:
+            return response.json().get("data")
+        else:
+            raise ValueError(f"Failed to update entry: {response.json().get('error', 'Unknown error')}")
+
+    def update_entry(self, update_data):
+        date = update_data.get("date")
+        response = requests.patch(f"{self.BASE_URL}/{date}", json=update_data)
+        if response.status_code == 200:
+            return response.json().get("data")
+        else:
+            raise ValueError(f"Failed to update entry: {response.json().get('error', 'Unknown error')}")
