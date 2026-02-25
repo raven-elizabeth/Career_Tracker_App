@@ -12,9 +12,13 @@ from logging_config import get_logger
 class API:
     def __init__(self, repository=None, logger=None):
         self.app = Flask(__name__)
-        self.app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 # Limit request body size to 16KB
+        # Defensive programming: Limit maximum content length (16KB) to prevent excessively large requests from being processed
+        self.app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
+
+        # Dependency injection allows for easier testing and flexibility in choosing different repository implementations or loggers
         self._repository = repository if repository is not None else CsvDatabaseRepository()
         self._logger = logger if logger is not None else get_logger(__name__)
+
         self.setup_routes()
 
     def setup_routes(self):
@@ -29,8 +33,7 @@ class API:
                     return jsonify({"message": "Entry retrieved successfully", "data": entry.entry_dict}), 200
                 return jsonify("No entry found for date: %s" % date), 204
             except (FileNotFoundError, FileEmptyError) as e:
-                self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
-                return jsonify({"error": "File unavailable"}), 503
+                return _file_unavailable_response(date, e)
 
         @self.app.route("/api/csv/entries", methods=["POST"])
         def post_entry():
@@ -77,8 +80,7 @@ class API:
                 self._logger.info("Entry replaced successfully for date: %s", date)
                 return jsonify({"message": "Entry updated successfully", "data": updated_entry.entry_dict}), 200
             except (FileNotFoundError, FileEmptyError) as e:
-                self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
-                return jsonify({"error": "File unavailable"}), 503
+                return _file_unavailable_response(date, e)
             except ValueError as e:
                 self._logger.warning("Failed to replace entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Update unsuccessful: {e}"}), 404
@@ -108,8 +110,7 @@ class API:
                 self._logger.info("Entry partially updated successfully for date: %s", date)
                 return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
             except (FileNotFoundError, FileEmptyError) as e:
-                self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
-                return jsonify({"error": "File unavailable"}), 503
+                return _file_unavailable_response(date, e)
             except ValueError as e:
                 self._logger.warning("Failed to partially update entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Partial update unsuccessful: {e}"}), 404
@@ -122,11 +123,14 @@ class API:
                 self._logger.info("Entry deleted successfully for date: %s", date)
                 return jsonify({"message": "Entry deleted successfully"}), 200
             except (FileNotFoundError, FileEmptyError) as e:
-                self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
-                return jsonify({"error": "File unavailable"}), 503
+                return _file_unavailable_response(date, e)
             except ValueError as e:
                 self._logger.warning("Failed to delete entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Delete unsuccessful: {e}"}), 404
+
+        def _file_unavailable_response(date, e):
+            self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
+            return jsonify({"error": "File unavailable"}), 503
 
 if __name__ == "__main__":
     api = API()
