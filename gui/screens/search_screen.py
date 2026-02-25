@@ -88,8 +88,8 @@ class SearchScreen(Screen):
             self._reset_widgets()
 
     def _on_valid_date(self, entry):
-        self._current_entry = entry
         self._reset_widgets(default=False)
+        self._current_entry = entry
         self._display_entry(entry)
 
     def _display_entry(self, entry):
@@ -130,12 +130,12 @@ class SearchScreen(Screen):
 
         # Always hide action buttons until an entry is displayed
         self._action_buttons.grid_remove()
-        self._current_entry = None
 
         # Show default message if default=True, otherwise hide it
         if not default:
             self.default_msg.grid_remove()
         else:
+            self._current_entry = None
             # Restore spacer rows for centered default message
             self.inner_frame.grid_rowconfigure(0, weight=1)
             self.inner_frame.grid_rowconfigure(2, weight=1)
@@ -192,7 +192,7 @@ class SearchScreen(Screen):
             parent=btn_frame,
             title="❌ Delete",
             subtitle="Delete this entry",
-            func=self._handle_delete
+            func=self._show_delete_confirmation
         )
         delete_btn.grid(row=0, column=1, padx=(5, 10), pady=(5, 10), sticky="ew")
 
@@ -205,15 +205,9 @@ class SearchScreen(Screen):
         if self._current_entry:
             date = self._current_entry.entry_dict.get("date")
             confirm = messagebox.askyesno(
-                title="Confirm Delete",
+                title="Confirm delete",
                 message=f"Are you sure you want to delete the entry for {date}?"
             )
             if confirm:
-                self._handle_delete()
-
-    def _handle_delete(self):
-        """Delete the current entry and reset the display."""
-        if self._current_entry:
-            self._show_delete_confirmation()
-            self._on_delete(self._current_entry.entry_dict.get("date"))
-            self._reset_widgets(default=True)
+                self._on_delete(self._current_entry.entry_dict.get("date"))
+                self._reset_widgets(default=True)
