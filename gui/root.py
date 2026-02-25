@@ -7,6 +7,7 @@ class Root(Tk):
 
     def __init__(self):
         super().__init__()
+        # Get user's screen dimensions and set the window to fill the screen on start
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         self.geometry(f"{screen_width}x{screen_height}")
