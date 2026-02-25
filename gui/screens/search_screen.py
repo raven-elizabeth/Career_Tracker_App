@@ -116,10 +116,10 @@ class SearchScreen(Screen):
                 lambda event, lbl=label: lbl.config(wraplength=event.width - 20),
                 add="+"
             )
-        # Action buttons sit on the row after the last label
+        # Action buttons sit on the row after the last label, restricted width and centred
         self._action_buttons.grid(
             row=len(entry.entry_dict) + 1, column=0, columnspan=2,
-            padx=10, pady=(20, 10), sticky="ew"
+            padx=40, pady=(20, 10), sticky="ew"
         )
 
     def _reset_widgets(self, default=True):
@@ -182,11 +182,11 @@ class SearchScreen(Screen):
         )
         self.default_msg.grid_configure(columnspan=2)
         self._action_buttons = self._create_action_buttons()
-        # Hidden until an entry is displayed
+        # Hidden until an entry is displayed — placed in a centring container
         self._action_buttons.grid_remove()
 
     def _create_action_buttons(self):
-        """Create Edit and Delete stylised buttons in a frame pinned to the bottom of the inner frame."""
+        """Create Edit and Delete stylised buttons of equal size, centred in the inner frame."""
         btn_frame = Frame(self.inner_frame, bg="white")
         btn_frame.grid_columnconfigure(0, weight=1, uniform="btn")
         btn_frame.grid_columnconfigure(1, weight=1, uniform="btn")
