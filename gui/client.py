@@ -12,3 +12,10 @@ class ApiClient:
             data = response.json().get("data")
             return DailyEntry(**data)
         return None
+
+    def save_entry(self, entry_data):
+        response = requests.post(self.BASE_URL, json=entry_data)
+        if response.status_code == 201:
+            return response.json().get("data")
+        else:
+            raise ValueError(f"Failed to save entry: {response.json().get('error', 'Unknown error')}")

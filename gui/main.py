@@ -20,7 +20,11 @@ class App:
             on_home=self.show_home,
             on_date=self._api_client.get_entry_by_date
         )
-        self._new_entry_screen = NewEntryScreen(self._root, on_home=self.show_home)
+        self._new_entry_screen = NewEntryScreen(
+            self._root,
+            on_home=self.show_home,
+            on_valid_save=self._api_client.
+        )
 
         self.show_home()
 
