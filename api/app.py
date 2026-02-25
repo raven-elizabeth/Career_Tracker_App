@@ -33,7 +33,7 @@ class API:
                     return jsonify({"message": "Entry retrieved successfully", "data": entry.entry_dict}), 200
                 return jsonify("No entry found for date: %s" % date), 204
             except (FileNotFoundError, FileEmptyError) as e:
-                return _file_unavailable_response(date, e)
+                return self._file_unavailable_response(date, e)
 
         @self.app.route("/api/csv/entries", methods=["POST"])
         def post_entry():
@@ -80,7 +80,7 @@ class API:
                 self._logger.info("Entry replaced successfully for date: %s", date)
                 return jsonify({"message": "Entry updated successfully", "data": updated_entry.entry_dict}), 200
             except (FileNotFoundError, FileEmptyError) as e:
-                return _file_unavailable_response(date, e)
+                return self._file_unavailable_response(date, e)
             except ValueError as e:
                 self._logger.warning("Failed to replace entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Update unsuccessful: {e}"}), 404
@@ -110,7 +110,7 @@ class API:
                 self._logger.info("Entry partially updated successfully for date: %s", date)
                 return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
             except (FileNotFoundError, FileEmptyError) as e:
-                return _file_unavailable_response(date, e)
+                return self._file_unavailable_response(date, e)
             except ValueError as e:
                 self._logger.warning("Failed to partially update entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Partial update unsuccessful: {e}"}), 404
@@ -123,14 +123,15 @@ class API:
                 self._logger.info("Entry deleted successfully for date: %s", date)
                 return jsonify({"message": "Entry deleted successfully"}), 200
             except (FileNotFoundError, FileEmptyError) as e:
-                return _file_unavailable_response(date, e)
+                return self._file_unavailable_response(date, e)
             except ValueError as e:
                 self._logger.warning("Failed to delete entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Delete unsuccessful: {e}"}), 404
 
-        def _file_unavailable_response(date, e):
-            self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
-            return jsonify({"error": "File unavailable"}), 503
+    def _file_unavailable_response(self, date, e):
+        self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
+        return jsonify({"error": "File unavailable"}), 503
+
 
 if __name__ == "__main__":
     api = API()
