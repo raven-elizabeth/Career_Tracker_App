@@ -12,17 +12,29 @@ MULTILINE_FIELDS = {"work_contribution", "learning"}
 class NewEntryScreen(Screen):
     TEXT_HEIGHT = 4
 
-    def __init__(self, *args, on_home, on_valid_save, **kwargs):
+    def __init__(self, *args, on_home, on_valid_save, on_date, on_full_replace, on_partial_update, **kwargs):
         super().__init__(*args, **kwargs)
         self._on_home = on_home
         self._on_valid_save = on_valid_save
+        self._on_date = on_date
+        self._on_full_replace = on_full_replace
+        self._on_partial_update = on_partial_update
         self._text_widgets = {}
+
+        # Track whether we're currently editing an existing entry (True) or creating a new one (False) to determine post-save behaviour
+        self._editing = False
+        self._original_data = None
 
         self._configure_grid()
         self._create_header_row()
         self._create_date_dropdown()
         self._create_fields_frame()
         self._create_save_button()
+
+        today = datetime.date.today().strftime("%Y-%m-%d")
+        entry = self._on_date(today)
+        if entry:
+            self._on_edit(entry.entry_dict)
 
     def _configure_grid(self):
         """Single column; header, date, fields, and save button stack vertically."""
@@ -81,6 +93,7 @@ class NewEntryScreen(Screen):
             values=dates, state="readonly", width=20
         )
         date_dropdown.grid(row=1, column=0)
+        date_dropdown.bind("<<ComboboxSelected>>", self._on_date_selected)
 
     def _create_fields_frame(self):
         """Light-blue bordered outer frame containing a white inner frame with labelled entry fields."""
@@ -142,14 +155,24 @@ class NewEntryScreen(Screen):
         )
         save_btn.grid(padx=self.OUTER_PADDING)
 
+    def _on_date_selected(self, event):
+        selected_date = self._selected_date.get()
+        entry = self._on_date(selected_date)
+        if entry:
+            self._editing = True
+            self._original_data = entry.entry_dict
+            self._prepopulate_fields(entry.entry_dict)
+        else:
+            self.clear_fields(reset_date=False)
+
     def _input_is_valid(self, raw_data):
         valid = True
         if not raw_data or not any(raw_data[field] for field in ENTRY_FIELDS):
             self._show_error("No input detected", "Please fill in at least one field before saving.")
             valid = False
 
-        for field, value in raw_data:
-            if value > 2000:
+        for field, value in raw_data.items():
+            if len(value) > 2000:
                 self._show_error(f"Input for {field} too long", "Please limit each field to 2000 characters.")
                 valid = False
 
@@ -163,15 +186,46 @@ class NewEntryScreen(Screen):
         }
         return filtered_data
 
-    def _on_save(self, edited=False):
+    def refresh(self):
+        """Reset today's date; check the selected date and prepopulate or clear fields accordingly."""
+        today = datetime.date.today().strftime("%Y-%m-%d")
+        self._selected_date.set(today)
+        entry = self._on_date(self._selected_date.get())
+        if entry:
+            self._on_edit(entry.entry_dict)
+        else:
+            self.clear_fields(reset_date=False)
+
+    def _on_save(self):
         """Collect field values and submit via the save callback."""
         new_data = self.get_entry_data()
         if self._input_is_valid(new_data):
             data = self._get_filtered_data(new_data)
-            self._on_valid_save(data)
 
-            if edited:
-                self._validate_update()
+            if self._editing and self._original_data:
+                self._determine_update_route(data)
+            else:
+                self._on_valid_save(data)
+
+            self._editing = False
+            self._original_data = None
+            self._on_home()
+
+    def _determine_update_route(self, new_data):
+        if self._is_update_required(new_data):
+            # If all values are changed, put route, else patch route
+            if all(self._original_data.get(field) != value for field, value in new_data.items()):
+                self._on_full_replace(new_data)
+            else:
+                self._on_partial_update(new_data)
+        else:
+            return
+
+    def _is_update_required(self, new_data):
+        for field, value in new_data.items():
+            if self._original_data.get(field) != value and value != "":
+                return True
+        return False
 
     def _show_error(self, title, message):
         """Display an error message in a pop-up window."""
@@ -183,11 +237,22 @@ class NewEntryScreen(Screen):
         Label(error_window, text=message, font=self.subheading_font, wraplength=280).pack(pady=20)
         ttk.Button(error_window, text="OK", command=error_window.destroy).pack(pady=10)
 
-    def _validate_update(self):
+    def _prepopulate_fields(self, saved_data):
+        """Pre-fill fields with saved data for editing."""
+        self._selected_date.set(saved_data.get("date"))
+        for field, widget in self._text_widgets.items():
+            value = saved_data.get(field, "")
+            if isinstance(widget, Text):
+                widget.delete("1.0", "end")
+                widget.insert("1.0", value)
+            else:
+                widget.delete(0, "end")
+                widget.insert(0, value)
 
-
-
-
+    def _on_edit(self, original_data):
+        self._prepopulate_fields(original_data)
+        self._editing = True
+        self._original_data = original_data
 
     def get_entry_data(self):
         """Return a dict of the current date and field values."""
@@ -204,10 +269,13 @@ class NewEntryScreen(Screen):
                 data[field] = widget.get().strip()
         return data
 
-    def clear_fields(self):
+    def clear_fields(self, reset_date=True):
         """Clear all fields and reset date to today."""
-        today = datetime.date.today().strftime("%Y-%m-%d")
-        self._selected_date.set(today)
+        if reset_date:
+            today = datetime.date.today().strftime("%Y-%m-%d")
+            self._selected_date.set(today)
+        self._editing = False
+        self._original_data = None
         for widget in self._text_widgets.values():
             if isinstance(widget, Text):
                 widget.delete("1.0", "end")
