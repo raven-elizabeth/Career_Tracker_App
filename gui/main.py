@@ -21,12 +21,13 @@ class App:
             on_home=self.show_home,
             on_date=self._api_client.get_entry_by_date
         )
-        self._new_entry_screen = NewEntryScreen(self._root)
+        self._new_entry_screen = NewEntryScreen(self._root, on_home=self.show_home)
 
         self.show_home()
 
     def show_home(self):
         self._search_screen.pack_forget()
+        self._new_entry_screen.pack_forget()
         self._home_screen.pack(fill="both", expand=True)
 
     def show_search(self):
@@ -34,7 +35,8 @@ class App:
         self._search_screen.pack(fill="both", expand=True)
 
     def show_new_entry(self):
-        pass
+        self._home_screen.pack_forget()
+        self._new_entry_screen.pack(fill="both", expand=True)
 
     def run(self):
         self._root.mainloop()
