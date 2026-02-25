@@ -1,5 +1,5 @@
 import datetime
-from tkinter import Frame
+from tkinter import Frame, messagebox
 from tkcalendar import Calendar
 
 from gui.screens.screen import Screen
@@ -211,8 +211,6 @@ class SearchScreen(Screen):
 
     def _show_delete_confirmation(self):
         """Show a confirmation dialog before deleting an entry."""
-        from tkinter import messagebox
-
         if self._current_entry:
             date = self._current_entry.entry_dict.get("date")
             confirm = messagebox.askyesno(
