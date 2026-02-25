@@ -5,7 +5,6 @@ from flask import Flask, jsonify, request
 from database.csv_database_repository import CsvDatabaseRepository
 from database.exceptions import FileEmptyError, DuplicateEntryError
 from domain.dailyentry import DailyEntry
-from domain.fields import FIELDS
 from logging_config import get_logger
 
 
