@@ -1,5 +1,6 @@
 import datetime
 from tkinter import Frame, messagebox
+
 from tkcalendar import Calendar
 
 from gui.screens.screen import Screen
@@ -86,7 +87,7 @@ class SearchScreen(Screen):
     def _setup_calendar(self):
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
         self._position_calendar(row=2, colspan=1)
-        self.calendar.bind("<<CalendarSelected>>",self._on_date_selected)
+        self.calendar.bind("<<CalendarSelected>>", self._on_date_selected)
 
     def _on_date_selected(self, event):
         selected_date = self.calendar.get_date()

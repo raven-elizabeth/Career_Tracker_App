@@ -13,6 +13,7 @@ LOG_DIR = Path(__file__).parent / "logs"
 # mkdir creates the logs directory and exist_ok=True prevents an error if the directory already exists.
 LOG_DIR.mkdir(exist_ok=True)
 
+
 # The method here explicitly returns a logger object, the name is usually set to the name of the module calling it.
 def get_logger(name) -> logging.Logger:
     # getLogger retrieves a logger with the specified name. If a logger with that name already exists, it returns the existing logger. If not, it creates a new one.

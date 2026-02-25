@@ -2,5 +2,6 @@
 class FileEmptyError(Exception):
     pass
 
+
 class DuplicateEntryError(Exception):
     pass

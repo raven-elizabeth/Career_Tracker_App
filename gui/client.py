@@ -40,4 +40,3 @@ class ApiClient:
         response = requests.delete(f"{self.BASE_URL}/{date}")
         if response.status_code != 204:
             raise ValueError(f"Failed to delete entry: {response.json().get('error', 'Unknown error')}")
-

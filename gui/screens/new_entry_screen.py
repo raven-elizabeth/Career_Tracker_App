@@ -173,7 +173,8 @@ class NewEntryScreen(Screen):
 
         for field, value in raw_data.items():
             if len(value) > 2000:
-                self._show_error(f"Input for {field.replace('_', ' ')} too long", "Please limit each field to 2000 characters.")
+                self._show_error(f"Input for {field.replace('_', ' ')} too long",
+                                 "Please limit each field to 2000 characters.")
                 valid = False
 
         return valid
