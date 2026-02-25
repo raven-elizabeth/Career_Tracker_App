@@ -186,11 +186,11 @@ class NewEntryScreen(Screen):
         }
         return filtered_data
 
-    def refresh(self):
-        """Reset today's date; check the selected date and prepopulate or clear fields accordingly."""
-        today = datetime.date.today().strftime("%Y-%m-%d")
-        self._selected_date.set(today)
-        entry = self._on_date(self._selected_date.get())
+    def refresh(self, date=None):
+        """Reset to today or a given date; check the selected date and prepopulate or clear fields accordingly."""
+        target_date = date or datetime.date.today().strftime("%Y-%m-%d")
+        self._selected_date.set(target_date)
+        entry = self._on_date(target_date)
         if entry:
             self._on_edit(entry.entry_dict)
         else:
