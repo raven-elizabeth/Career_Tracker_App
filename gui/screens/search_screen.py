@@ -1,4 +1,5 @@
 import datetime
+from tkinter import Frame
 from tkcalendar import Calendar
 
 from gui.screens.screen import Screen
@@ -8,11 +9,14 @@ class SearchScreen(Screen):
     WRAP_LAYOUT_WIDTH = 1000
     INNER_PADDING = 20
 
-    def __init__(self, *args, on_date, on_home, **kwargs):
+    def __init__(self, *args, on_date, on_home, on_edit, on_delete, **kwargs):
         super().__init__(*args, **kwargs)
         self._on_date = on_date
         self._on_home = on_home
+        self._on_edit = on_edit
+        self._on_delete = on_delete
         self._wrap_layout = False
+        self._current_entry = None
 
         self._configure_adjacent_grid()
         self._position_button(
@@ -84,28 +88,34 @@ class SearchScreen(Screen):
             self._reset_widgets()
 
     def _on_valid_date(self, entry):
+        self._current_entry = entry
         self._reset_widgets(default=False)
         self._display_entry(entry)
 
     def _display_entry(self, entry):
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             label = self._create_label(
-                self.inner_frame, row=row,
+                self.inner_frame, row=row + 1,
                 text=f"{field.replace('_', ' ').title()}: {value.capitalize() if value else 'N/A'}",
                 font=self.subheading_font, bg="white",
                 anchor="w", pad_y=5
             )
+            label.grid_configure(columnspan=2)
             self.inner_frame.bind(
                 "<Configure>",
                 lambda event, lbl=label: lbl.config(wraplength=event.width - 20),
                 add="+"
             )
-        self.inner_frame.grid_rowconfigure(len(entry.entry_dict), weight=1)
+        # Action buttons sit on the row after the last label
+        self._action_buttons.grid(
+            row=len(entry.entry_dict) + 1, column=0, columnspan=2, pady=(20, 10)
+        )
 
     def _reset_widgets(self, default=True):
         # Clear screen (destroy widgets, hide default message)
         widgets = self.inner_frame.winfo_children()
         widgets.remove(self.default_msg)
+        widgets.remove(self._action_buttons)
         for widget in widgets:
             widget.destroy()
 
@@ -117,6 +127,10 @@ class SearchScreen(Screen):
         self.inner_frame.grid_rowconfigure(2, weight=0)
         # Reset the trailing spacer row added after entry labels
         self.inner_frame.grid_rowconfigure(len(self.inner_frame.grid_slaves()), weight=0)
+
+        # Always hide action buttons until an entry is displayed
+        self._action_buttons.grid_remove()
+        self._current_entry = None
 
         # Show default message if default=True, otherwise hide it
         if not default:
@@ -147,9 +161,59 @@ class SearchScreen(Screen):
         self.inner_frame = self._create_inner_frame(self.display_frame)
         # Prevent inner frame from resizing to fit content from entry data
         self.inner_frame.grid_propagate(False)
+        self.inner_frame.grid_columnconfigure(0, weight=1)
+        self.inner_frame.grid_columnconfigure(1, weight=1)
         self.inner_frame.grid_rowconfigure(0, weight=1)  # Top spacer
         self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom spacer
         self.default_msg = self._create_label(
             self.inner_frame, row=1, text="Select a date to view your entries...",
             font=self.italic_font, bg="white", pad_y=10
         )
+        self.default_msg.grid_configure(columnspan=2)
+        self._action_buttons = self._create_action_buttons()
+        # Hidden until an entry is displayed
+        self._action_buttons.grid_remove()
+
+    def _create_action_buttons(self):
+        """Create Edit and Delete stylised buttons in a frame pinned to the bottom of the inner frame."""
+        btn_frame = Frame(self.inner_frame, bg="white")
+        btn_frame.grid_columnconfigure(0, weight=1)
+        btn_frame.grid_columnconfigure(1, weight=1)
+
+        edit_btn = self._create_stylised_button(
+            parent=btn_frame,
+            title="✏️ Edit",
+            subtitle="Edit this entry",
+            func=lambda: self._on_edit(self._current_entry.entry_dict)
+        )
+        edit_btn.grid(row=0, column=0, padx=(10, 5), pady=(5, 10), sticky="ew")
+
+        delete_btn = self._create_stylised_button(
+            parent=btn_frame,
+            title="❌ Delete",
+            subtitle="Delete this entry",
+            func=self._handle_delete
+        )
+        delete_btn.grid(row=0, column=1, padx=(5, 10), pady=(5, 10), sticky="ew")
+
+        return btn_frame
+
+    def _show_delete_confirmation(self):
+        """Show a confirmation dialog before deleting an entry."""
+        from tkinter import messagebox
+
+        if self._current_entry:
+            date = self._current_entry.entry_dict.get("date")
+            confirm = messagebox.askyesno(
+                title="Confirm Delete",
+                message=f"Are you sure you want to delete the entry for {date}?"
+            )
+            if confirm:
+                self._handle_delete()
+
+    def _handle_delete(self):
+        """Delete the current entry and reset the display."""
+        if self._current_entry:
+            self._show_delete_confirmation()
+            self._on_delete(self._current_entry.entry_dict.get("date"))
+            self._reset_widgets(default=True)
