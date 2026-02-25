@@ -1,5 +1,5 @@
 import datetime
-from tkinter import Entry, Frame, Label, StringVar, Text
+from tkinter import Entry, Frame, Label, StringVar, Text, Toplevel
 from tkinter import ttk
 
 from domain.fields import FIELDS
@@ -171,7 +171,20 @@ class NewEntryScreen(Screen):
             self._on_valid_save(data)
 
             if edited:
-                validate_update()
+                self._validate_update()
+
+    def _show_error(self, title, message):
+        """Display an error message in a pop-up window."""
+        error_window = Toplevel(self)
+        error_window.title(title)
+        error_window.geometry("300x150")
+        error_window.resizable(False, False)
+
+        Label(error_window, text=message, font=self.subheading_font, wraplength=280).pack(pady=20)
+        ttk.Button(error_window, text="OK", command=error_window.destroy).pack(pady=10)
+
+    def _validate_update(self):
+
 
 
 
