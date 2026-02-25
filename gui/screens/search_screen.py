@@ -15,7 +15,10 @@ class SearchScreen(Screen):
         self._wrap_layout = False
 
         self._configure_adjacent_grid()
-        self._add_back_button()
+        self._position_button(
+            self._add_back_button(func=self._on_home),
+            row=0, colspan=2, pad_y=(20, 10), sticky="w"
+        )
         self._setup_calendar()
         self._setup_display_frame()
 
@@ -87,11 +90,16 @@ class SearchScreen(Screen):
 
     def _display_entry(self, entry):
         for row, (field, value) in enumerate(entry.entry_dict.items()):
-            self._create_label(
+            label = self._create_label(
                 self.inner_frame, row=row,
                 text=f"{field.replace('_', ' ').title()}: {value.capitalize() if value else 'N/A'}",
                 font=self.subheading_font, bg="white",
                 anchor="w", pad_y=5
+            )
+            self.inner_frame.bind(
+                "<Configure>",
+                lambda event, lbl=label: lbl.config(wraplength=event.width - 20),
+                add="+"
             )
         self.inner_frame.grid_rowconfigure(len(entry.entry_dict), weight=1)
 
@@ -101,6 +109,9 @@ class SearchScreen(Screen):
         widgets.remove(self.default_msg)
         for widget in widgets:
             widget.destroy()
+
+        # Remove per-entry wraplength bindings added in _display_entry
+        self.inner_frame.unbind("<Configure>")
 
         # Reset the spacer rows used by default message centering
         self.inner_frame.grid_rowconfigure(0, weight=0)
@@ -132,7 +143,11 @@ class SearchScreen(Screen):
             self.display_frame, row=2, column=1, colspan=1,
             pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
         )
+        # Prevent outer frame from resizing to fit content from entry data
+        self.display_frame.grid_propagate(False)
         self.inner_frame = self._create_inner_frame(self.display_frame)
+        # Prevent inner frame from resizing to fit content from entry data
+        self.inner_frame.grid_propagate(False)
         self.inner_frame.grid_rowconfigure(0, weight=1)  # Top spacer
         self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom spacer
         self.default_msg = self._create_label(
@@ -140,12 +155,3 @@ class SearchScreen(Screen):
             font=self.italic_font, bg="white", pad_y=10
         )
 
-    def _add_back_button(self):
-        button = self._create_stylised_button(
-            parent=self,
-            title="⬅️ Back",
-            subtitle="Return to home screen",
-            func=self._on_home
-        )
-        self._position_button(button, row=0, colspan=2, pad_y=(20, 10), sticky="w")
-        return button

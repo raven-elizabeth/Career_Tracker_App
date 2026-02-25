@@ -22,7 +22,7 @@ class DatabaseRepository(ABC):
 
     # Implement logic to partially update an existing entry in the database (UPDATE: PATCH)
     @abstractmethod
-    def partially_update_entry(self, entry_date, updated_fields):
+    def partially_update_entry(self, update_request):
         pass
 
     # Implement logic to delete an entry from the database (DELETE)

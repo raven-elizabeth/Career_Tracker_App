@@ -1,4 +1,3 @@
-from database.csv_database_repository import CsvDatabaseRepository
 from gui.client import ApiClient
 from gui.root import Root
 from gui.screens.home_screen import HomeScreen
@@ -21,12 +20,14 @@ class App:
             on_home=self.show_home,
             on_date=self._api_client.get_entry_by_date
         )
-        self._new_entry_screen = NewEntryScreen(self._root)
+        self._new_entry_screen = NewEntryScreen(self._root, on_home=self.show_home)
 
         self.show_home()
 
     def show_home(self):
         self._search_screen.pack_forget()
+        self._new_entry_screen.pack_forget()
+        # fill=both fills the window horizontally and vertically; expand=True allows the screen to resize with the window
         self._home_screen.pack(fill="both", expand=True)
 
     def show_search(self):
@@ -34,7 +35,8 @@ class App:
         self._search_screen.pack(fill="both", expand=True)
 
     def show_new_entry(self):
-        pass
+        self._home_screen.pack_forget()
+        self._new_entry_screen.pack(fill="both", expand=True)
 
     def run(self):
         self._root.mainloop()
