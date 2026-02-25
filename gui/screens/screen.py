@@ -1,4 +1,4 @@
-from tkinter import Frame, Label
+from tkinter import Frame, Label, messagebox
 from tkinter.font import nametofont
 
 
@@ -121,3 +121,7 @@ class Screen(Frame):
             func=func,
         )
 
+    @staticmethod
+    def _show_error(title, message):
+        """Display an error message in a pop-up window."""
+        messagebox.showerror(title=title, message=message)

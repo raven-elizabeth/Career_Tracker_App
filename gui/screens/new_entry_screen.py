@@ -1,5 +1,5 @@
 import datetime
-from tkinter import Entry, Frame, Label, StringVar, Text, Toplevel
+from tkinter import Entry, Frame, Label, StringVar, Text
 from tkinter import ttk
 
 from domain.fields import FIELDS
@@ -173,7 +173,7 @@ class NewEntryScreen(Screen):
 
         for field, value in raw_data.items():
             if len(value) > 2000:
-                self._show_error(f"Input for {field} too long", "Please limit each field to 2000 characters.")
+                self._show_error(f"Input for {field.replace('_', ' ')} too long", "Please limit each field to 2000 characters.")
                 valid = False
 
         return valid
@@ -226,16 +226,6 @@ class NewEntryScreen(Screen):
             if self._original_data.get(field) != value and value != "":
                 return True
         return False
-
-    def _show_error(self, title, message):
-        """Display an error message in a pop-up window."""
-        error_window = Toplevel(self)
-        error_window.title(title)
-        error_window.geometry("300x150")
-        error_window.resizable(False, False)
-
-        Label(error_window, text=message, font=self.subheading_font, wraplength=280).pack(pady=20)
-        ttk.Button(error_window, text="OK", command=error_window.destroy).pack(pady=10)
 
     def _prepopulate_fields(self, saved_data):
         """Pre-fill fields with saved data for editing."""
