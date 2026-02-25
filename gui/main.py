@@ -15,11 +15,7 @@ class App:
             on_new_entry=self.show_new_entry,
             on_search=self.show_search
         )
-        self._search_screen = SearchScreen(
-            self._root,
-            on_home=self.show_home,
-            on_date=self._api_client.get_entry_by_date
-        )
+        # NewEntryScreen must be created before SearchScreen so _edit_entry can reference it
         self._new_entry_screen = NewEntryScreen(
             self._root,
             on_home=self.show_home,
@@ -27,6 +23,13 @@ class App:
             on_date=self._api_client.get_entry_by_date,
             on_full_replace=self._api_client.replace_entry,
             on_partial_update=self._api_client.update_entry
+        )
+        self._search_screen = SearchScreen(
+            self._root,
+            on_home=self.show_home,
+            on_date=self._api_client.get_entry_by_date,
+            on_edit=self._edit_entry,
+            on_delete=self._api_client.delete_entry
         )
 
         self.show_home()
@@ -44,6 +47,13 @@ class App:
     def show_new_entry(self):
         self._home_screen.pack_forget()
         self._new_entry_screen.refresh()
+        self._new_entry_screen.pack(fill="both", expand=True)
+
+    def _edit_entry(self, entry_dict):
+        """Navigate to new entry screen pre-populated with the selected entry's date."""
+        date = entry_dict.get("date")
+        self._search_screen.pack_forget()
+        self._new_entry_screen.refresh(date=date)
         self._new_entry_screen.pack(fill="both", expand=True)
 
     def run(self):
