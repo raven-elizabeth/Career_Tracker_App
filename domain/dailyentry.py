@@ -18,3 +18,9 @@ class DailyEntry:
 
         if not any(self.entry_dict[field] for field in FIELDS if field != "date"):
             raise ValueError("Unable to create entry: At least one value must not be empty")
+
+    @classmethod
+    def from_replace_request(cls, update_dict):
+        if not update_dict or not all(field in update_dict for field in FIELDS):
+            raise ValueError("PUT request requires replacement data for all fields in the Entry class")
+        return cls(**update_dict)

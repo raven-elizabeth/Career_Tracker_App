@@ -65,12 +65,9 @@ class API:
         def update_replace_entry(date):
             self._logger.debug("PUT request received to replace entry with date: %s", date)
             data = request.get_json()
-            if not data or not all(field in data for field in FIELDS):
-                self._logger.warning("PUT request missing JSON body or required fields for Entry class")
-                return jsonify({"error": "Invalid JSON body"}), 400
 
             try:
-                updated_entry = DailyEntry(**data)
+                updated_entry = DailyEntry.from_replace_request(data)
             except ValueError as e:
                 self._logger.warning("PUT request contains invalid data for Entry class: %s", e)
                 return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
