@@ -35,3 +35,9 @@ class ApiClient:
             return response.json().get("data")
         else:
             raise ValueError(f"Failed to update entry: {response.json().get('error', 'Unknown error')}")
+
+    def delete_entry(self, date):
+        response = requests.delete(f"{self.BASE_URL}/{date}")
+        if response.status_code != 204:
+            raise ValueError(f"Failed to delete entry: {response.json().get('error', 'Unknown error')}")
+
