@@ -30,11 +30,11 @@ class Screen(Frame):
         self.italic_font = nametofont("TkTextFont").copy()
         self.italic_font.config(size=self.BODY_SIZE, slant="italic")
 
-    def _configure_responsive_grid(self, col_dict, row_dict):
+    def _configure_responsive_grid(self, column_weights, row_weights):
         """Set column and row weights to make the screen responsive to resizing."""
-        for col, weight in col_dict.items():
+        for col, weight in column_weights.items():
             self.grid_columnconfigure(col, weight=weight)
-        for row, weight in row_dict.items():
+        for row, weight in row_weights.items():
             self.grid_rowconfigure(row, weight=weight)
 
     def _create_frame(self, row=1, column=0, colspan=2):
@@ -110,6 +110,7 @@ class Screen(Frame):
         subtitle_label.grid(row=1, column=0, padx=10, pady=(0, 8), sticky="ew")
         subtitle_label.bind("<Button-1>", lambda event, f=func: f())
 
+        btn_frame.bind("<Button-1>", lambda event, f=func: f())
         return btn_frame
 
     def _add_back_button(self, func, title="⬅️ Back", subtitle="Return to home screen"):

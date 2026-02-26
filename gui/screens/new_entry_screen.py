@@ -39,8 +39,8 @@ class NewEntryScreen(Screen):
     def _configure_grid(self):
         """Single column; header, date, fields, and save button stack vertically."""
         self._configure_responsive_grid(
-            col_dict={0: 1, 1: 1},
-            row_dict={0: 0, 1: 0, 2: 1, 3: 0}
+            column_weights={0: 1, 1: 1},
+            row_weights={0: 0, 1: 0, 2: 1, 3: 0}
         )
 
     def _create_header_row(self):

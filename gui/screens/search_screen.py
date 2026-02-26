@@ -56,15 +56,15 @@ class SearchScreen(Screen):
     def _configure_adjacent_grid(self):
         """Two equal columns; calendar and display frame share the main row."""
         self._configure_responsive_grid(
-            col_dict={0: 1, 1: 1},
-            row_dict={0: 0, 1: 1, 2: 10, 3: 1}
+            column_weights={0: 1, 1: 1},
+            row_weights={0: 0, 1: 1, 2: 10, 3: 1}
         )
 
     def _configure_wrap_grid(self):
         """Single column; calendar and display frame stack vertically."""
         self._configure_responsive_grid(
-            col_dict={0: 1, 1: 1},
-            row_dict={0: 0, 1: 1, 2: 0, 3: 10, 4: 1}
+            column_weights={0: 1, 1: 1},
+            row_weights={0: 0, 1: 1, 2: 0, 3: 10, 4: 1}
         )
 
     def _apply_adjacent_layout(self):

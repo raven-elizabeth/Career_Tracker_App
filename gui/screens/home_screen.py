@@ -15,8 +15,8 @@ class HomeScreen(Screen):
     def _configure_grid(self):
         """Set row and column weights. Padding rows at top, middle, and bottom."""
         self._configure_responsive_grid(
-            col_dict={0: 1, 1: 1},
-            row_dict={0: 1, 1: 4, 2: 1, 3: 4, 4: 1}
+            column_weights={0: 1, 1: 1},
+            row_weights={0: 1, 1: 4, 2: 1, 3: 4, 4: 1}
         )
 
     def _create_header_frame(self):
