@@ -28,7 +28,9 @@ class ApiClient:
 
     def replace_entry(self, updated_data):
         """Replaces an existing entry with the given data. Returns the updated entry data if successful."""
-        date = updated_data.get("date")
+        # Specified default date as empty string
+        # This passes potential KeyError if date is missing onto API which will handle the bad request
+        date = updated_data.get("date", "")
         response = requests.put(f"{self.BASE_URL}/{date}", json=updated_data)
         if response.status_code == 200:
             return response.json().get("data")
@@ -37,7 +39,7 @@ class ApiClient:
 
     def update_entry(self, update_data):
         """Partially updates an existing entry with the given data. Returns the updated entry data if successful."""
-        date = update_data.get("date")
+        date = update_data.get("date", "")
         response = requests.patch(f"{self.BASE_URL}/{date}", json=update_data)
         if response.status_code == 200:
             return response.json().get("data")
