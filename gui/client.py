@@ -1,10 +1,11 @@
 import requests
 
 from domain.dailyentry import DailyEntry
+from gui.client_config import base_url
 
 
 class ApiClient:
-    BASE_URL = "http://127.0.0.1:5000/api/csv/entries"
+    BASE_URL = base_url
 
     def get_entry_by_date(self, date):
         """Returns a DailyEntry object for the given date, or None if no entry exists."""
