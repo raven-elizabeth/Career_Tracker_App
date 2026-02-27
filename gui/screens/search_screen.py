@@ -44,7 +44,7 @@ class SearchScreen(Screen):
         if entry:
             self._on_valid_date(entry)
         else:
-            self._reset_widgets(default=True)
+            self._reset_display_frame(default=True)
 
     def _on_resize(self, event):
         """Switch between adjacent and wrap layouts based on window width."""
@@ -159,12 +159,12 @@ class SearchScreen(Screen):
 
     def _on_valid_date(self, entry):
         """Display the entry details and show action buttons for editing or deleting the entry."""
-        self._reset_widgets(default=False)
+        self._reset_display_frame(default=False)
         self._current_entry = entry
         self._display_entry(entry)
         self._display_entry_action_buttons(entry)
 
-    def _reset_widgets(self, default=True):
+    def _reset_widgets(self):
         """Clear the display frame and reset to default state, optionally showing the default message."""
         widgets = self.inner_frame.winfo_children()
         widgets.remove(self.default_msg)
@@ -172,6 +172,8 @@ class SearchScreen(Screen):
         for widget in widgets:
             widget.destroy()
 
+    def _reset_inner_frame(self):
+        """Clear the inner frame of all entry details and action buttons, and reset any layout bindings."""
         # Remove per-entry wraplength bindings added in _display_entry
         self.inner_frame.unbind("<Configure>")
 
@@ -180,6 +182,11 @@ class SearchScreen(Screen):
         self.inner_frame.grid_rowconfigure(2, weight=0)
         # Reset the trailing spacer row added after entry labels
         self.inner_frame.grid_rowconfigure(len(self.inner_frame.grid_slaves()), weight=0)
+
+    def _reset_display_frame(self, default=False):
+        """Clear the display frame and reset to default state, optionally showing the default message."""
+        self._reset_widgets()
+        self._reset_inner_frame()
 
         # Always hide action buttons until an entry is displayed
         self._action_buttons.grid_remove()
@@ -255,4 +262,4 @@ class SearchScreen(Screen):
     def _delete_entry(self, date):
         """Delete the entry for the given date and reset the display."""
         self._on_delete(date)
-        self._reset_widgets()
+        self._reset_display_frame(default=True)
