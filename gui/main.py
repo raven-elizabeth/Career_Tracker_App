@@ -45,7 +45,7 @@ class App:
 
     def show_search(self):
         self._home_screen.pack_forget()
-        self._search_screen.refresh()
+        self._search_screen.refresh_display()
         self._search_screen.pack(fill="both", expand=True)
 
     def show_new_entry(self):

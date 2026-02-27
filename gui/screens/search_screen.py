@@ -20,6 +20,7 @@ class SearchScreen(Screen):
         self._on_home = on_home
         self._on_edit = on_edit
         self._on_delete = on_delete
+
         self._wrap_layout = False
         self._current_entry = None
 
@@ -31,8 +32,12 @@ class SearchScreen(Screen):
 
         self.bind("<Configure>", self._on_resize)
 
-    def refresh(self):
-        """Refresh the display frame based on the currently selected calendar date."""
+    def refresh_display(self):
+        """
+        Refresh the display frame based on the currently selected calendar date.
+        Fetch and display entry for the selected date, or show default message if no entry exists.
+        Unused event parameter is required by the binding but not needed for the logic, so it's ignored
+        """
         selected_date = self.calendar.get_date()
         date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
         entry = self._on_date(date)
@@ -40,18 +45,6 @@ class SearchScreen(Screen):
             self._on_valid_date(entry)
         else:
             self._reset_widgets(default=True)
-
-    def _setup_back_button(self):
-        back_button = self._create_stylised_button(
-            parent=self,
-            title="⬅️ Back",
-            subtitle="Return to home screen",
-            func=self._on_home,
-        )
-        self._position_button(
-            back_button,
-            row=0, colspan=2, pad_y=(20, 10), sticky="w"
-        )
 
     def _on_resize(self, event):
         """Switch between adjacent and wrap layouts based on window width."""
@@ -100,24 +93,23 @@ class SearchScreen(Screen):
             pad_y=(self.INNER_PADDING, self.OUTER_PADDING)
         )
 
+    def _setup_back_button(self):
+        back_button = self._create_stylised_button(
+            parent=self,
+            title="⬅️ Back",
+            subtitle="Return to home screen",
+            func=self._on_home,
+        )
+        self._position_button(
+            back_button,
+            row=0, colspan=2, pad_y=(20, 10), sticky="w"
+        )
+
     def _setup_calendar(self):
         """Create calendar widget with max date of today and bind date selection event."""
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
         self._position_calendar(row=2, colspan=1)
-        self.calendar.bind("<<CalendarSelected>>", self._on_date_selected)
-
-    def _on_date_selected(self, event):
-        """
-        Fetch and display entry for the selected date, or show default message if no entry exists.
-        Unused event parameter is required by the binding but not needed for the logic, so it's ignored
-        """
-        selected_date = self.calendar.get_date()
-        date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
-        entry = self._on_date(date)
-        if entry:
-            self._on_valid_date(entry)
-        else:
-            self._reset_widgets()
+        self.calendar.bind("<<CalendarSelected>>", self.refresh_display())
 
     def _on_valid_date(self, entry):
         """Display the entry details and show action buttons for editing or deleting the entry."""
