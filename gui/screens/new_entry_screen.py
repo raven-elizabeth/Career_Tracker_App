@@ -56,14 +56,20 @@ class NewEntryScreen(Screen):
         )
 
     def refresh_screen(self, event=None, date=None):
-        """Reset to today or a given date; check the selected date and prepopulate or clear fields accordingly.
-        If date is provided (navigation from search screen button-style frame), use that date.
-        If event is provided (navigation from date dropdown combobox trigger), get the selected date from the dropdown's StringVar.
-        If neither is provided (navigating from home screen), default to today's date."""
-        if date:
+        """Reset the screen for the given date, defaulting to today if none is provided.
+
+        Three possible use cases for this function:
+        - No args (show_new_entry): default to today.
+        - date= provided (edit from search screen): use that date.
+        - event= provided (ComboboxSelected binding): tkinter has already updated
+          _selected_date, so just read it without overwriting.
+        """
+        if date is not None:
             self._selected_date.set(date)
-        elif not event:
+        elif event is None:
+            # Called programmatically with no date — default to today
             self._selected_date.set(datetime.date.today().strftime("%Y-%m-%d"))
+        # If event is not None, the dropdown already updated _selected_date
 
         selected_date = self._selected_date.get()
         entry = self._on_date(selected_date)
