@@ -116,6 +116,7 @@ class SearchScreen(Screen):
         self._reset_widgets(default=False)
         self._current_entry = entry
         self._display_entry(entry)
+        self._display_entry_buttons(entry)
 
     def _display_entry(self, entry):
         """Create labels for each field in the entry and display them in the inner frame, with action buttons below."""
@@ -132,7 +133,9 @@ class SearchScreen(Screen):
                 lambda event, lbl=label: lbl.config(wraplength=event.width - 20),
                 add="+"
             )
-        # Action buttons sit on the row after the last label, restricted width and centred
+
+    def _display_entry_buttons(self, entry):
+        """Grid the Edit and Delete buttons below the entry details, centred and with consistent padding."""
         self._action_buttons.grid(
             row=len(entry.entry_dict) + 1, column=0, columnspan=2,
             padx=40, pady=(20, 10), sticky="ew"
