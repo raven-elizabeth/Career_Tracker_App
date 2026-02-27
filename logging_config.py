@@ -1,4 +1,7 @@
 # Logging is important for tracking the behavior of an application, especially for debugging and monitoring purposes.
+# This logging configuration sets up a logger that writes detailed debug information to a file,
+# while only showing info and above in the console.
+
 # logger.debug is used for detailed info during dev debugging
 # logger.info is used for general info about the application's operation
 # logger.warning is used when something unexpected happens but the app can keep running, e.g. invalid requests
