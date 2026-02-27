@@ -16,7 +16,7 @@ from logging_config import get_logger
 class CsvDatabaseRepository(DatabaseRepository):
     def __init__(self, file_path=None, logger=None):
         super().__init__()
-        file_path = file_path if not None else Path(__file__).parent / "entries.csv"
+        file_path = file_path if file_path is not None else Path(__file__).parent/"entries.csv"
         self.file_path = Path(file_path)
         self._logger = logger if logger is not None else get_logger(__name__)
         self._logger.debug("CsvDatabaseRepository initialized with file path: %s", self.file_path)
