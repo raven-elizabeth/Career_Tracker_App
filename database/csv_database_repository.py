@@ -18,7 +18,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         super().__init__()
         file_path = file_path if not None else Path(__file__).parent / "entries.csv"
         self.file_path = Path(file_path)
-        self._logger = logger if logger else get_logger(__name__)
+        self._logger = logger if logger is not None else get_logger(__name__)
         self._logger.debug("CsvDatabaseRepository initialized with file path: %s", self.file_path)
 
     def save_entry(self, entry):
