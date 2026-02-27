@@ -24,10 +24,8 @@ class SearchScreen(Screen):
         self._current_entry = None
 
         self._configure_adjacent_grid()
-        self._position_button(
-            self._add_back_button(func=self._on_home),
-            row=0, colspan=2, pad_y=(20, 10), sticky="w"
-        )
+
+        self._setup_back_button()
         self._setup_calendar()
         self._setup_display_frame()
 
@@ -42,6 +40,18 @@ class SearchScreen(Screen):
             self._on_valid_date(entry)
         else:
             self._reset_widgets(default=True)
+
+    def _setup_back_button(self):
+        back_button = self._create_stylised_button(
+            parent=self,
+            title="⬅️ Back",
+            subtitle="Return to home screen",
+            func=self._on_home,
+        )
+        self._position_button(
+            back_button,
+            row=0, colspan=2, pad_y=(20, 10), sticky="w"
+        )
 
     def _on_resize(self, event):
         """Switch between adjacent and wrap layouts based on window width."""

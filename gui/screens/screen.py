@@ -129,15 +129,6 @@ class Screen(Frame):
         btn_frame.bind("<Button-1>", lambda event, f=func: f())
         return btn_frame
 
-    def _add_back_button(self, func, title="⬅️ Back", subtitle="Return to home screen"):
-        """Create a styled back button; caller is responsible for positioning."""
-        return self._create_stylised_button(
-            parent=self,
-            title=title,
-            subtitle=subtitle,
-            func=func,
-        )
-
     @staticmethod
     def _show_error(title, message):
         """Display an error message in a pop-up window."""

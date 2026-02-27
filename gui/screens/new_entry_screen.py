@@ -64,7 +64,10 @@ class NewEntryScreen(Screen):
             pady=(20, 10), sticky="w"
         )
 
-        back_btn = self._add_back_button(func=self._on_home, title="❌ Cancel")
+        back_btn = self._create_stylised_button(
+            parent=self, func=self._on_home,
+            title="❌ Cancel", subtitle="Return to home screen"
+        )
         self._position_button(
             back_btn, row=0, column=1, colspan=1,
             pad_x=(10, self.OUTER_PADDING), pad_y=(20, 10), sticky="e"
@@ -184,7 +187,7 @@ class NewEntryScreen(Screen):
             valid = False
 
         for field, value in raw_data.items():
-            if len(value) > self.CHARACTER_LIMIT:
+            if len(value) > CHARACTER_LIMIT:
                 self._show_error(f"Input for {field.replace('_', ' ')} too long",
                                  "Please limit each field to 2000 characters.")
                 valid = False
