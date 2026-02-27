@@ -1,7 +1,7 @@
-# This class implements the DatabaseRepository interface for a CSV file database (CRUD operations).
-# Pandas handles the file operations, with to_csv() automatically closing the file after writing
-# and using mode "a" to append rather than overwrite.
-# Using Pandas DataFrame simplifies the data manipulation and date indexing results in O(1) lookups
+"""This class implements the DatabaseRepository interface for a CSV file database (CRUD operations).
+Pandas handles the file operations, with to_csv() automatically closing the file after writing
+and using mode "a" to append rather than overwrite.
+Using Pandas DataFrame simplifies the data manipulation and date indexing results in O(1) lookups"""
 
 from pathlib import Path
 
@@ -23,7 +23,6 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     def save_entry(self, entry):
         """Saves a new entry to the CSV file. Raises DuplicateEntryError if an entry with the same date already exists."""
-
         self._logger.debug("Saving entry with date: %s", entry.entry_dict["date"])
         data = entry.entry_dict
         df = pd.DataFrame([data])
@@ -50,7 +49,6 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     def _entry_exists(self, date):
         """Helper method to check if an entry with the given date already exists in the CSV file."""
-
         existing_df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
         exists = date in existing_df.index
         self._logger.debug("Checked for existing entry with date: %s. Exists: %s", date, exists)
@@ -58,8 +56,7 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     @staticmethod
     def _set_date_index(df):
-        """Helper method to set the 'date' column as the index of the DataFrame, ensuring correct formatting."""
-
+        """Set the 'date' column as the DataFrame index."""
         # Copilot suggested converting to datetime to ensure correct formatting
         # Then saving as string prevents pandas adding time data
         df["date"] = pd.to_datetime(df["date"]).dt.date.astype(str)
@@ -67,10 +64,11 @@ class CsvDatabaseRepository(DatabaseRepository):
         return df
 
     def get_entry_by_date(self, date):
-        """Retrieves an entry by its date. Returns None if no entry is found for the given date.
-        Does not raise an error for missing entry
-        - this is by design as this method is used during date selection on the GUI"""
-
+        """
+        Retrieve an entry by its date. Returns None if no entry is found.
+        Does not raise for a missing entry — this is intentional, as the method
+        is called during date selection in the GUI where no entry is a valid state.
+        """
         self._logger.debug("Searching for entry with date: %s", date)
         self._validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
@@ -88,7 +86,6 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     def replace_entry(self, date, updated_entry):
         """Replaces an existing entry with the given date. Raises ValueError if no entry is found for the given date."""
-
         self._logger.debug("Replacing entry with date: %s", date)
         self._validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
@@ -109,7 +106,6 @@ class CsvDatabaseRepository(DatabaseRepository):
     def partially_update_entry(self, update_request):
         """Partially updates an existing entry with the given date and fields to update.
         Raises ValueError if no entry is found for the given date."""
-
         date = update_request["date"]
         self._logger.debug("Partially updating entry with date: %s", date)
         self._validate_file()
@@ -135,7 +131,6 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     def delete_entry(self, date):
         """Deletes an entry by its date. Raises ValueError if no entry is found for the given date."""
-
         self._logger.debug("Deleting entry with date: %s", date)
         self._validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
@@ -151,7 +146,6 @@ class CsvDatabaseRepository(DatabaseRepository):
     def _validate_file(self):
         """Helper method to validate the existence and non-emptiness of the CSV file
         before performing read/write operations."""
-
         if not self.file_path.exists():
             self._logger.error("File not found: %s", self.file_path)
             raise FileNotFoundError(f"File not found: {self.file_path}")
