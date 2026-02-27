@@ -5,17 +5,18 @@ from flask import Flask, jsonify, request
 from database.csv_database_repository import CsvDatabaseRepository
 from database.exceptions import FileEmptyError, DuplicateEntryError
 from domain.dailyentry import DailyEntry
-from domain.fields import FIELDS
 from logging_config import get_logger
 
 
 class API:
     def __init__(self, repository=None, logger=None):
         self.app = Flask(__name__)
-        # Defensive programming: Limit maximum content length (16KB) to prevent excessively large requests from being processed
+        # Defensive programming
+        # Limit maximum content length (16KB) to prevent excessively large requests from being processed
         self.app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
 
-        # Dependency injection allows for easier testing and flexibility in choosing different repository implementations or loggers
+        # Dependency injection
+        # Allows for easier testing and flexibility in choosing different repository implementations or loggers
         self._repository = repository if repository is not None else CsvDatabaseRepository()
         self._logger = logger if logger is not None else get_logger(__name__)
 
@@ -55,7 +56,10 @@ class API:
                 self._logger.info("Entry saved successfully for date: %s", entry.entry_dict["date"])
                 return jsonify({"message": "Entry saved successfully", "data": entry.entry_dict}), 201
             except DuplicateEntryError:
-                self._logger.warning("Attempted to save duplicate entry with date: %s", entry.entry_dict["date"])
+                self._logger.warning(
+                    "Attempted to save duplicate entry with date: %s",
+                    entry.entry_dict["date"]
+                )
                 return jsonify({"error": f"Entry with date already exists: {entry.entry_dict['date']}"}), 409
             except ValueError:
                 self._logger.warning("Failed to save entry for date: %s", entry.entry_dict["date"])
@@ -100,7 +104,8 @@ class API:
             try:
                 updated_entry = self._repository.partially_update_entry(update_request)
                 self._logger.info("Entry partially updated successfully for date: %s", date)
-                return jsonify({"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
+                return jsonify(
+                    {"message": "Entry partially updated successfully", "data": updated_entry.entry_dict}), 200
             except (FileNotFoundError, FileEmptyError) as e:
                 return self._file_unavailable_response(date, e)
             except ValueError as e:
@@ -121,7 +126,10 @@ class API:
                 return jsonify({"error": f"Delete unsuccessful: {e}"}), 404
 
     def _file_unavailable_response(self, date, e):
-        self._logger.error("File unavailable when attempting to retrieve entry for date: %s. Error: %s", date, e)
+        self._logger.error(
+            "File unavailable when attempting to retrieve entry for date: %s. Error: %s",
+            date, e
+        )
         return jsonify({"error": "File unavailable"}), 503
 
 

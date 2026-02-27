@@ -1,4 +1,5 @@
-# This module defines the DatabaseRepository interface, which specifies the CRUD methods for interacting with the database.
+# This module defines the DatabaseRepository interface,
+# which specifies the CRUD methods for interacting with the database.
 
 from abc import ABC, abstractmethod
 

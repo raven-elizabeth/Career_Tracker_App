@@ -1,9 +1,11 @@
 # This class implements the DatabaseRepository interface for a CSV file database (CRUD operations).
-# Pandas handles the file operations, with to_csv() automatically closing the file after writing and using mode "a" to append rather than overwrite.
+# Pandas handles the file operations, with to_csv() automatically closing the file after writing
+# and using mode "a" to append rather than overwrite.
 # Using Pandas DataFrame simplifies the data manipulation.
 
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 from database.database_repository import DatabaseRepository
 from database.exceptions import FileEmptyError, DuplicateEntryError
@@ -33,10 +35,14 @@ class CsvDatabaseRepository(DatabaseRepository):
         if file_exists and file_size > 0:
             entry_date = str(entry.entry_dict["date"])
             if self._entry_exists(entry_date):
-                self._logger.warning("Attempted to save duplicate entry with date: %s", entry.entry_dict["date"])
+                self._logger.warning(
+                    "Attempted to save duplicate entry with date: %s",
+                    entry.entry_dict["date"]
+                )
                 raise DuplicateEntryError(f"An entry with date {entry.entry_dict['date']} already exists.")
 
-        # Check if the file exists and is not empty to determine whether to write the header (only write if writing first entry)
+        # Check if the file exists and is not empty to determine whether to write the header
+        # (only write if writing first entry)
         header = not file_exists or file_size == 0
         df.to_csv(self.file_path, mode="a", header=header)
         self._logger.info("Entry saved successfully for date: %s", entry.entry_dict["date"])
@@ -49,7 +55,8 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     @staticmethod
     def _set_date_index(df):
-        # Copilot suggested converting to datetime to ensure correct formatting and then saving as string prevents pandas adding time data
+        # Copilot suggested converting to datetime to ensure correct formatting
+        # Then saving as string prevents pandas adding time data
         df["date"] = pd.to_datetime(df["date"]).dt.date.astype(str)
         df = df.set_index("date")
         return df
@@ -99,7 +106,11 @@ class CsvDatabaseRepository(DatabaseRepository):
                 if field in df.columns:
                     df.at[date, field] = value
                 else:
-                    self._logger.debug("Field '%s' not found in existing entry for date: %s. Skipping update for this field.", field, date)
+                    self._logger.debug(
+                        "Field '%s' not found in existing entry for date: %s. Skipping update for this field.",
+                        field,
+                        date
+                    )
             df.to_csv(self.file_path)
             self._logger.info("Entry partially updated successfully for date: %s", date)
             return self.get_entry_by_date(date)

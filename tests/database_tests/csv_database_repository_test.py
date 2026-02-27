@@ -2,13 +2,13 @@
 # The tests use the AAA (Arrange, Act, Assert) pattern to structure the test cases.
 
 import csv
-import tempfile
 import os
+import tempfile
 import unittest
 
+from database.csv_database_repository import CsvDatabaseRepository
 from database.exceptions import FileEmptyError, DuplicateEntryError
 from domain.dailyentry import DailyEntry
-from database.csv_database_repository import CsvDatabaseRepository
 
 
 class TestCsvDatabaseRepository(unittest.TestCase):
@@ -173,7 +173,6 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
         # Assert
         self.assertIsNone(deleted_entry_get_response)
-
 
     def test_delete_nonexistent_entry_raises_value_error(self):
         # Arrange
