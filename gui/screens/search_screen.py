@@ -130,22 +130,14 @@ class SearchScreen(Screen):
         # Prevent outer frame from resizing to fit content from entry data
         self.display_frame.grid_propagate(False)
 
-        self.inner_frame = self._setup_inner_frame(self.display_frame)
-
-        self.default_msg = self._create_label(
-            self.inner_frame, row=1, text="Select a date to view your entries...",
-            font=self.italic_font, bg="white", pad_y=10
-        )
-        self.default_msg.grid_configure(columnspan=2)
-
-        self._action_buttons = self._create_action_buttons()
-        # Hidden until an entry is displayed
-        self._action_buttons.grid_remove()
+        self._setup_inner_frame(self.display_frame)
+        self._setup_default_message()
+        self._setup_action_buttons()
 
     def _setup_inner_frame(self, parent):
         """Create an inner frame within the display frame to hold entry details and action buttons,
         with spacers for centering."""
-        inner_frame = self._create_inner_frame(parent)
+        self.inner_frame = self._create_inner_frame(parent)
 
         # Prevent inner frame from resizing to fit content from entry data
         self.inner_frame.grid_propagate(False)
@@ -155,7 +147,45 @@ class SearchScreen(Screen):
         self.inner_frame.grid_rowconfigure(0, weight=1)  # Top spacer
         self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom spacer
 
-        return inner_frame
+    def _setup_default_message(self):
+        """Create a default message label that is shown when a date with no entry is selected"""
+        self.default_msg = self._create_label(
+            self.inner_frame, row=1, text="Select a date to view your entries...",
+            font=self.italic_font, bg="white", pad_y=10
+        )
+        self.default_msg.grid_configure(columnspan=2)
+
+    def _create_action_buttons(self):
+        """Create edit and delete stylised buttons of equal size, centred in the inner frame.
+        Using the same uniform ensures they will always be of equal size."""
+        btn_frame = Frame(self.inner_frame, bg="white")
+        btn_frame.grid_columnconfigure(0, weight=1, uniform="action_button")
+        btn_frame.grid_columnconfigure(1, weight=1, uniform="action_button")
+
+        edit_btn = self._create_stylised_button(
+            parent=btn_frame,
+            title="✏️ Edit",
+            subtitle="Edit this entry",
+            func=lambda: self._on_edit(self._current_entry.entry_dict)
+        )
+        edit_btn.grid(row=0, column=0, padx=(0, 5), sticky="ew")
+
+        delete_btn = self._create_stylised_button(
+            parent=btn_frame,
+            title="❌ Delete",
+            subtitle="Delete this entry",
+            func=self._show_delete_confirmation
+        )
+        delete_btn.grid(row=0, column=1, padx=(5, 0), sticky="ew")
+
+        return btn_frame
+
+    def _setup_action_buttons(self):
+        """Create the action buttons frame but do not grid it yet,
+        as it should only be shown when an entry is displayed."""
+        self._action_buttons = self._create_action_buttons()
+        # Hidden until an entry is displayed
+        self._action_buttons.grid_remove()
 
     def _on_valid_date(self, entry):
         """Display the entry details and show action buttons for editing or deleting the entry."""
@@ -223,30 +253,6 @@ class SearchScreen(Screen):
             row=len(entry.entry_dict) + 1, column=0, columnspan=2,
             padx=40, pady=(20, 10), sticky="ew"
         )
-
-    def _create_action_buttons(self):
-        """Create Edit and Delete stylised buttons of equal size, centred in the inner frame."""
-        btn_frame = Frame(self.inner_frame, bg="white")
-        btn_frame.grid_columnconfigure(0, weight=1, uniform="btn")
-        btn_frame.grid_columnconfigure(1, weight=1, uniform="btn")
-
-        edit_btn = self._create_stylised_button(
-            parent=btn_frame,
-            title="✏️ Edit",
-            subtitle="Edit this entry",
-            func=lambda: self._on_edit(self._current_entry.entry_dict)
-        )
-        edit_btn.grid(row=0, column=0, padx=(0, 5), sticky="ew")
-
-        delete_btn = self._create_stylised_button(
-            parent=btn_frame,
-            title="❌ Delete",
-            subtitle="Delete this entry",
-            func=self._show_delete_confirmation
-        )
-        delete_btn.grid(row=0, column=1, padx=(5, 0), sticky="ew")
-
-        return btn_frame
 
     def _show_delete_confirmation(self):
         """Show a confirmation dialog before deleting an entry."""
