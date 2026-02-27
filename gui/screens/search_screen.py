@@ -111,35 +111,58 @@ class SearchScreen(Screen):
         self._position_calendar(row=2, colspan=1)
         self.calendar.bind("<<CalendarSelected>>", self.refresh_display())
 
+    def _position_calendar(self, row, colspan):
+        """Grid the calendar with consistent padding."""
+        pad_x = (self.OUTER_PADDING, self.INNER_PADDING) if colspan == 1 else self.INNER_PADDING
+        pad_y = (self.OUTER_PADDING, self.INNER_PADDING) if colspan == 2 else self.OUTER_PADDING
+        self.calendar.grid(
+            row=row, column=0, columnspan=colspan,
+            padx=pad_x, pady=pad_y, sticky="nsew"
+        )
+
+    def _setup_display_frame(self):
+        """Create the display frame with an inner frame for content"""
+        self.display_frame = self._create_frame(row=2, column=1, colspan=1)
+        self._position_frame(
+            self.display_frame, row=2, column=1, colspan=1,
+            pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
+        )
+        # Prevent outer frame from resizing to fit content from entry data
+        self.display_frame.grid_propagate(False)
+
+        self.inner_frame = self._setup_inner_frame(self.display_frame)
+
+        self.default_msg = self._create_label(
+            self.inner_frame, row=1, text="Select a date to view your entries...",
+            font=self.italic_font, bg="white", pad_y=10
+        )
+        self.default_msg.grid_configure(columnspan=2)
+
+        self._action_buttons = self._create_action_buttons()
+        # Hidden until an entry is displayed
+        self._action_buttons.grid_remove()
+
+    def _setup_inner_frame(self, parent):
+        """Create an inner frame within the display frame to hold entry details and action buttons,
+        with spacers for centering."""
+        inner_frame = self._create_inner_frame(parent)
+
+        # Prevent inner frame from resizing to fit content from entry data
+        self.inner_frame.grid_propagate(False)
+
+        self.inner_frame.grid_columnconfigure(0, weight=1)
+        self.inner_frame.grid_columnconfigure(1, weight=1)
+        self.inner_frame.grid_rowconfigure(0, weight=1)  # Top spacer
+        self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom spacer
+
+        return inner_frame
+
     def _on_valid_date(self, entry):
         """Display the entry details and show action buttons for editing or deleting the entry."""
         self._reset_widgets(default=False)
         self._current_entry = entry
         self._display_entry(entry)
-        self._display_entry_buttons(entry)
-
-    def _display_entry(self, entry):
-        """Create labels for each field in the entry and display them in the inner frame, with action buttons below."""
-        for row, (field, value) in enumerate(entry.entry_dict.items()):
-            label = self._create_label(
-                self.inner_frame, row=row + 1,
-                text=f"{field.replace('_', ' ').title()}: {value.capitalize() if value else 'N/A'}",
-                font=self.subheading_font, bg="white",
-                anchor="w", pad_y=5
-            )
-            label.grid_configure(columnspan=2)
-            self.inner_frame.bind(
-                "<Configure>",
-                lambda event, lbl=label: lbl.config(wraplength=event.width - 20),
-                add="+"
-            )
-
-    def _display_entry_buttons(self, entry):
-        """Grid the Edit and Delete buttons below the entry details, centred and with consistent padding."""
-        self._action_buttons.grid(
-            row=len(entry.entry_dict) + 1, column=0, columnspan=2,
-            padx=40, pady=(20, 10), sticky="ew"
-        )
+        self._display_entry_action_buttons(entry)
 
     def _reset_widgets(self, default=True):
         """Clear the display frame and reset to default state, optionally showing the default message."""
@@ -171,39 +194,28 @@ class SearchScreen(Screen):
             self.inner_frame.grid_rowconfigure(2, weight=1)
             self.default_msg.grid(row=1, padx=10, pady=10)
 
-    def _position_calendar(self, row, colspan):
-        """Grid the calendar with consistent padding."""
-        pad_x = (self.OUTER_PADDING, self.INNER_PADDING) if colspan == 1 else self.INNER_PADDING
-        pad_y = (self.OUTER_PADDING, self.INNER_PADDING) if colspan == 2 else self.OUTER_PADDING
-        self.calendar.grid(
-            row=row, column=0, columnspan=colspan,
-            padx=pad_x, pady=pad_y, sticky="nsew"
-        )
+    def _display_entry(self, entry):
+        """Create labels for each field in the entry and display them in the inner frame, with action buttons below."""
+        for row, (field, value) in enumerate(entry.entry_dict.items()):
+            label = self._create_label(
+                self.inner_frame, row=row + 1,
+                text=f"{field.replace('_', ' ').title()}: {value.capitalize() if value else 'N/A'}",
+                font=self.subheading_font, bg="white",
+                anchor="w", pad_y=5
+            )
+            label.grid_configure(columnspan=2)
+            self.inner_frame.bind(
+                "<Configure>",
+                lambda event, lbl=label: lbl.config(wraplength=event.width - 20),
+                add="+"
+            )
 
-    def _setup_display_frame(self):
-        """Create the display frame with an inner frame for content"""
-        self.display_frame = self._create_frame(row=2, column=1, colspan=1)
-        self._position_frame(
-            self.display_frame, row=2, column=1, colspan=1,
-            pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
+    def _display_entry_action_buttons(self, entry):
+        """Grid the Edit and Delete buttons below the entry details, centred and with consistent padding."""
+        self._action_buttons.grid(
+            row=len(entry.entry_dict) + 1, column=0, columnspan=2,
+            padx=40, pady=(20, 10), sticky="ew"
         )
-        # Prevent outer frame from resizing to fit content from entry data
-        self.display_frame.grid_propagate(False)
-        self.inner_frame = self._create_inner_frame(self.display_frame)
-        # Prevent inner frame from resizing to fit content from entry data
-        self.inner_frame.grid_propagate(False)
-        self.inner_frame.grid_columnconfigure(0, weight=1)
-        self.inner_frame.grid_columnconfigure(1, weight=1)
-        self.inner_frame.grid_rowconfigure(0, weight=1)  # Top spacer
-        self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom spacer
-        self.default_msg = self._create_label(
-            self.inner_frame, row=1, text="Select a date to view your entries...",
-            font=self.italic_font, bg="white", pad_y=10
-        )
-        self.default_msg.grid_configure(columnspan=2)
-        self._action_buttons = self._create_action_buttons()
-        # Hidden until an entry is displayed — placed in a centring container
-        self._action_buttons.grid_remove()
 
     def _create_action_buttons(self):
         """Create Edit and Delete stylised buttons of equal size, centred in the inner frame."""
