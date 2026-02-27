@@ -1,11 +1,11 @@
-# Logging is important for tracking the behavior of an application, especially for debugging and monitoring purposes.
-# This logging configuration sets up a logger that writes detailed debug information to a file,
-# while only showing info and above in the console.
+"""Logging is important for tracking the behavior of an application, especially for debugging and monitoring purposes.
+This logging configuration sets up a logger that writes detailed debug information to a file,
+while only showing info and above in the console.
 
-# logger.debug is used for detailed info during dev debugging
-# logger.info is used for general info about the application's operation
-# logger.warning is used when something unexpected happens but the app can keep running, e.g. invalid requests
-# logger.error is used when the app may fail, e.g. file not found, database connection issues, etc.
+logger.debug is used for detailed info during dev debugging
+logger.info is used for general info about the application's operation
+logger.warning is used when something unexpected happens but the app can keep running, e.g. invalid requests
+logger.error is used when the app may fail, e.g. file not found, database connection issues, etc."""
 
 import logging
 import sys
@@ -17,9 +17,11 @@ LOG_DIR = Path(__file__).parent / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 
 
-# The method here explicitly returns a logger object, the name is usually set to the name of the module calling it.
 def get_logger(name) -> logging.Logger:
-    # getLogger retrieves a logger with the specified name. If a logger with that name already exists, it returns the existing logger. If not, it creates a new one.
+    """Set up and return a logger with the specified name,
+    configured to log to both console and file with appropriate levels and formatting.
+    The method explicitly returns a logger object; the name is usually the module calling it."""
+    # getLogger retrieves a logger with the given name, or creates one if it does not exist.
     logger = logging.getLogger(name)
 
     if logger.handlers:
@@ -34,7 +36,7 @@ def get_logger(name) -> logging.Logger:
     )
 
     # Console handler: This determines which log messages are printed to the console.
-    # Setting it to INFO means that DEBUG messages will not be shown in the console, but will still be logged to the file.
+    # Setting it to INFO means that DEBUG messages will not be shown in the console, but will still be logged to file.
     # StreamHandler is what handles console output, and sys.stdout ensures that logs are printed to standard output.
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
