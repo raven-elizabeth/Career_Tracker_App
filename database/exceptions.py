@@ -1,6 +1,11 @@
-# Created custom exception for empty file as using FileNotFoundError would be a misleading title
+"""This file defines custom exceptions for the CSV database repository.
+These exceptions are used to handle specific error cases when working with the CSV file.
+Custom exceptions promote more informative error messages and graceful handling of these cases."""
+
+
 class FileEmptyError(Exception):
-    """Raised when the CSV file is found but contains no data."""
+    """Raised when the CSV file is found but contains no data.
+    Custom exception to distinguish from FileNotFoundError, which is raised when the file does not exist."""
     pass
 
 
