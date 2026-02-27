@@ -1,4 +1,10 @@
-# Test cases for API class in app.py
+"""
+This file defines unit tests for the API class in the api.app module.
+The tests cover all CRUD operations for daily entries, including successful cases and various error scenarios.
+The tests use a temporary directory and file to ensure isolation and avoid side effects on the actual data.
+The tests verify that the API returns the correct status codes and response data for each scenario,
+ensuring that the API behaves as expected under different conditions.
+"""
 
 import os
 import tempfile
@@ -11,8 +17,9 @@ from database.csv_database_repository import CsvDatabaseRepository
 class TestAPI(unittest.TestCase):
     def setUp(self):
         """
-        Set up a temporary directory and file for testing, and initialize the API with a CsvDatabaseRepository.
-        Set up sample entry data and expected response data for use in the tests.
+        Set up a temporary directory and file for testing, and initialize the API
+        with a CsvDatabaseRepository. Set up sample entry data and expected response
+        data for use in the tests.
         """
 
         self._test_dir = tempfile.TemporaryDirectory()

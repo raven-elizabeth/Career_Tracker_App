@@ -1,6 +1,8 @@
-# This screen allows users to select a date from a calendar and view the corresponding entry if one exists.
-# It also provides options to edit or delete the entry, with a confirmation dialog for deletions.
-# The layout adapts responsively to different window sizes, switching between adjacent and wrap layouts as needed.
+"""
+This screen allows users to select a date from a calendar and view the corresponding entry if one exists.
+It also provides options to edit or delete the entry, with a confirmation dialog for deletions.
+The layout adapts responsively to different window sizes, switching between adjacent and wrap layouts as needed.
+"""
 
 import datetime
 from tkinter import Frame, messagebox
@@ -210,8 +212,12 @@ class SearchScreen(Screen):
         # Reset the spacer rows used by default message centering
         self.inner_frame.grid_rowconfigure(0, weight=0)
         self.inner_frame.grid_rowconfigure(2, weight=0)
-        # Reset the trailing spacer row added after entry labels
-        self.inner_frame.grid_rowconfigure(len(self.inner_frame.grid_slaves()), weight=0)
+
+        # Reset the trailing spacer row added after the last entry label
+        # Check for existence of _last_entry_row as this will only be set if an entry was previously displayed,
+        # and we want to avoid accidentally resetting a spacer row if the user clicks different dates with no entries
+        if hasattr(self, "_last_entry_row"):
+            self.inner_frame.grid_rowconfigure(self._last_entry_row, weight=0)
 
     def _reset_display_frame(self, default=False):
         """Clear the display frame and reset to default state, optionally showing the default message."""
@@ -232,7 +238,8 @@ class SearchScreen(Screen):
             self.default_msg.grid(row=1, padx=10, pady=10)
 
     def _display_entry(self, entry):
-        """Create labels for each field in the entry and display them in the inner frame"""
+        """Create labels for each field in the entry and display them in the inner frame."""
+        row = 0
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             label = self._create_label(
                 self.inner_frame, row=row + 1,
@@ -250,7 +257,8 @@ class SearchScreen(Screen):
                 # in _setup_inner_frame
                 add="+"
             )
-
+        # Store last row so _reset_inner_frame can reliably reset the trailing spacer row
+        self._last_entry_row = row + 1
     def _display_entry_action_buttons(self, entry):
         """Grid the Edit and Delete buttons below the entry details, centred and with consistent padding."""
         self._action_buttons.grid(

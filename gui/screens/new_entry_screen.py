@@ -1,8 +1,10 @@
-# This screen allows users to create a new entry or edit an existing one by selecting a date.
-# It features a dropdown for date selection, dynamically generated fields based on the FIELDS list.
-# Validation ensures meaningful input before saving.
-# The screen tracks if the user is editing or not to determine the save action.
-# If the user is editing, it checks what changes were made to determine whether to use the PATCH or PUT API route.
+"""
+This screen allows users to create a new entry or edit an existing one by selecting a date.
+It features a dropdown for date selection, dynamically generated fields based on the FIELDS list.
+Validation ensures meaningful input before saving.
+The screen tracks if the user is editing or not to determine the save action.
+If the user is editing, it checks what changes were made to determine whether to use the PATCH or PUT API route.
+"""
 
 import datetime
 from tkinter import Entry, Frame, Label, StringVar, Text
@@ -64,9 +66,9 @@ class NewEntryScreen(Screen):
         - event= provided (ComboboxSelected binding): tkinter has already updated
           _selected_date, so just read it without overwriting.
         """
-        if date is not None:
+        if date:
             self._selected_date.set(date)
-        elif event is None:
+        elif not event:
             # Called programmatically with no date — default to today
             self._selected_date.set(datetime.date.today().strftime("%Y-%m-%d"))
         # If event is not None, the dropdown already updated _selected_date

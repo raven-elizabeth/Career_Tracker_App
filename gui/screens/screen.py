@@ -1,8 +1,10 @@
-# This module defines the Screen class, which serves as a base for all GUI screens in the application.
-# It provides common styling, layout configuration, and utility methods.
-# Note: This class should not be instantiated directly.
-# Currently, not all methods are reused by more than one screen,
-# but they have potential for reuse as the application grows.
+"""
+This module defines the Screen class, which serves as a base for all GUI screens in the application.
+It provides common styling, layout configuration, and utility methods.
+Note: This class should not be instantiated directly.
+Currently, not all methods are reused by more than one screen,
+but they have potential for reuse as the application grows.
+"""
 
 from tkinter import Frame, Label, messagebox
 from tkinter.font import nametofont
