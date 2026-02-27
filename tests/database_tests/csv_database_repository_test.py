@@ -13,6 +13,8 @@ from domain.dailyentry import DailyEntry
 
 class TestCsvDatabaseRepository(unittest.TestCase):
     def setUp(self):
+        """Set up a temporary file and repository instance for testing.
+        Set up sample entry and expected response for use in multiple test cases."""
         self._test_dir = tempfile.TemporaryDirectory()
         self._test_file_path = os.path.join(self._test_dir.name, "test_entries.csv")
         self._repo = CsvDatabaseRepository(file_path=self._test_file_path)
@@ -35,9 +37,12 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self._repo.save_entry(self.entry)
 
     def tearDown(self):
+        """Clean up the temporary file after each test."""
         self._test_dir.cleanup()
 
     def test_save_partial_entry_saves_all_fields_with_defaults(self):
+        """Test that saving an entry with only required fields correctly saves all fields,
+        with defaults for optional fields."""
         # Assert
         with open(self._repo.file_path, 'r') as file:
             reader = csv.DictReader(file)
@@ -51,6 +56,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             self.assertEqual(self.expected, rows[0])
 
     def test_saving_existing_entry_raises_duplicate_error(self):
+        """Test that attempting to save an entry with a date that already exists raises a DuplicateEntryError."""
         # Arrange
         duplicate_entry = DailyEntry(
             date="2025-06-04",
@@ -65,6 +71,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(str(context.exception), "An entry with date 2025-06-04 already exists.")
 
     def test_get_existing_entry_by_date_returns_entry(self):
+        """Test that retrieving an existing entry by date returns the correct entry."""
         # Arrange
         second_value = {
             "date": "2025-06-05",
@@ -84,6 +91,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(response.entry_dict, second_value)
 
     def test_none_returned_when_get_date_not_found(self):
+        """Test that retrieving an entry by a date that does not exist returns None."""
         # Act
         entry = self._repo.get_entry_by_date("2025-06-06")
 
@@ -91,6 +99,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertIsNone(entry)
 
     def test_replace_entry_updates_existing_entry(self):
+        """Test that replacing an existing entry with new data correctly updates the entry."""
         # Arrange
         updated_entry = DailyEntry(
             date="2025-06-04",
@@ -110,6 +119,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(response.entry_dict, updated_entry.entry_dict)
 
     def test_replace_nonexistent_entry_raises_value_error(self):
+        """Test that attempting to replace an entry that does not exist raises a ValueError."""
         # Arrange
         updated_entry = DailyEntry(
             date="2025-06-07",
@@ -127,6 +137,8 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
 
     def test_partially_update_entry_updates_only_provided_fields(self):
+        """Test that partially updating an existing entry with only some fields provided
+        correctly updates only those fields"""
         # Arrange
         updated_entry_items = {
             "date": "2025-06-04",
@@ -150,6 +162,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(response.entry_dict, expected_entry)
 
     def test_partially_update_nonexistent_entry_raises_value_error(self):
+        """Test that attempting to partially update an entry that does not exist raises a ValueError."""
         # Arrange
         updated_entry = DailyEntry(
             date="2025-06-07",
@@ -163,6 +176,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
 
     def test_delete_existing_entry_deletes_entry(self):
+        """Test that deleting an existing entry by date successfully removes the entry from the repository."""
         # Arrange
         get_response = self._repo.get_entry_by_date("2025-06-04")
         self.assertEqual(get_response.entry_dict, self.expected)
@@ -175,6 +189,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertIsNone(deleted_entry_get_response)
 
     def test_delete_nonexistent_entry_raises_value_error(self):
+        """Test that attempting to delete an entry that does not exist raises a ValueError."""
         # Arrange
         with self.assertRaises(ValueError) as context:
             # Act
@@ -184,6 +199,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-08")
 
     def test_validate_file_raises_file_not_found_error_if_file_does_not_exist(self):
+        """"Test that validating a file that does not exist raises a FileNotFoundError."""
         # Arrange
         test_repo = CsvDatabaseRepository(file_path="non_existent_file.csv")
 
@@ -195,6 +211,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(str(context.exception), f"File not found: {test_repo.file_path}")
 
     def test_validate_file_raises_file_empty_error_if_file_is_empty(self):
+        """Test that validating a file that exists but is empty raises a FileEmptyError."""
         # Arrange
         with open(self._test_file_path, 'w') as file:
             file.close()
