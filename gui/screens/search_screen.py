@@ -1,3 +1,7 @@
+# This screen allows users to select a date from a calendar and view the corresponding entry if one exists.
+# It also provides options to edit or delete the entry, with a confirmation dialog for deletions.
+# The layout adapts responsively to different window sizes, switching between adjacent and wrap layouts as needed.
+
 import datetime
 from tkinter import Frame, messagebox
 
@@ -68,6 +72,7 @@ class SearchScreen(Screen):
         )
 
     def _apply_adjacent_layout(self):
+        """Grid and position calendar and display frame side by side in the main row."""
         self._configure_adjacent_grid()
         self._position_calendar(row=2, colspan=1)
         self._position_frame(
@@ -76,6 +81,7 @@ class SearchScreen(Screen):
         )
 
     def _apply_wrap_layout(self):
+        """Grid and position calendar above the display frame, both spanning full width."""
         self._configure_wrap_grid()
         self._position_calendar(row=2, colspan=2)
         self._position_frame(
@@ -85,11 +91,16 @@ class SearchScreen(Screen):
         )
 
     def _setup_calendar(self):
+        """Create calendar widget with max date of today and bind date selection event."""
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
         self._position_calendar(row=2, colspan=1)
         self.calendar.bind("<<CalendarSelected>>", self._on_date_selected)
 
     def _on_date_selected(self, event):
+        """
+        Fetch and display entry for the selected date, or show default message if no entry exists.
+        Unused event parameter is required by the binding but not needed for the logic, so it's ignored
+        """
         selected_date = self.calendar.get_date()
         date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
         entry = self._on_date(date)
@@ -99,11 +110,13 @@ class SearchScreen(Screen):
             self._reset_widgets()
 
     def _on_valid_date(self, entry):
+        """Display the entry details and show action buttons for editing or deleting the entry."""
         self._reset_widgets(default=False)
         self._current_entry = entry
         self._display_entry(entry)
 
     def _display_entry(self, entry):
+        """Create labels for each field in the entry and display them in the inner frame, with action buttons below."""
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             label = self._create_label(
                 self.inner_frame, row=row + 1,
@@ -124,7 +137,7 @@ class SearchScreen(Screen):
         )
 
     def _reset_widgets(self, default=True):
-        # Clear screen (destroy widgets, hide default message)
+        """Clear the display frame and reset to default state, optionally showing the default message."""
         widgets = self.inner_frame.winfo_children()
         widgets.remove(self.default_msg)
         widgets.remove(self._action_buttons)
@@ -163,6 +176,7 @@ class SearchScreen(Screen):
         )
 
     def _setup_display_frame(self):
+        """Create the display frame with an inner frame for content"""
         self.display_frame = self._create_frame(row=2, column=1, colspan=1)
         self._position_frame(
             self.display_frame, row=2, column=1, colspan=1,

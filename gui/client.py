@@ -1,3 +1,6 @@
+# This file acts as the client-side API wrapper. This allows for abstraction of API calls and error handling
+# so the GUI code can focus on UI logic, while this client handles the API communication logic
+
 import requests
 
 from domain.dailyentry import DailyEntry

@@ -1,3 +1,6 @@
+# This is the main application file that connects all the app components together.
+# It cannot be run without the Flask API server running, so make sure to run app.py first.
+
 from gui.client import ApiClient
 from gui.root import Root
 from gui.screens.home_screen import HomeScreen

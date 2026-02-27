@@ -1,3 +1,6 @@
+# This screen is the first thing users see when they open the app.
+# It provides a welcoming message and clear options to either create a new entry or browse existing entries.
+
 from gui.screens.screen import Screen
 
 
@@ -20,6 +23,7 @@ class HomeScreen(Screen):
         )
 
     def _create_header_frame(self):
+        """Create the header frame with icon, main heading, welcome message, and description labels."""
         self.header_frame = self._create_frame()
         self.header_frame.grid_rowconfigure(0, weight=1)  # Top padding
         self.header_frame.grid_rowconfigure(5, weight=1)  # Bottom padding
@@ -50,6 +54,7 @@ class HomeScreen(Screen):
         )
 
     def _create_options_frame(self):
+        """Create options frame with subheading and buttons for creating a new entry or browsing existing entries."""
         self.options_frame = self._create_frame(row=3)
         self.options_frame.grid_rowconfigure(0, weight=1)  # Top padding
         self.options_frame.grid_rowconfigure(5, weight=1)  # Bottom padding

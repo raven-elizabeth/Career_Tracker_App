@@ -1,3 +1,9 @@
+# This screen allows users to create a new entry or edit an existing one by selecting a date.
+# It features a dropdown for date selection, dynamically generated fields based on the FIELDS list.
+# Validation ensures meaningful input before saving.
+# The screen tracks if the user is editing or not to determine the save action.
+# If the user is editing, it checks what changes were made to determine whether to use the PATCH or PUT API route.
+
 import datetime
 from tkinter import Entry, Frame, Label, StringVar, Text
 from tkinter import ttk
@@ -5,9 +11,10 @@ from tkinter import ttk
 from domain.fields import FIELDS
 from gui.screens.screen import Screen
 
+# Class constants to avoid hardcoding and allow easy updates
 ENTRY_FIELDS = [field for field in FIELDS if field != "date"]
 MULTILINE_FIELDS = {"work_contribution", "learning"}
-
+CHARACTER_LIMIT = 2000
 
 class NewEntryScreen(Screen):
     TEXT_HEIGHT = 4
@@ -96,7 +103,7 @@ class NewEntryScreen(Screen):
         date_dropdown.bind("<<ComboboxSelected>>", self._on_date_selected)
 
     def _create_fields_frame(self):
-        """Light-blue bordered outer frame containing a white inner frame with labelled entry fields."""
+        """Bordered outer frame containing an inner frame with labelled entry fields."""
         self.fields_frame = self._create_frame(row=2, column=0, colspan=2)
 
         inner = self._create_inner_frame(self.fields_frame)
@@ -156,6 +163,10 @@ class NewEntryScreen(Screen):
         save_btn.grid(padx=self.OUTER_PADDING)
 
     def _on_date_selected(self, event):
+        """
+        When a date is selected, check if an entry exists and prepopulate fields if so, otherwise clear fields.
+        Ignore event parameter as it is not needed - the selected date is tracked via the StringVar self._selected_date.
+        """
         selected_date = self._selected_date.get()
         entry = self._on_date(selected_date)
         if entry:
@@ -166,13 +177,14 @@ class NewEntryScreen(Screen):
             self.clear_fields(reset_date=False)
 
     def _input_is_valid(self, raw_data):
+        """Validate that at least one field is filled and no fields exceed character limits before allowing save."""
         valid = True
         if not raw_data or not any(raw_data[field] for field in ENTRY_FIELDS):
             self._show_error("No input detected", "Please fill in at least one field before saving.")
             valid = False
 
         for field, value in raw_data.items():
-            if len(value) > 2000:
+            if len(value) > self.CHARACTER_LIMIT:
                 self._show_error(f"Input for {field.replace('_', ' ')} too long",
                                  "Please limit each field to 2000 characters.")
                 valid = False
@@ -181,6 +193,7 @@ class NewEntryScreen(Screen):
 
     @staticmethod
     def _get_filtered_data(raw_data):
+        """Remove fields with empty values to avoid sending unnecessary empty strings to the API."""
         filtered_data = {
             field: value.strip() for field, value in raw_data.items()
             if value is not None and value.strip() != ""
@@ -213,6 +226,7 @@ class NewEntryScreen(Screen):
             self._on_home()
 
     def _determine_update_route(self, new_data):
+        """Determine whether to use full replace (PUT) or partial update (PATCH) API route based on changed fields."""
         if self._is_update_required(new_data):
             # If all values are changed, put route, else patch route
             if all(self._original_data.get(field) != value for field, value in new_data.items()):
@@ -223,6 +237,7 @@ class NewEntryScreen(Screen):
             return
 
     def _is_update_required(self, new_data):
+        """Check if any fields have changed compared to the original data, ignoring empty strings."""
         for field, value in new_data.items():
             if self._original_data.get(field) != value and value != "":
                 return True
@@ -241,12 +256,13 @@ class NewEntryScreen(Screen):
                 widget.insert(0, value)
 
     def _on_edit(self, original_data):
+        """Set up the screen for editing an existing entry by prepopulating fields and tracking original data."""
         self._prepopulate_fields(original_data)
         self._editing = True
         self._original_data = original_data
 
     def get_entry_data(self):
-        """Return a dict of the current date and field values."""
+        """Return a dict of the current date and its field values."""
         # Use get() to extract string value from StringVar
         data = {"date": self._selected_date.get()}
         for field, widget in self._text_widgets.items():

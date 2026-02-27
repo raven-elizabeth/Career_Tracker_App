@@ -1,3 +1,7 @@
+# This file contains the Root class, which is the main window of the application.
+# It sets the window title, minimum size, and starts maximised to provide a consistent user experience.
+# It is passed as the parent to all screens, which are then packed and unpacked to navigate between them.
+
 from tkinter import Tk
 
 
