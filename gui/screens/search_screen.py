@@ -232,7 +232,7 @@ class SearchScreen(Screen):
             self.default_msg.grid(row=1, padx=10, pady=10)
 
     def _display_entry(self, entry):
-        """Create labels for each field in the entry and display them in the inner frame, with action buttons below."""
+        """Create labels for each field in the entry and display them in the inner frame"""
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             label = self._create_label(
                 self.inner_frame, row=row + 1,
@@ -243,7 +243,11 @@ class SearchScreen(Screen):
             label.grid_configure(columnspan=2)
             self.inner_frame.bind(
                 "<Configure>",
-                lambda event, lbl=label: lbl.config(wraplength=event.width - 20),
+                # Maps event to alter wraplength of each label (in this case just the one)
+                # Padding is added to prevent label text overflowing the inner frame when window is resized smaller
+                lambda event, lbl=label: lbl.config(wraplength=event.width - self.INNER_PADDING),
+                # add="+" ensures this binding is added in addition to the default bindings created
+                # in _setup_inner_frame
                 add="+"
             )
 
