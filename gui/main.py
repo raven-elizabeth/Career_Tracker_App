@@ -50,14 +50,14 @@ class App:
 
     def show_new_entry(self):
         self._home_screen.pack_forget()
-        self._new_entry_screen.refresh()
+        self._new_entry_screen.refresh_screen()
         self._new_entry_screen.pack(fill="both", expand=True)
 
     def _edit_entry(self, entry_dict):
         """Navigate to new entry screen pre-populated with the selected entry's date."""
         date = entry_dict.get("date")
         self._search_screen.pack_forget()
-        self._new_entry_screen.refresh(date=date)
+        self._new_entry_screen.refresh_screen(date=date)
         self._new_entry_screen.pack(fill="both", expand=True)
 
     def run(self):

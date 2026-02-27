@@ -32,7 +32,7 @@ class SearchScreen(Screen):
 
         self.bind("<Configure>", self._on_resize)
 
-    def refresh_display(self):
+    def refresh_display(self, event=None):
         """
         Refresh the display frame based on the currently selected calendar date.
         Fetch and display entry for the selected date, or show default message if no entry exists.
@@ -109,7 +109,7 @@ class SearchScreen(Screen):
         """Create calendar widget with max date of today and bind date selection event."""
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
         self._position_calendar(row=2, colspan=1)
-        self.calendar.bind("<<CalendarSelected>>", self.refresh_display())
+        self.calendar.bind("<<CalendarSelected>>", self.refresh_display)
 
     def _position_calendar(self, row, colspan):
         """Grid the calendar with consistent padding."""
