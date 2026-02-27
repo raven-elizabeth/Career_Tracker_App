@@ -1,4 +1,23 @@
 # This file defines the API class that sets up the Flask application and its routes.
+# The API class uses dependency injection to allow for flexible repository and logger implementations.
+# The API supports CRUD operations for daily entries, with appropriate error handling and logging.
+# The API endpoints include:
+# - GET /api/csv/entries/<date>: Retrieve an entry by date
+# - POST /api/csv/entries: Create a new entry
+# - PUT /api/csv/entries/<date>: Replace an existing entry by date
+# - PATCH /api/csv/entries/<date>: Partially update an existing entry by
+# - DELETE /api/csv/entries/<date>: Delete an entry by date
+
+# Status codes used:
+# - 200 OK: Successful retrieval or update of an entry
+# - 201 Created: Successful creation of a new entry
+# - 204 No Content: Successful deletion of an entry
+# - 400 Bad Request: Invalid input data or missing JSON body
+# - 404 Not Found: Entry not found for the specified date
+# - 409 Conflict: Attempt to create a duplicate entry with an existing date
+# - 503 Service Unavailable: File unavailable when attempting to access the repository
+# Unknown errors will cause a 500 Internal Server Error, which is the default behavior of Flask for unhandled exceptions
+# Logging will capture details of any exceptions for debugging purposes.
 
 from flask import Flask, jsonify, request
 
@@ -26,6 +45,9 @@ class API:
 
         @self.app.route("/api/csv/entries/<date>", methods=["GET"])
         def get_entry_by_date(date):
+            """Retrieve an entry by date.
+            Return 200 OK with entry data on success, 404 if entry not found, or 503 if file unavailable."""
+
             self._logger.debug("GET request received for entry with date: %s", date)
             try:
                 entry = self._repository.get_entry_by_date(date)
@@ -38,6 +60,9 @@ class API:
 
         @self.app.route("/api/csv/entries", methods=["POST"])
         def post_entry():
+            """Create a new entry. Return 201 Created on success, 400 Bad Request for invalid input,
+            or 409 Conflict if an entry with the same date already exists."""
+
             self._logger.debug("POST request received to create a new entry")
             data = request.get_json()
             if not data:
@@ -67,6 +92,11 @@ class API:
 
         @self.app.route("/api/csv/entries/<date>", methods=["PUT"])
         def update_replace_entry(date):
+            """Replace an existing entry by date.
+            PUT request replaces entire entry, even if some fields are unchanged.
+            Return 200 OK on success, 400 Bad Request for invalid input,
+            404 Not Found if entry does not exist for the specified date, or 503 if file unavailable."""
+
             self._logger.debug("PUT request received to replace entry with date: %s", date)
             data = request.get_json()
 
@@ -88,6 +118,11 @@ class API:
 
         @self.app.route("/api/csv/entries/<date>", methods=["PATCH"])
         def partially_update_entry(date):
+            """Partially update an existing entry by date.
+            The benefit to PATCH over PUT is that the request body can be smaller and performance may be improved
+            Return 200 OK on success, 400 Bad Request for invalid input,
+            404 Not Found if entry does not exist for the specified date, or 503 if file unavailable."""
+
             self._logger.debug("PATCH request received to partially update entry with date: %s", date)
             update_request = request.get_json()
             if not update_request:
@@ -114,6 +149,9 @@ class API:
 
         @self.app.route("/api/csv/entries/<date>", methods=["DELETE"])
         def delete_entry(date):
+            """Delete an entry by date.
+            Return 204 No Content on success, 404 if entry not found, or 503 if file unavailable."""
+
             self._logger.debug("DELETE request received to delete entry with date: %s", date)
             try:
                 self._repository.delete_entry(date)
@@ -126,6 +164,8 @@ class API:
                 return jsonify({"error": f"Delete unsuccessful: {e}"}), 404
 
     def _file_unavailable_response(self, date, e):
+        """Helper method to handle file unavailable errors consistently across endpoints."""
+
         self._logger.error(
             "File unavailable when attempting to retrieve entry for date: %s. Error: %s",
             date, e
@@ -133,6 +173,8 @@ class API:
         return jsonify({"error": "File unavailable"}), 503
 
 
+# Main guard protects the Flask app from being run if this module is imported elsewhere
+# The app will only run if this script is executed directly, which is the intended use case for starting the API server
 if __name__ == "__main__":
     api = API()
     api.app.run()
