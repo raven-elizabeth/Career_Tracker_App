@@ -43,17 +43,20 @@ class App:
         self.show_home()
 
     def show_home(self):
+        """Hide all other screens and display the home screen."""
         self._search_screen.pack_forget()
         self._new_entry_screen.pack_forget()
         # fill=both fills the window horizontally and vertically; expand=True allows the screen to resize with the window
         self._home_screen.pack(fill="both", expand=True)
 
     def show_search(self):
+        """Hide the home screen, refresh the search display, and show the search screen."""
         self._home_screen.pack_forget()
         self._search_screen.refresh_display()
         self._search_screen.pack(fill="both", expand=True)
 
     def show_new_entry(self):
+        """Hide the home screen, reset the new entry screen to today's date, and show it."""
         self._home_screen.pack_forget()
         self._new_entry_screen.refresh_screen()
         self._new_entry_screen.pack(fill="both", expand=True)

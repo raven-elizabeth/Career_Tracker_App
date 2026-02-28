@@ -18,6 +18,7 @@ ENTRY_FIELDS = [field for field in FIELDS if field != "date"]
 MULTILINE_FIELDS = {"work_contribution", "learning"}
 CHARACTER_LIMIT = 2000
 
+
 class NewEntryScreen(Screen):
     TEXT_HEIGHT = 4
 
@@ -30,7 +31,8 @@ class NewEntryScreen(Screen):
         self._on_partial_update = on_partial_update
         self._text_widgets = {}
 
-        # Track whether we're currently editing an existing entry (True) or creating a new one (False) to determine post-save behaviour
+        # Track whether we're editing an existing entry (True) or creating a new one (False).
+        # This determines which API route is used on save.
         self._editing = False
         self._original_data = None
 
@@ -87,7 +89,7 @@ class NewEntryScreen(Screen):
         self._original_data = original_data
 
     def clear_fields(self):
-        """Clear all fields"""
+        """Clear all entry field widgets, resetting them to empty."""
         for widget in self._text_widgets.values():
             if isinstance(widget, Text):
                 widget.delete("1.0", "end")
@@ -120,6 +122,7 @@ class NewEntryScreen(Screen):
         )
 
     def _setup_date_frame(self):
+        """Create a centred date label and dropdown for selecting the entry date."""
         date_frame = Frame(self, bg=self.PRIMARY_COLOR)
         date_frame.grid(
             row=1, column=0, columnspan=2,

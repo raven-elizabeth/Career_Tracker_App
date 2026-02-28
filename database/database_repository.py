@@ -1,5 +1,9 @@
-# This module defines the DatabaseRepository interface,
-# which specifies the CRUD methods for interacting with the database.
+"""
+Defines the DatabaseRepository abstract base class.
+
+All concrete repository implementations must implement the CRUD methods defined here,
+ensuring a consistent interface regardless of the underlying storage mechanism.
+"""
 
 from abc import ABC, abstractmethod
 

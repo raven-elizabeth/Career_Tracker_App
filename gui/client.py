@@ -1,5 +1,9 @@
-# This file acts as the client-side API wrapper. This allows for abstraction of API calls and error handling
-# so the GUI code can focus on UI logic, while this client handles the API communication logic
+"""
+API client wrapper for the GUI layer.
+
+Abstracts HTTP requests and error handling so that GUI code only deals with
+domain objects and exceptions, not raw HTTP responses.
+"""
 
 import requests
 

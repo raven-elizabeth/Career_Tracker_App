@@ -1,5 +1,9 @@
-# This screen is the first thing users see when they open the app.
-# It provides a welcoming message and clear options to either create a new entry or browse existing entries.
+"""
+Home screen — the first screen users see when opening the app.
+
+Provides a welcoming header and option buttons to navigate to the
+new entry screen or the search screen.
+"""
 
 from gui.screens.screen import Screen
 

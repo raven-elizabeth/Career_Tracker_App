@@ -1,4 +1,9 @@
-# This file contains unit tests for the Entry class in the domain layer.
+"""
+Unit tests for the DailyEntry domain class.
+
+Covers construction with full and partial data, default values for missing fields,
+and validation errors for missing date or empty values.
+"""
 
 import unittest
 

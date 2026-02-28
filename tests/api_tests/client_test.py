@@ -1,9 +1,12 @@
-# These tests use mocking to simulate API responses without needing a real server.
-# Each test method is decorated with @patch to replace the relevant requests method with a mock.
-# The mock is configured to return specific status codes and JSON data to test different scenarios
-# (success, not found, server error, etc.).
+"""
+Unit tests for the ApiClient class in gui.client.
 
-# Used AI to help write these tests, then manually edited and added comments for clarity
+Uses mocking to simulate API responses without a running server.
+Each test uses @patch to replace the relevant requests method with a MagicMock configured
+to return specific status codes and JSON payloads, covering success, not-found, and error scenarios.
+
+AI was used to help write the initial test structure; tests were then manually edited and commented for clarity.
+"""
 
 import unittest
 from unittest.mock import patch, MagicMock
@@ -65,7 +68,7 @@ class ClientTest(unittest.TestCase):
         # Arrange: Simulate a successful 201 Created response with the saved entry data
         mock_post.return_value = MagicMock(status_code=201, json=lambda: {"data": SAMPLE_ENTRY})
 
-        # Acr
+        # Act
         result = ApiClient().save_entry(SAMPLE_ENTRY)
 
         # Assert

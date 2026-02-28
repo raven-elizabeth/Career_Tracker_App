@@ -6,7 +6,7 @@ The API endpoints include:
 - GET /api/csv/entries/<date>: Retrieve an entry by date
 - POST /api/csv/entries: Create a new entry
 - PUT /api/csv/entries/<date>: Replace an existing entry by date
-- PATCH /api/csv/entries/<date>: Partially update an existing entry by
+- PATCH /api/csv/entries/<date>: Partially update an existing entry by date
 - DELETE /api/csv/entries/<date>: Delete an entry by date
 
 Status codes used:
@@ -44,6 +44,7 @@ class API:
         self.setup_routes()
 
     def setup_routes(self):
+        """Register all API route handlers with the Flask application."""
 
         @self.app.route("/api/csv/entries/<date>", methods=["GET"])
         def get_entry_by_date(date):
@@ -121,7 +122,7 @@ class API:
         @self.app.route("/api/csv/entries/<date>", methods=["PATCH"])
         def partially_update_entry(date):
             """Partially update an existing entry by date.
-            The benefit to PATCH over PUT is that the request body can be smaller and performance may be improved
+            The benefit to PATCH over PUT is that the request body can be smaller and performance may be improved.
             Return 200 OK on success, 400 Bad Request for invalid input,
             404 Not Found if entry does not exist for the specified date, or 503 if file unavailable."""
 
@@ -175,8 +176,7 @@ class API:
         return jsonify({"error": "File unavailable"}), 503
 
 
-# Main guard protects the Flask app from being run if this module is imported elsewhere
-# The app will only run if this script is executed directly, which is the intended use case for starting the API server
+# Run directly to start the API server; importing this module elsewhere will not start the server
 if __name__ == "__main__":
     api = API()
     api.app.run()

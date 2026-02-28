@@ -1,7 +1,10 @@
-# The Entry class represents a single entry in the database. It requires a date and at least one of the other fields to be not empty.
-# The fields are stored in a separate file to make the code open for extension (open/closed principle)
-# The entry dictionary is  created dynamically based on the fields.
-# .get() is used to retrieve values from kwargs because it defaults to None values if the key does not exist
+"""
+Defines the DailyEntry domain model.
+
+The entry dictionary is created dynamically based on FIELDS, which are stored in a
+separate file to support the open/closed principle.
+kwargs.get() defaults missing keys to None (or empty string if specified) rather than raising KeyError.
+"""
 
 from domain.fields import FIELDS
 
@@ -21,12 +24,15 @@ class DailyEntry:
 
     @classmethod
     def from_replace_request(cls, update_dict):
+        """Validate that all fields are present for a full replacement (PUT), then construct the entry."""
         if not update_dict or not all(field in update_dict for field in FIELDS):
             raise ValueError("PUT request requires replacement data for all fields in the Entry class")
         return cls(**update_dict)
 
     @classmethod
     def from_partial_update_request(cls, update_dict):
+        """Validate that at least one non-empty value is provided for a partial update (PATCH),
+        then construct the entry."""
         if all(values.strip() == "" for values in update_dict.values()):
             raise ValueError("PATCH request requires at least one non-empty value for update")
         return cls(**update_dict)

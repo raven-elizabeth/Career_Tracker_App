@@ -19,11 +19,11 @@ class CsvDatabaseRepository(DatabaseRepository):
         file_path = file_path if file_path is not None else Path(__file__).parent/"entries.csv"
         self.file_path = Path(file_path)
         self._logger = logger if logger is not None else get_logger(__name__)
+        self._logger.debug("CsvDatabaseRepository initialized with file path: %s", self.file_path)
 
         # File is initialised here rather than when writing to the file to ensure it exists
-        # before any read operations are attempted, which triggerwhen the new entry and search screens are created.
+        # before any read operations are attempted, which trigger when the new entry and search screens are created.
         self._initialise_file()
-        self._logger.debug("CsvDatabaseRepository initialized with file path: %s", self.file_path)
 
     def _initialise_file(self):
         """Creates the CSV file with headers if it does not already exist."""
@@ -51,8 +51,7 @@ class CsvDatabaseRepository(DatabaseRepository):
                 )
                 raise DuplicateEntryError(f"An entry with date {entry.entry_dict['date']} already exists.")
 
-        # Check if the file exists and is not empty to determine whether to write the header
-        # (only write if writing first entry)
+        # Only write the header if the file is empty (i.e. no entries have been saved yet)
         header = not file_exists or file_size == 0
         df.to_csv(self.file_path, mode="a", header=header)
         self._logger.info("Entry saved successfully for date: %s", entry.entry_dict["date"])
@@ -66,9 +65,12 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     @staticmethod
     def _set_date_index(df):
-        """Set the 'date' column as the DataFrame index."""
-        # Copilot suggested converting to datetime to ensure correct formatting
-        # Then saving as string prevents pandas adding time data
+        """Set the 'date' column as the DataFrame index.
+
+        Converts to datetime first to normalise any date format variations,
+        then immediately converts back to a date string to prevent pandas
+        from appending time data (e.g. '2025-01-01 00:00:00').
+        """
         df["date"] = pd.to_datetime(df["date"]).dt.date.astype(str)
         df = df.set_index("date")
         return df

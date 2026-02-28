@@ -81,6 +81,7 @@ class SearchScreen(Screen):
         )
 
     def _setup_back_button(self):
+        """Create the back button and position it in the top-left corner."""
         back_button = self._create_stylised_button(
             parent=self,
             title="⬅️ Back",

@@ -1,5 +1,9 @@
-# This file contains unit tests for the CsvDatabaseRepository class.
-# The tests use the AAA (Arrange, Act, Assert) pattern to structure the test cases.
+"""
+Unit tests for the CsvDatabaseRepository class.
+
+Tests cover all CRUD operations using a temporary file to ensure isolation
+and avoid side effects on real data. Tests follow the AAA (Arrange, Act, Assert) pattern.
+"""
 
 import csv
 import os
@@ -199,13 +203,13 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(str(context.exception), "No entry found for date: 2025-06-08")
 
     def test_validate_file_raises_file_not_found_error_if_file_does_not_exist(self):
-        """"Test that validating a file that does not exist raises a FileNotFoundError."""
-        # Arrange
-        test_repo = CsvDatabaseRepository(file_path="non_existent_file.csv")
+        """Test that validating a file that does not exist raises a FileNotFoundError."""
+        # Arrange: create the repo (which creates the file), then delete the file to simulate it being missing
+        test_repo = CsvDatabaseRepository(file_path=self._test_file_path)
+        test_repo.file_path.unlink()
 
-        # Act
+        # Act & Assert
         with self.assertRaises(FileNotFoundError) as context:
-            # Assert
             test_repo._validate_file()
 
         self.assertEqual(str(context.exception), f"File not found: {test_repo.file_path}")
