@@ -69,13 +69,6 @@ class SearchScreen(Screen):
             row_weights={0: 0, 1: 1, 2: 10, 3: 1}
         )
 
-    def _configure_wrap_grid(self):
-        """Single column; calendar and display frame stack vertically."""
-        self._configure_responsive_grid(
-            column_weights={0: 1, 1: 1},
-            row_weights={0: 0, 1: 1, 2: 0, 3: 10, 4: 1}
-        )
-
     def _apply_adjacent_layout(self):
         """Grid and position calendar and display frame side by side in the main row."""
         self._configure_adjacent_grid()
@@ -83,16 +76,6 @@ class SearchScreen(Screen):
         self._position_frame(
             self.display_frame, row=2, column=1, colspan=1,
             pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
-        )
-
-    def _apply_wrap_layout(self):
-        """Grid and position calendar above the display frame, both spanning full width."""
-        self._configure_wrap_grid()
-        self._position_calendar(row=2, colspan=2)
-        self._position_frame(
-            self.display_frame, row=3, column=0,
-            pad_x=self.INNER_PADDING,
-            pad_y=(self.INNER_PADDING, self.OUTER_PADDING)
         )
 
     def _setup_back_button(self):
@@ -281,3 +264,24 @@ class SearchScreen(Screen):
         """Delete the entry for the given date and reset the display."""
         self._on_delete(date)
         self._reset_display_frame(default=True)
+
+    # The wrap configuration methods below are designed to stack the display frame underneath the calendar
+    # on a smaller screen. They are currently not used as the min window size has been fixed before the wrap layout
+    # breakpoint. They remain for future development, when all screens can be properly configured for
+    # responsiveness on small screens, and the min window size can be reduced
+    def _configure_wrap_grid(self):
+        """Single column; calendar and display frame stack vertically."""
+        self._configure_responsive_grid(
+            column_weights={0: 1, 1: 1},
+            row_weights={0: 0, 1: 1, 2: 0, 3: 10, 4: 1}
+        )
+
+    def _apply_wrap_layout(self):
+        """Grid and position calendar above the display frame, both spanning full width."""
+        self._configure_wrap_grid()
+        self._position_calendar(row=2, colspan=2)
+        self._position_frame(
+            self.display_frame, row=3, column=0,
+            pad_x=self.INNER_PADDING,
+            pad_y=(self.INNER_PADDING, self.OUTER_PADDING)
+        )
