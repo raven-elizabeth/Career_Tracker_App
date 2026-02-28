@@ -1,5 +1,14 @@
+"""
+This module defines the Screen class, which serves as a base for all GUI screens in the application.
+It provides common styling, layout configuration, and utility methods.
+Note: This class should not be instantiated directly.
+Currently, not all methods are reused by more than one screen,
+but they have potential for reuse as the application grows.
+"""
+
 from tkinter import Frame, Label, messagebox
 from tkinter.font import nametofont
+from typing import Literal
 
 
 class Screen(Frame):
@@ -8,10 +17,11 @@ class Screen(Frame):
     PRIMARY_COLOR = "#0C2340"
     SECONDARY_COLOR = "#A8D5E2"
     TERTIARY_COLOR = "#1D5A87"
+    INNER_FRAME_COLOR = "white"
 
     HEADING_SIZE = 30
-    SUBHEADING_SIZE = 14
-    BODY_SIZE = 12
+    SUBHEADING_SIZE = 20
+    BODY_SIZE = 16
 
     OUTER_PADDING = 60
     BORDER_WIDTH = 3
@@ -21,6 +31,7 @@ class Screen(Frame):
         self._setup_fonts()
 
     def _setup_fonts(self):
+        """Create and configure font styles for headings, subheadings, and italic text using Tkinter named fonts."""
         self.heading_font = nametofont("TkHeadingFont").copy()
         self.heading_font.config(size=self.HEADING_SIZE, weight="bold")
 
@@ -37,43 +48,43 @@ class Screen(Frame):
         for row, weight in row_weights.items():
             self.grid_rowconfigure(row, weight=weight)
 
-    def _create_frame(self, row=1, column=0, colspan=2):
+    def _create_frame(self, row=1, column_span=2):
         """Create a reusable frame with consistent styling and secondary colour."""
         frame = Frame(
             self, relief="solid",
             borderwidth=self.BORDER_WIDTH, bg=self.SECONDARY_COLOR
         )
-        self._position_frame(frame, row=row, column=column, colspan=colspan)
+        self._position_frame(frame, row=row, column=0, column_span=column_span)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         return frame
 
-    def _position_frame(self, parent, row, column, colspan=2, pad_x=None, pad_y=None):
+    def _position_frame(self, parent, row, column, column_span=2, pad_x=None, pad_y=None):
         """Grid a frame with consistent padding and stretch behaviour."""
         pad_x = pad_x if pad_x is not None else self.OUTER_PADDING
         pad_y = pad_y if pad_y is not None else 10
         parent.grid(
-            row=row, column=column, columnspan=colspan,
+            row=row, column=column, columnspan=column_span,
             padx=pad_x, pady=pad_y, sticky="nsew"
         )
 
-    def _position_button(self, btn, row, column=0, colspan=2, pad_x=None, pad_y=(0, 10), sticky="ew"):
+    def _position_button(self, btn, row, column=0, column_span=2, pad_x=None, pad_y=(0, 10), sticky="ew"):
         """Grid a stylised button with consistent padding."""
         pad_x = pad_x if pad_x is not None else self.OUTER_PADDING
         btn.grid(
-            row=row, column=column, columnspan=colspan,
+            row=row, column=column, columnspan=column_span,
             padx=pad_x, pady=pad_y, sticky=sticky
         )
 
     def _create_inner_frame(self, parent):
-        """Create an inner frame with white background for content display."""
-        frame = Frame(parent, bg="white", relief="solid", borderwidth=self.BORDER_WIDTH)
+        """Create an inner frame to make content display clearer against the background"""
+        frame = Frame(parent, bg=self.INNER_FRAME_COLOR, relief="solid", borderwidth=self.BORDER_WIDTH)
         frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
         frame.grid_columnconfigure(0, weight=1)
         return frame
 
     @staticmethod
-    def _create_label(parent, row, text, font, bg, pad_y=0, pad_x=10, anchor="center"):
+    def _create_label(parent, row, text, font, bg, pad_y=0, pad_x=10, anchor: Literal["nw", "n", "ne", "w", "center", "e", "sw", "s", "se"] = "center"):
         """Create a label with consistent styling and padding."""
         label = Label(parent, text=text, font=font, bg=bg, anchor=anchor)
         label.grid(row=row, padx=pad_x, pady=pad_y, sticky="ew" if anchor != "center" else "")
@@ -86,12 +97,11 @@ class Screen(Frame):
         separator.grid(row=row, column=0, padx=pad_x, pady=(0, 10), sticky="ew")
 
     def _create_stylised_button(self, parent, title, subtitle, func):
-        """Create a clickable frame styled as a button with a title and subtitle.
-
+        """
+        Create a clickable frame styled as a button with a title and subtitle.
         Uses Frame + Labels with .bind() instead of a Button widget, as this
         allows for multi-line content and custom styling not available on Button.
         Each label captures func via a default argument to avoid late-binding issues with looping.
-
         """
         btn_frame = Frame(parent, relief="solid", borderwidth=1, cursor="hand2", bg=self.TERTIARY_COLOR)
         btn_frame.grid_columnconfigure(0, weight=1)
@@ -112,15 +122,6 @@ class Screen(Frame):
 
         btn_frame.bind("<Button-1>", lambda event, f=func: f())
         return btn_frame
-
-    def _add_back_button(self, func, title="⬅️ Back", subtitle="Return to home screen"):
-        """Create a styled back button; caller is responsible for positioning."""
-        return self._create_stylised_button(
-            parent=self,
-            title=title,
-            subtitle=subtitle,
-            func=func,
-        )
 
     @staticmethod
     def _show_error(title, message):
