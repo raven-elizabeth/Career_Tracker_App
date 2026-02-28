@@ -26,18 +26,14 @@ class App:
         # NewEntryScreen must be created before SearchScreen so _edit_entry can reference it
         self._new_entry_screen = NewEntryScreen(
             self._root,
-            on_home=self.show_home,
-            on_valid_save=self._api_client.save_entry,
-            on_date=self._api_client.get_entry_by_date,
-            on_full_replace=self._api_client.replace_entry,
-            on_partial_update=self._api_client.update_entry
+            client=self._api_client,
+            on_home=self.show_home
         )
         self._search_screen = SearchScreen(
             self._root,
+            client=self._api_client,
             on_home=self.show_home,
-            on_date=self._api_client.get_entry_by_date,
-            on_edit=self._edit_entry,
-            on_delete=self._api_client.delete_entry
+            on_edit=self._edit_entry
         )
 
         self.show_home()

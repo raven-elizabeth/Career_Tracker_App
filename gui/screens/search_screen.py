@@ -16,12 +16,11 @@ class SearchScreen(Screen):
     WRAP_LAYOUT_WIDTH = 1000
     INNER_PADDING = 20
 
-    def __init__(self, *args, on_date, on_home, on_edit, on_delete, **kwargs):
+    def __init__(self, *args, client, on_home, on_edit, **kwargs):
         super().__init__(*args, **kwargs)
-        self._on_date = on_date
+        self._client = client
         self._on_home = on_home
         self._on_edit = on_edit
-        self._on_delete = on_delete
 
         self._wrap_layout = False
         self._current_entry = None
@@ -45,7 +44,7 @@ class SearchScreen(Screen):
         selected_date = self.calendar.get_date()
         date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
         try:
-            entry = self._on_date(date)
+            entry = self._client.get_entry_by_date(date)
             if entry:
                 self._on_valid_date(entry)
             else:
@@ -268,7 +267,7 @@ class SearchScreen(Screen):
 
     def _delete_entry(self, date):
         """Delete the entry for the given date and reset the display."""
-        self._on_delete(date)
+        self._client.delete_entry(date)
         self._reset_display_frame(default=True)
 
     # The wrap configuration methods below are designed to stack the display frame underneath the calendar

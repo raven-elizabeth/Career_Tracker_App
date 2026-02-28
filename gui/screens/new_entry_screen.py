@@ -22,13 +22,10 @@ CHARACTER_LIMIT = 2000
 class NewEntryScreen(Screen):
     TEXT_HEIGHT = 4
 
-    def __init__(self, *args, on_home, on_valid_save, on_date, on_full_replace, on_partial_update, **kwargs):
+    def __init__(self, *args, client, on_home, **kwargs):
         super().__init__(*args, **kwargs)
+        self._client = client
         self._on_home = on_home
-        self._on_valid_save = on_valid_save
-        self._on_date = on_date
-        self._on_full_replace = on_full_replace
-        self._on_partial_update = on_partial_update
         self._text_widgets = {}
 
         # Track whether we're editing an existing entry (True) or creating a new one (False).
@@ -76,7 +73,7 @@ class NewEntryScreen(Screen):
 
         selected_date = self._selected_date.get()
         try:
-            entry = self._on_date(selected_date)
+            entry = self._client.get_entry_by_date(selected_date)
             if entry:
                 self._on_edit(entry.entry_dict)
             else:
@@ -260,7 +257,7 @@ class NewEntryScreen(Screen):
                 self._determine_update_route(new_data)
             else:
                 filtered_data = self._get_filtered_data(new_data)
-                self._on_valid_save(filtered_data)
+                self._client.save_entry(filtered_data)
 
             self._editing = False
             self._original_data = None
@@ -272,11 +269,11 @@ class NewEntryScreen(Screen):
             return
 
         filtered_data = self._get_filtered_data(new_data)
-        # If all values are changed, put route, else patch route
+        # If all values are changed, use PUT (full replace), otherwise use PATCH (partial update)
         if all(self._original_data.get(field) != value for field, value in new_data.items() if field != "date"):
-            self._on_full_replace(filtered_data)
+            self._client.replace_entry(filtered_data)
         else:
-            self._on_partial_update(filtered_data)
+            self._client.update_entry(filtered_data)
 
     def _is_update_required(self, new_data):
         """Check if any fields have changed compared to the original data, ignoring empty strings."""

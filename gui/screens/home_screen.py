@@ -97,5 +97,5 @@ class HomeScreen(Screen):
             subtitle=subtitle,
             func=func
         )
-        self._position_button(btn, row=row, colspan=1)
+        self._position_button(btn, row=row, column_span=1)
         return btn
