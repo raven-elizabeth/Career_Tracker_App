@@ -13,14 +13,15 @@ from tkinter import ttk
 from domain.fields import FIELDS
 from gui.screens.screen import Screen
 
-# Class constants to avoid hardcoding and allow easy updates
+# Module constant depends on an import
 ENTRY_FIELDS = [field for field in FIELDS if field != "date"]
-MULTILINE_FIELDS = {"work_contribution", "learning"}
-CHARACTER_LIMIT = 2000
 
 
 class NewEntryScreen(Screen):
+    # Class constants to avoid hardcoding and allow easy updates
     TEXT_HEIGHT = 4
+    MULTILINE_FIELDS = {"work_contribution", "learning"}
+    CHARACTER_LIMIT = 2000
 
     def __init__(self, *args, client, on_home, **kwargs):
         super().__init__(*args, **kwargs)
@@ -171,7 +172,7 @@ class NewEntryScreen(Screen):
     def _setup_entry_data(self, parent):
         for i, field in enumerate(ENTRY_FIELDS):
             parent.grid_rowconfigure(i, weight=1)
-            is_multiline = field in MULTILINE_FIELDS
+            is_multiline = field in self.MULTILINE_FIELDS
 
             # Labels next to a tall Text widget are pinned to the top-left with
             # matching top padding so they align with the first line of text.
@@ -232,7 +233,7 @@ class NewEntryScreen(Screen):
             valid = False
 
         for field, value in raw_data.items():
-            if len(value) > CHARACTER_LIMIT:
+            if len(value) > self.CHARACTER_LIMIT:
                 self._show_error(f"Input for {field.replace('_', ' ')} too long",
                                  "Please limit each field to 2000 characters.")
                 valid = False
