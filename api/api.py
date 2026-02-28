@@ -125,6 +125,7 @@ class API:
             Return 200 OK on success, 400 Bad Request for invalid input,
             404 Not Found if entry does not exist for the specified date, or 503 if file unavailable."""
 
+            print(f"Received PATCH request for date: {date} with body: {request.get_data()}")
             self._logger.debug("PATCH request received to partially update entry with date: %s", date)
             update_request = request.get_json()
             if not update_request:

@@ -242,7 +242,7 @@ class NewEntryScreen(Screen):
 
     @staticmethod
     def _get_filtered_data(raw_data):
-        """Remove fields with empty values to avoid sending unnecessary empty strings to the API."""
+        """Strip leading/trailing whitespace from all field values before saving."""
         filtered_data = {
             field: value.strip() for field, value in raw_data.items()
         }
@@ -272,9 +272,12 @@ class NewEntryScreen(Screen):
 
         # If all values are changed, use PUT (full replace), otherwise use PATCH (partial update)
         if all(self._original_data.get(field) != value for field, value in new_data.items() if field != "date"):
-            self._client.replace_entry(new_data)
+            self._client.replace_entry(filtered_data)
         else:
-            self._client.partially_update_entry(filtered_data) # Only send changed fields to the API for a PATCH request
+            # Only send changed fields to the API for a PATCH request
+            cleaned_data = {field: value for field, value in filtered_data.items() if self._original_data.get(field) != value or field == "date"}
+            print("Cleaned data for PATCH request:", cleaned_data)  # Debug print to verify correct fields are included
+            self._client.partially_update_entry(cleaned_data)
 
     def _is_update_required(self, new_data):
         """Check if any fields have changed compared to the original data"""

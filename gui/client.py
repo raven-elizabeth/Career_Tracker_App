@@ -19,8 +19,8 @@ class ApiClient:
         """Safely extract an error message from a response, falling back to the status code if JSON is unavailable."""
         try:
             return response.json().get("error", "Unknown error")
-        except Exception:
-            return f"Unexpected response (status {response.status_code})"
+        except Exception as e:
+            return f"Unexpected response (status {response.status_code}, {e})"
 
     def get_entry_by_date(self, date):
         """Returns a DailyEntry object for the given date, or None if no entry exists.
@@ -48,7 +48,10 @@ class ApiClient:
     def replace_entry(self, updated_data):
         """Replaces an existing entry with the given data. Returns the updated entry data if successful."""
         # Default date to empty string — passes any missing date error to the API to handle
-        date = updated_data.get("date", "")
+        date = updated_data.get("date")
+        if not date:
+            raise ValueError("Date is required for replacement")
+
         response = requests.put(f"{self.BASE_URL}/{date}", json=updated_data)
         if response.status_code == 200:
             return response.json().get("data")
@@ -57,11 +60,15 @@ class ApiClient:
 
     def partially_update_entry(self, update_data):
         """Partially updates an existing entry with the given data. Returns the updated entry data if successful."""
-        date = update_data.get("date", "")
+        date = update_data.get("date")
+        if not date:
+            raise ValueError("Date is required for partial update")
+
         response = requests.patch(f"{self.BASE_URL}/{date}", json=update_data)
         if response.status_code == 200:
             return response.json().get("data")
         else:
+            print(f"Response status: {response.status_code}, content: {response.content}")
             raise ValueError(f"Failed to update entry: {self._get_error_message(response)}")
 
     def delete_entry(self, date):
