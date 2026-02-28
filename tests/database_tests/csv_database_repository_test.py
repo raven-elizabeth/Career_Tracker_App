@@ -226,15 +226,12 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
     def test_validate_file_raises_file_empty_error_if_file_is_empty(self):
         """Test that validating a file that exists but is empty raises a FileEmptyError."""
-        # Arrange
-        with open(self._test_file_path, 'w') as file:
+        # Arrange: empty the file without going through the repository (which would re-initialise it)
+        with open(self._test_file_path, "w") as file:
             file.close()
 
-        test_repo = CsvDatabaseRepository(self._test_file_path)
-
-        # Act
+        # Act & Assert
         with self.assertRaises(FileEmptyError) as context:
-            # Assert
-            test_repo._validate_file()
+            self._repo._validate_file()
 
-        self.assertEqual(str(context.exception), f"No data found in file: {test_repo.file_path}")
+        self.assertEqual(str(context.exception), f"No data found in file: {self._repo.file_path}")
