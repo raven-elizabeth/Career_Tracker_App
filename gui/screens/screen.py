@@ -19,8 +19,8 @@ class Screen(Frame):
     INNER_FRAME_COLOR = "white"
 
     HEADING_SIZE = 30
-    SUBHEADING_SIZE = 14
-    BODY_SIZE = 12
+    SUBHEADING_SIZE = 20
+    BODY_SIZE = 16
 
     OUTER_PADDING = 60
     BORDER_WIDTH = 3

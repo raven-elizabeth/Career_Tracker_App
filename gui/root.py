@@ -8,8 +8,8 @@ from tkinter import Tk
 class Root(Tk):
     # Minimum sizes chosen to ensure all content fits and is not cut off.
     # Would like to add responsive design in the future for smaller sizes, but constrained by time and scope of project.
-    MIN_WIDTH = 1250
-    MIN_HEIGHT = 700
+    MIN_WIDTH = 1400
+    MIN_HEIGHT = 800
     APP_NAME = "Career Tracker App"
 
     def __init__(self):
