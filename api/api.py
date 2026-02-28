@@ -50,7 +50,6 @@ class API:
         def get_entry_by_date(date):
             """Retrieve an entry by date.
             Return 200 OK with entry data on success, 404 if no entry found, or 503 if file unavailable."""
-
             self._logger.debug("GET request received for entry with date: %s", date)
             try:
                 entry = self._repository.get_entry_by_date(date)

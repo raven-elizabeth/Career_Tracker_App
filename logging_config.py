@@ -51,8 +51,5 @@ def get_logger(name) -> logging.Logger:
 
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
-    # Prevent logs from propagating to the root logger, which has no handlers configured
-    # and would otherwise swallow or duplicate log messages
-    logger.propagate = False
 
     return logger
