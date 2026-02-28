@@ -20,7 +20,7 @@ class ApiClient:
         try:
             return response.json().get("error", "Unknown error")
         except Exception as e:
-            return f"Unexpected response (status {response.status_code}, {e})"
+            return f"Unexpected response (status {response.status_code}), {e}"
 
     def get_entry_by_date(self, date):
         """Returns a DailyEntry object for the given date, or None if no entry exists.
