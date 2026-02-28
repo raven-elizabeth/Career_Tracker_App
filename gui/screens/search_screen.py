@@ -258,14 +258,13 @@ class SearchScreen(Screen):
 
     def _show_delete_confirmation(self):
         """Show a confirmation dialog before deleting an entry."""
-        if self._current_entry:
-            date = self._current_entry.entry_dict.get("date")
-            confirm = messagebox.askyesno(
-                title="Confirm delete",
-                message=f"Are you sure you want to delete the entry for {date}?"
-            )
-            if confirm:
-                self._delete_entry(date)
+        date = self._current_entry.entry_dict.get("date")
+        confirm = messagebox.askyesno(
+            title="Confirm delete",
+            message=f"Are you sure you want to delete the entry for {date}?"
+        )
+        if confirm:
+            self._delete_entry(date)
 
     def _delete_entry(self, date):
         """Delete the entry for the given date and reset the display."""
