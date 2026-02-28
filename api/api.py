@@ -178,4 +178,4 @@ class API:
 # Run directly to start the API server; importing this module elsewhere will not start the server
 if __name__ == "__main__":
     api = API()
-    api.app.run()
+    api.app.run(debug=True)

@@ -11,10 +11,13 @@ from gui.root import Root
 from gui.screens.home_screen import HomeScreen
 from gui.screens.new_entry_screen import NewEntryScreen
 from gui.screens.search_screen import SearchScreen
+from logging_config import get_logger
 
 
 class App:
     def __init__(self):
+        self._logger = get_logger(__name__)
+        self._logger.info("Starting Career Tracker App")
         self._api_client = ApiClient()
 
         self._root = Root()
@@ -47,21 +50,25 @@ class App:
 
     def show_home(self):
         """Display the home screen."""
+        self._logger.info("Navigating to home screen")
         self._show_screen(self._home_screen)
 
     def show_search(self):
         """Refresh the search display and show the search screen."""
+        self._logger.info("Navigating to search screen")
         self._search_screen.refresh_display()
         self._show_screen(self._search_screen)
 
     def show_new_entry(self):
         """Reset the new entry screen to today's date and show it."""
+        self._logger.info("Navigating to new entry screen")
         self._new_entry_screen.refresh_screen()
         self._show_screen(self._new_entry_screen)
 
     def _edit_entry(self, entry_dict):
         """Navigate to the new entry screen pre-populated with the selected entry's date."""
         date = entry_dict.get("date")
+        self._logger.info("Navigating to edit entry for date: %s", date)
         self._new_entry_screen.refresh_screen(date=date)
         self._show_screen(self._new_entry_screen)
 
