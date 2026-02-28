@@ -80,7 +80,7 @@ class SearchScreen(Screen):
         self._configure_adjacent_grid()
         self._position_calendar(row=2, column_span=1)
         self._position_frame(
-            self.display_frame, row=2, column=1, colspan=1,
+            self.display_frame, row=2, column=1, column_span=1,
             pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
         )
 
@@ -94,7 +94,7 @@ class SearchScreen(Screen):
         )
         self._position_button(
             back_button,
-            row=0, colspan=2, pad_y=(20, 10), sticky="w"
+            row=0, column_span=2, pad_y=(20, 10), sticky="w"
         )
 
     def _setup_calendar(self):
@@ -114,9 +114,9 @@ class SearchScreen(Screen):
 
     def _setup_display_frame(self):
         """Create the display frame with an inner frame for content"""
-        self.display_frame = self._create_frame(row=2, column=1, colspan=1)
+        self.display_frame = self._create_frame(row=2, column_span=1)
         self._position_frame(
-            self.display_frame, row=2, column=1, colspan=1,
+            self.display_frame, row=2, column=1, column_span=1,
             pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
         )
         # Prevent outer frame from resizing to fit content from entry data

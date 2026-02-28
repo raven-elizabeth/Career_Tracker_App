@@ -121,7 +121,7 @@ class NewEntryScreen(Screen):
             title="❌ Cancel", subtitle="Return to home screen"
         )
         self._position_button(
-            back_btn, row=0, column=1, colspan=1,
+            back_btn, row=0, column=1, column_span=1,
             pad_x=(10, self.OUTER_PADDING), pad_y=(20, 10), sticky="e"
         )
 
@@ -163,7 +163,7 @@ class NewEntryScreen(Screen):
 
     def _setup_entry_date_frame(self):
         """Bordered outer frame containing an inner frame with labelled entry fields."""
-        self.outer_frame = self._create_frame(row=2, column=0, colspan=2)
+        self.outer_frame = self._create_frame(row=2, column_span=2)
 
         inner_frame = self._create_inner_frame(self.outer_frame)
         inner_frame.grid_columnconfigure(0, weight=1)
