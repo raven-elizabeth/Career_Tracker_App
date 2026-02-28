@@ -265,7 +265,7 @@ class SearchScreen(Screen):
                 message=f"Are you sure you want to delete the entry for {date}?"
             )
             if confirm:
-                self._delete_entry(self._current_entry.entry_dict.get("date"))
+                self._delete_entry(date)
 
     def _delete_entry(self, date):
         """Delete the entry for the given date and reset the display."""
