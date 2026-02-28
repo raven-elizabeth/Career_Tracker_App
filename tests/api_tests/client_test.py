@@ -127,7 +127,7 @@ class ClientTest(unittest.TestCase):
         mock_patch.return_value = MagicMock(status_code=200, json=lambda: {"data": SAMPLE_ENTRY})
 
         # Act
-        result = ApiClient().update_entry(SAMPLE_ENTRY)
+        result = ApiClient().partially_update_entry(SAMPLE_ENTRY)
 
         # Assert
         self.assertEqual(result, SAMPLE_ENTRY)
@@ -140,7 +140,7 @@ class ClientTest(unittest.TestCase):
 
         # Act & Assert
         with self.assertRaises(ValueError):
-            ApiClient().update_entry(SAMPLE_ENTRY)
+            ApiClient().partially_update_entry(SAMPLE_ENTRY)
 
     @patch("gui.client.requests.delete")
     def test_delete_entry_succeeds(self, mock_delete):

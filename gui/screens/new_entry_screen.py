@@ -245,7 +245,6 @@ class NewEntryScreen(Screen):
         """Remove fields with empty values to avoid sending unnecessary empty strings to the API."""
         filtered_data = {
             field: value.strip() for field, value in raw_data.items()
-            if value is not None and value.strip() != ""
         }
         return filtered_data
 
@@ -270,16 +269,17 @@ class NewEntryScreen(Screen):
             return
 
         filtered_data = self._get_filtered_data(new_data)
+
         # If all values are changed, use PUT (full replace), otherwise use PATCH (partial update)
         if all(self._original_data.get(field) != value for field, value in new_data.items() if field != "date"):
-            self._client.replace_entry(filtered_data)
+            self._client.replace_entry(new_data)
         else:
-            self._client.update_entry(filtered_data)
+            self._client.partially_update_entry(filtered_data) # Only send changed fields to the API for a PATCH request
 
     def _is_update_required(self, new_data):
-        """Check if any fields have changed compared to the original data, ignoring empty strings."""
+        """Check if any fields have changed compared to the original data"""
         for field, value in new_data.items():
-            if self._original_data.get(field) != value and value != "":
+            if self._original_data.get(field) != value:
                 return True
         return False
 

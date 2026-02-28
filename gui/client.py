@@ -55,7 +55,7 @@ class ApiClient:
         else:
             raise ValueError(f"Failed to replace entry: {self._get_error_message(response)}")
 
-    def update_entry(self, update_data):
+    def partially_update_entry(self, update_data):
         """Partially updates an existing entry with the given data. Returns the updated entry data if successful."""
         date = update_data.get("date", "")
         response = requests.patch(f"{self.BASE_URL}/{date}", json=update_data)
