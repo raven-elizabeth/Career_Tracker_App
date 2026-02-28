@@ -19,7 +19,17 @@ class CsvDatabaseRepository(DatabaseRepository):
         file_path = file_path if file_path is not None else Path(__file__).parent/"entries.csv"
         self.file_path = Path(file_path)
         self._logger = logger if logger is not None else get_logger(__name__)
+
+        # File is initialised here rather than when writing to the file to ensure it exists
+        # before any read operations are attempted, which triggerwhen the new entry and search screens are created.
+        self._initialise_file()
         self._logger.debug("CsvDatabaseRepository initialized with file path: %s", self.file_path)
+
+    def _initialise_file(self):
+        """Creates the CSV file with headers if it does not already exist."""
+        if not self.file_path.exists():
+            self._logger.info("CSV file not found. Creating new file at: %s", self.file_path)
+            pd.DataFrame(columns=["date", "work_contribution", "learning", "win", "challenge", "next_steps"]).set_index("date").to_csv(self.file_path)
 
     def save_entry(self, entry):
         """Saves a new entry to the CSV file. Raises DuplicateEntryError if an entry with the same date already exists."""
