@@ -30,7 +30,7 @@ class Screen(Frame):
         self._setup_fonts()
 
     def _setup_fonts(self):
-        """Create and configure font styles for headings, subheadings, and italic text using Tkinter's named fonts."""
+        """Create and configure font styles for headings, subheadings, and italic text using Tkinter named fonts."""
         self.heading_font = nametofont("TkHeadingFont").copy()
         self.heading_font.config(size=self.HEADING_SIZE, weight="bold")
 
@@ -47,31 +47,31 @@ class Screen(Frame):
         for row, weight in row_weights.items():
             self.grid_rowconfigure(row, weight=weight)
 
-    def _create_frame(self, row=1, column=0, colspan=2):
+    def _create_frame(self, row=1, column_span=2):
         """Create a reusable frame with consistent styling and secondary colour."""
         frame = Frame(
             self, relief="solid",
             borderwidth=self.BORDER_WIDTH, bg=self.SECONDARY_COLOR
         )
-        self._position_frame(frame, row=row, column=column, colspan=colspan)
+        self._position_frame(frame, row=row, column=0, column_span=column_span)
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(0, weight=1)
         return frame
 
-    def _position_frame(self, parent, row, column, colspan=2, pad_x=None, pad_y=None):
+    def _position_frame(self, parent, row, column, column_span=2, pad_x=None, pad_y=None):
         """Grid a frame with consistent padding and stretch behaviour."""
         pad_x = pad_x if pad_x is not None else self.OUTER_PADDING
         pad_y = pad_y if pad_y is not None else 10
         parent.grid(
-            row=row, column=column, columnspan=colspan,
+            row=row, column=column, columnspan=column_span,
             padx=pad_x, pady=pad_y, sticky="nsew"
         )
 
-    def _position_button(self, btn, row, column=0, colspan=2, pad_x=None, pad_y=(0, 10), sticky="ew"):
+    def _position_button(self, btn, row, column=0, column_span=2, pad_x=None, pad_y=(0, 10), sticky="ew"):
         """Grid a stylised button with consistent padding."""
         pad_x = pad_x if pad_x is not None else self.OUTER_PADDING
         btn.grid(
-            row=row, column=column, columnspan=colspan,
+            row=row, column=column, columnspan=column_span,
             padx=pad_x, pady=pad_y, sticky=sticky
         )
 
