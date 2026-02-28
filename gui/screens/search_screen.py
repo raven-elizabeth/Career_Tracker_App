@@ -38,8 +38,10 @@ class SearchScreen(Screen):
         """
         Refresh the display frame based on the currently selected calendar date.
         Fetch and display entry for the selected date, or show default message if no entry exists.
-        Unused event parameter is required by the binding but not needed for the logic, so it's ignored
+        When called with no event (navigating to the screen), the calendar is reset to today by default.
         """
+        if not event:
+            self.calendar.selection_set(datetime.date.today())
         selected_date = self.calendar.get_date()
         date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
         entry = self._on_date(date)
