@@ -14,7 +14,7 @@ Status codes used:
 - 201 Created: Successful creation of a new entry
 - 204 No Content: Successful deletion of an entry
 - 400 Bad Request: Invalid input data or missing JSON body
-- 404 Not Found: Entry not found for the specified date
+- 404 Not Found: Entry not found for the specified date, or no entries exist yet
 - 409 Conflict: Attempt to create a duplicate entry with an existing date
 - 503 Service Unavailable: File unavailable when attempting to access the repository
 Unknown errors will cause a 500 Internal Server Error, which is the default behavior of Flask for unhandled exceptions
@@ -49,7 +49,7 @@ class API:
         @self.app.route("/api/csv/entries/<date>", methods=["GET"])
         def get_entry_by_date(date):
             """Retrieve an entry by date.
-            Return 200 OK with entry data on success, 404 if entry not found, or 503 if file unavailable."""
+            Return 200 OK with entry data on success, 404 if no entry found, or 503 if file unavailable."""
 
             self._logger.debug("GET request received for entry with date: %s", date)
             try:
@@ -94,7 +94,7 @@ class API:
                 return jsonify({"error": "Save unsuccessful"}), 400
 
         @self.app.route("/api/csv/entries/<date>", methods=["PUT"])
-        def update_replace_entry(date):
+        def replace_entry(date):
             """Replace an existing entry by date.
             PUT request replaces entire entry, even if some fields are unchanged.
             Return 200 OK on success, 400 Bad Request for invalid input,
@@ -168,9 +168,8 @@ class API:
 
     def _file_unavailable_response(self, date, e):
         """Helper method to handle file unavailable errors consistently across endpoints."""
-
         self._logger.error(
-            "File unavailable when attempting to retrieve entry for date: %s. Error: %s",
+            "File unavailable when attempting to access entry for date: %s. Error: %s",
             date, e
         )
         return jsonify({"error": "File unavailable"}), 503

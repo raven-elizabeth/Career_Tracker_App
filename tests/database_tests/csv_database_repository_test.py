@@ -102,6 +102,16 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         # Assert
         self.assertIsNone(entry)
 
+    def test_get_entry_empty_file_raises_file_empty_error(self):
+        """Test that retrieving an entry when the file is completely empty raises FileEmptyError."""
+        # Arrange
+        with open(self._test_file_path, "w") as f:
+            f.close()
+
+        # Act & Assert
+        with self.assertRaises(FileEmptyError):
+            self._repo.get_entry_by_date("2025-06-04")
+
     def test_replace_entry_updates_existing_entry(self):
         """Test that replacing an existing entry with new data correctly updates the entry."""
         # Arrange

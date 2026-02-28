@@ -47,11 +47,6 @@ class NewEntryScreen(Screen):
 
         self._setup_save_button()
 
-        today = datetime.date.today().strftime("%Y-%m-%d")
-        entry = self._on_date(today)
-        if entry:
-            self._on_edit(entry.entry_dict)
-
     def _configure_grid(self):
         """Single column; header, date, fields, and save button stack vertically."""
         self._configure_responsive_grid(
@@ -68,6 +63,10 @@ class NewEntryScreen(Screen):
         - event= provided (ComboboxSelected binding): tkinter has already updated
           _selected_date, so just read it without overwriting.
         """
+        # Always reset editing state — the entry for the new date is checked fresh below
+        self._editing = False
+        self._original_data = None
+
         if date:
             self._selected_date.set(date)
         elif not event:
@@ -76,10 +75,15 @@ class NewEntryScreen(Screen):
         # If event is not None, the dropdown already updated _selected_date
 
         selected_date = self._selected_date.get()
-        entry = self._on_date(selected_date)
-        if entry:
-            self._on_edit(entry.entry_dict)
-        else:
+        try:
+            entry = self._on_date(selected_date)
+            if entry:
+                self._on_edit(entry.entry_dict)
+            else:
+                self.clear_fields()
+        # If the error is a connection error, show it to the user.
+        except ValueError as e:
+            self._show_error("Server error", str(e))
             self.clear_fields()
 
     def _on_edit(self, original_data):
@@ -176,7 +180,7 @@ class NewEntryScreen(Screen):
             # matching top padding so they align with the first line of text.
             # Labels next to a single-line Entry are truly vertically centred with sticky="w".
             label_sticky = "nw" if is_multiline else "w"
-            label_pady = (14, 10) if is_multiline else 10
+            label_pad_y = (14, 10) if is_multiline else 10
 
             Label(
                 parent,
@@ -184,7 +188,7 @@ class NewEntryScreen(Screen):
                 font=self.subheading_font,
                 bg="white",
                 anchor="w",
-            ).grid(row=i, column=0, padx=(20, 10), pady=label_pady, sticky=label_sticky)
+            ).grid(row=i, column=0, padx=(20, 10), pady=label_pad_y, sticky=label_sticky)
 
             widget = self._create_text_widget(parent=parent, multiline=is_multiline)
             widget.grid(row=i, column=1, padx=(0, 20), pady=10, sticky="ew")

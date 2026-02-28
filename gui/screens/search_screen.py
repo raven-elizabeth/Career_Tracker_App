@@ -44,10 +44,14 @@ class SearchScreen(Screen):
             self.calendar.selection_set(datetime.date.today())
         selected_date = self.calendar.get_date()
         date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
-        entry = self._on_date(date)
-        if entry:
-            self._on_valid_date(entry)
-        else:
+        try:
+            entry = self._on_date(date)
+            if entry:
+                self._on_valid_date(entry)
+            else:
+                self._reset_display_frame(default=True)
+        except ValueError as e:
+            self._show_error("Server error", str(e))
             self._reset_display_frame(default=True)
 
     def _on_resize(self, event):
@@ -74,7 +78,7 @@ class SearchScreen(Screen):
     def _apply_adjacent_layout(self):
         """Grid and position calendar and display frame side by side in the main row."""
         self._configure_adjacent_grid()
-        self._position_calendar(row=2, colspan=1)
+        self._position_calendar(row=2, column_span=1)
         self._position_frame(
             self.display_frame, row=2, column=1, colspan=1,
             pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
@@ -96,15 +100,15 @@ class SearchScreen(Screen):
     def _setup_calendar(self):
         """Create calendar widget with max date of today and bind date selection event."""
         self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
-        self._position_calendar(row=2, colspan=1)
+        self._position_calendar(row=2, column_span=1)
         self.calendar.bind("<<CalendarSelected>>", self.refresh_display)
 
-    def _position_calendar(self, row, colspan):
+    def _position_calendar(self, row, column_span):
         """Grid the calendar with consistent padding."""
-        pad_x = (self.OUTER_PADDING, self.INNER_PADDING) if colspan == 1 else self.INNER_PADDING
-        pad_y = (self.OUTER_PADDING, self.INNER_PADDING) if colspan == 2 else self.OUTER_PADDING
+        pad_x = (self.OUTER_PADDING, self.INNER_PADDING) if column_span == 1 else self.INNER_PADDING
+        pad_y = (self.OUTER_PADDING, self.INNER_PADDING) if column_span == 2 else self.OUTER_PADDING
         self.calendar.grid(
-            row=row, column=0, columnspan=colspan,
+            row=row, column=0, columnspan=column_span,
             padx=pad_x, pady=pad_y, sticky="nsew"
         )
 
@@ -192,7 +196,7 @@ class SearchScreen(Screen):
 
     def _reset_inner_frame(self):
         """Clear the inner frame of all entry details and action buttons, and reset any layout bindings."""
-        # Remove per-entry wraplength bindings added in _display_entry
+        # Remove per-entry wrap length bindings added in _display_entry
         self.inner_frame.unbind("<Configure>")
 
         # Reset the spacer rows used by default message centering
@@ -236,7 +240,7 @@ class SearchScreen(Screen):
             label.grid_configure(columnspan=2)
             self.inner_frame.bind(
                 "<Configure>",
-                # Maps event to alter wraplength of each label (in this case just the one)
+                # Maps event to alter wrap length of each label (in this case just the one)
                 # Padding is added to prevent label text overflowing the inner frame when window is resized smaller
                 lambda event, lbl=label: lbl.config(wraplength=event.width - self.INNER_PADDING),
                 # add="+" ensures this binding is added in addition to the default bindings created
@@ -282,7 +286,7 @@ class SearchScreen(Screen):
     def _apply_wrap_layout(self):
         """Grid and position calendar above the display frame, both spanning full width."""
         self._configure_wrap_grid()
-        self._position_calendar(row=2, colspan=2)
+        self._position_calendar(row=2, column_span=2)
         self._position_frame(
             self.display_frame, row=3, column=0,
             pad_x=self.INNER_PADDING,

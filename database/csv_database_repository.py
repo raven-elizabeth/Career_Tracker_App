@@ -10,6 +10,7 @@ import pandas as pd
 from database.database_repository import DatabaseRepository
 from database.exceptions import FileEmptyError, DuplicateEntryError
 from domain.dailyentry import DailyEntry
+from domain.fields import FIELDS
 from logging_config import get_logger
 
 
@@ -26,10 +27,10 @@ class CsvDatabaseRepository(DatabaseRepository):
         self._initialise_file()
 
     def _initialise_file(self):
-        """Creates the CSV file with headers if it does not already exist."""
-        if not self.file_path.exists():
-            self._logger.info("CSV file not found. Creating new file at: %s", self.file_path)
-            pd.DataFrame(columns=["date", "work_contribution", "learning", "win", "challenge", "next_steps"]).set_index("date").to_csv(self.file_path)
+        """Creates the CSV file with headers if it does not exist or is completely empty."""
+        if not self.file_path.exists() or self.file_path.stat().st_size == 0:
+            self._logger.info("Initialising CSV file at: %s", self.file_path)
+            pd.DataFrame(columns=FIELDS).set_index("date").to_csv(self.file_path)
 
     def save_entry(self, entry):
         """Saves a new entry to the CSV file. Raises DuplicateEntryError if an entry with the same date already exists."""
@@ -53,7 +54,7 @@ class CsvDatabaseRepository(DatabaseRepository):
 
         # Only write the header if the file is empty (i.e. no entries have been saved yet)
         header = not file_exists or file_size == 0
-        df.to_csv(self.file_path, mode="a", header=header)
+        df.to_csv(self.file_path, mode="a", header=header, lineterminator="\n")
         self._logger.info("Entry saved successfully for date: %s", entry.entry_dict["date"])
 
     def _entry_exists(self, date):
@@ -80,6 +81,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         Retrieve an entry by its date. Returns None if no entry is found.
         Does not raise for a missing entry — this is intentional, as the method
         is called during date selection in the GUI where no entry is a valid state.
+        Raises FileNotFoundError or FileEmptyError if the file is unavailable.
         """
         self._logger.debug("Searching for entry with date: %s", date)
         self._validate_file()

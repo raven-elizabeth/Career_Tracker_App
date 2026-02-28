@@ -3,7 +3,7 @@ This is the main application file that connects all the app components together.
 It initializes the API client, creates the main window (Root),
 and sets up the different screens (HomeScreen, NewEntryScreen, SearchScreen).
 The App class manages the navigation between screens and handles interactions with the API client for CRUD operations.
-It cannot be run without the Flask API server running, so make sure to run app.py first.
+It cannot be run without the Flask API server running, so make sure to run api.py first.
 """
 
 from gui.client import ApiClient
@@ -69,6 +69,7 @@ class App:
         self._new_entry_screen.pack(fill="both", expand=True)
 
     def run(self):
+        """Start the Tkinter main event loop."""
         self._root.mainloop()
 
 

@@ -62,6 +62,20 @@ class ClientTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ApiClient().get_entry_by_date("2024-01-01")
 
+    @patch("gui.client.requests.get")
+    def test_get_entry_by_date_service_unavailable_raises(self, mock_get):
+        """Test that get_entry_by_date raises a ValueError when the API responds with 503 Service Unavailable."""
+        # Arrange: Simulate a 503 — file deleted or emptied mid-session
+        mock_get.return_value = MagicMock(status_code=503, json=lambda: {"error": "File unavailable"})
+
+        # Act & Assert
+        with self.assertRaises(ValueError):
+            ApiClient().get_entry_by_date("2024-01-01")
+
+        # Act & Assert
+        with self.assertRaises(ValueError):
+            ApiClient().get_entry_by_date("2024-01-01")
+
     @patch("gui.client.requests.post")
     def test_save_entry_returns_data(self, mock_post):
         """Test that save_entry returns the saved entry data when the API responds with a 201 Created."""

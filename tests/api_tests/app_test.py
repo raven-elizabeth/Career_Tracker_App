@@ -1,5 +1,5 @@
 """
-This file defines unit tests for the API class in the api.app module.
+This file defines unit tests for the API class in the api.api module.
 The tests cover all CRUD operations for daily entries, including successful cases and various error scenarios.
 The tests use a temporary directory and file to ensure isolation and avoid side effects on the actual data.
 The tests verify that the API returns the correct status codes and response data for each scenario,
@@ -10,7 +10,7 @@ import os
 import tempfile
 import unittest
 
-from api.app import API
+from api.api import API
 from database.csv_database_repository import CsvDatabaseRepository
 
 
@@ -66,7 +66,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.get_json().get("data"), self.expected)
 
     def test_get_entry_empty_file_returns_service_unavailable_status_code(self):
-        """Test that GET request to retrieve entry by date returns service unavailable status when file is empty."""
+        """Test that GET request to retrieve entry by date returns 503 when the file is empty."""
         # Arrange
         with open(self._test_file_path, "w") as f:
             f.close()
