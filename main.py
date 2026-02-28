@@ -42,31 +42,32 @@ class App:
 
         self.show_home()
 
-    def show_home(self):
-        """Hide all other screens and display the home screen."""
-        self._search_screen.pack_forget()
-        self._new_entry_screen.pack_forget()
+    def _show_screen(self, screen):
+        """Helper to hide all screens and display the given screen."""
+        for s in (self._home_screen, self._search_screen, self._new_entry_screen):
+            s.pack_forget()
         # fill=both fills the window horizontally and vertically; expand=True allows the screen to resize with the window
-        self._home_screen.pack(fill="both", expand=True)
+        screen.pack(fill="both", expand=True)
+
+    def show_home(self):
+        """Display the home screen."""
+        self._show_screen(self._home_screen)
 
     def show_search(self):
-        """Hide the home screen, refresh the search display, and show the search screen."""
-        self._home_screen.pack_forget()
+        """Refresh the search display and show the search screen."""
         self._search_screen.refresh_display()
-        self._search_screen.pack(fill="both", expand=True)
+        self._show_screen(self._search_screen)
 
     def show_new_entry(self):
-        """Hide the home screen, reset the new entry screen to today's date, and show it."""
-        self._home_screen.pack_forget()
+        """Reset the new entry screen to today's date and show it."""
         self._new_entry_screen.refresh_screen()
-        self._new_entry_screen.pack(fill="both", expand=True)
+        self._show_screen(self._new_entry_screen)
 
     def _edit_entry(self, entry_dict):
-        """Navigate to new entry screen pre-populated with the selected entry's date."""
+        """Navigate to the new entry screen pre-populated with the selected entry's date."""
         date = entry_dict.get("date")
-        self._search_screen.pack_forget()
         self._new_entry_screen.refresh_screen(date=date)
-        self._new_entry_screen.pack(fill="both", expand=True)
+        self._show_screen(self._new_entry_screen)
 
     def run(self):
         """Start the Tkinter main event loop."""
