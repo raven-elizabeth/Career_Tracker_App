@@ -8,6 +8,7 @@ but they have potential for reuse as the application grows.
 
 from tkinter import Frame, Label, messagebox
 from tkinter.font import nametofont
+from typing import Literal
 
 
 class Screen(Frame):
@@ -83,7 +84,7 @@ class Screen(Frame):
         return frame
 
     @staticmethod
-    def _create_label(parent, row, text, font, bg, pad_y=0, pad_x=10, anchor="center"):
+    def _create_label(parent, row, text, font, bg, pad_y=0, pad_x=10, anchor: Literal["nw", "n", "ne", "w", "center", "e", "sw", "s", "se"] = "center"):
         """Create a label with consistent styling and padding."""
         label = Label(parent, text=text, font=font, bg=bg, anchor=anchor)
         label.grid(row=row, padx=pad_x, pady=pad_y, sticky="ew" if anchor != "center" else "")
