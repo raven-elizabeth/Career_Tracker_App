@@ -11,10 +11,8 @@ import logging
 import sys
 from pathlib import Path
 
-# Path is used to create a logs directory as the parent of this file, where log files will be stored.
-LOG_DIR = Path(__file__).parent / "logs"
-# mkdir creates the logs directory and exist_ok=True prevents an error if the directory already exists.
-LOG_DIR.mkdir(exist_ok=True)
+# Path(__file__).parent resolves to the logs/ directory where this file lives — log files are stored here.
+LOG_DIR = Path(__file__).parent
 
 
 def get_logger(name) -> logging.Logger:

@@ -10,16 +10,40 @@ although it is particularly designed with apprentices and those in their early c
 
 ___
 
-## To run the app...
+## ❗️To run the app...
 
-1. Clone the repository
-2. Install the required dependencies using `pip install -r requirements.txt`
-3. Run the Flask api using `python -m api.api` (keep it running - without this the app WILL NOT WORK)
-4. Run the main app in a separate terminal by using `python main.py`
+### 1. <mark>**Clone the repository**</mark> 
+*See instructions:* https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
+### 2. <mark>**Install the required dependencies**</mark> using `pip install -r requirements.txt`
+### 3. <mark>**Run the Flask api**</mark> using `python -m api.api` (<u>**keep it running - without this the app WILL NOT WORK**</u>)
+### 4. <mark>**Run the main app in a separate terminal**</mark> by using `python main.py`
 
-### Sample entry data:
+#### *You can also run the files directly in your IDE if you prefer, just make sure to run `api.py` first and keep it running before running `main.py`.*
+
+___
+
+## Sample entry data:
 I have included two sample entries in `data/entries.csv` to demonstrate the app's functionality.
-The dates of these entries are `2026-02-23` and `2026-02-25`.
+The dates of these entries are:
+## `2026-02-23`
+```
+DATE: 2026-02-23
+WORK CONTRIBUTION: Completed .NET10 updates
+LEARNING: Researched Spiral Methodology
+WIN: Implemented design pattern knowledge
+CHALLENGE: Debugging CORS issues
+NEXT STEPS: Refine uni project!
+```
+## `2026-02-25`
+```
+DATE: 2026-02-25
+WORK CONTRIBUTION:
+LEARNING: Learnt about user stories & personas
+WIN:
+CHALLENGE: Debugging pandas dataframe!
+NEXT STEPS:
+```
+
 You can use these dates to test the search, update, and delete functionality of the app.
 To test the creation of new entries, simply use the "New Entry" screen to add an entry for a new date.
 ___
@@ -114,6 +138,8 @@ ___
 ### Project Management & Version Control
 - **Jira** — Used to track epics and tasks during development.
 - **GitHub** — Used for version control and to host the repository.
+- **Canva** — Used to create the project poster and diagrams included in the documentation.
+- **FigmaMake** - Used to design the wireframe mockups for the GUI screens before implementation.
 
 ___
 
@@ -140,53 +166,179 @@ as it is used as the test runner (e.g. by PyCharm, which I used). There are thre
   ```
 
 - **Run a specific test file** from the project root:
-  ```
-  python -m unittest tests.api_tests.api_test
-  python -m unittest tests.api_tests.client_test
-  python -m unittest tests.database_tests.csv_database_repository_test
-  python -m unittest tests.domain_tests.entry_test
-  ```
+  
+  `python -m unittest tests.api_tests.api_test`
+  
+  `python -m unittest tests.api_tests.client_test`
+
+  `python -m unittest tests.database_tests.csv_database_repository_test`
+
+  `python -m unittest tests.domain_tests.entry_test`
 
 - **Run a test file directly** (e.g. in an IDE or from its own directory):
   Each test file can be run directly as a script, e.g. `python api_test.py`
 ___
 
 ## Examples of Use
-...
+
+### Home Screen
+![Home screen](documentation/app_screenshots/home_screen.png)
+
+The home screen on launch, showing the main heading, welcome message, and navigation buttons for creating a new entry or searching existing entries.
+
+___
+
+### Creating a New Entry
+![New entry save attempted with no data](documentation/app_screenshots/new_entry_save_no_data.png)
+
+Attempting to save a new entry with no field data filled in — the app prevents this and shows a validation message.
+
+![Saving a new entry](documentation/app_screenshots/new_entry_screen_create_entry.png)
+
+The new entry screen with some fields filled in, ready to be saved.
+
+
+
+### Reading an Entry
+
+![Evidence of new entry saved in search screen](documentation/app_screenshots/search_screen_get_saved_entry.png)
+
+The search screen showing the retrieved entry after saving a new entry, confirming the data was saved and can be retrieved successfully.
+
+___
+
+### Updating an Entry
+![New entry screen showing an entry being edited](documentation/app_screenshots/editing_new_entry.png)
+
+The new entry screen of a previously saved entry being edited.
+
+![Search screen showing edited entry](documentation/app_screenshots/evidence_of_edited_entry.png)
+
+The search screen showing the retrieved entry including the updated data after editing.
+
+___
+
+### Deleting an Entry
+![Deleting an entry](documentation/app_screenshots/deleting_entry.png)
+
+The search screen with the delete button visible for a retrieved entry, ready to be deleted.
+
+![Deleted entry evidence](documentation/app_screenshots/deleted_entry_evidence.png)
+
+After deletion, the entry is no longer retrievable — the search screen shows the default empty state for the selected date, confirming the entry was removed.
+
+___
+
+### API Log Evidence
+![PATCH log evidence](documentation/app_screenshots/PATCH_log_evidence.png)
+
+Flask API logs showing a successful PATCH request — only the provided fields were updated, leaving unchanged fields intact.
+
+![PUT log evidence](documentation/app_screenshots/PUT_log_evidence.png)
+
+Flask API logs showing a successful PUT request — all fields replaced with the new data provided.
+
+___
+
+## Architecture
+### N-Tier Architecture
+The app follows an N-Tier architecture, separating the GUI (presentation), 
+API & domain logic (application), and CSV repository & file (data) into distinct layers.
+This promotes separation of concerns, making the codebase easier to understand and maintain.
+Each layer has a single responsibility, and changes in one layer 
+(e.g. switching from CSV to SQL) will not affect the others.
+
+The app is split into two core processes: a **Flask REST API** (`api/api.py`) and a **Tkinter GUI** (`main.py`).
+The GUI never accesses the CSV data directly — all data operations go through HTTP requests via 
+`ApiClient` (`data_access/api_client/client.py`).
+Similarly, the Flask API never accesses the CSV file directly — it interacts with an implementation
+of the `DatabaseRepository` interface (`CsvDatabaseRepository`), 
+which abstracts away the storage mechanism.
+This separation means the backend could be replaced or extended independently of the frontend, 
+and the API could be consumed by other clients in the future.
+
+### Repository Pattern
+Data access is abstracted behind a `DatabaseRepository` ABC (`data_access/repositories/database_repository.py`), 
+with `CsvDatabaseRepository` as the concrete implementation.
+This means the storage mechanism (CSV, SQL, etc.) can be swapped without changing any API or domain code 
+— only a new repository class would be needed.
+The repository is injected into the API via dependency injection, which also makes it easy to pass 
+a temporary test file in during testing without modifying production code.
+
+### Domain Model
+`DailyEntry` (`domain/dailyentry.py`) is the single representation of an entry throughout the app.
+Fields are defined separately in `domain/fields.py`, meaning adding a new field only requires updating one place and all other code (entry construction, CSV headers, GUI display) adapts automatically.
+Named constructors (`from_create_entry_request`, `from_replace_request`, `from_partial_update_request`) enforce the correct validation rules per operation at the domain level, keeping the API routes clean.
+
+### GUI Structure
+All screens inherit from a shared `Screen` base class (`gui/screens/screen.py`), which provides reusable methods for creating frames, labels, buttons, and separators.
+Navigation is managed centrally in `App` (`main.py`) — screens do not navigate to each other directly.
+Instead, screens receive callback functions (e.g. `on_home`, `on_edit`) at construction time, keeping screens decoupled from each other and from `App`.
+
+### CSV as Data Storage
+A CSV file (`data/entries.csv`) was chosen for storage due to its simplicity — 
+no database server setup is required for the app to run, and I am familiar with CSV files vs something like SQLite.
+Pandas library is used to read and write the CSV, with the date set as the DataFrame index for O(1) lookups by date.
+The file is initialised with headers on first run if it does not already exist.
+
+### Logging
+A centralised logger (`logs/logging_config.py`) is used across the API, repository, and client.
+This provides a consistent log format and single configuration point. Logs are written to both the console 
+and `logs/app.log`, making it easy to trace request flow across the two processes.
+Only INFO and above are logged to the console to avoid clutter. 
+DEBUG logs are available in the file for deeper troubleshooting when needed.
+
+### Testing Strategy
+Tests are written using Python's `unittest` framework and are organised by layer — `api_tests`, `database_tests`, and `domain_tests` — reflecting the separation of concerns in the codebase.
+The API tests use Flask's built-in `test_client()` and a temporary file for isolation.
+The client tests use `unittest.mock` to simulate HTTP responses without requiring a running server.
+This means all tests can be run without starting the Flask API.
+
+---
+
+## Diagrams
+
+**N-Tier Architecture**
+
+![N-Tier architecture diagram](documentation/diagrams/ntier_architecture_diagram.png)
+
+The app follows an N-Tier architecture, separating the GUI (presentation), 
+API (application logic) & Daily Entry class (business logic), and CSV file (data) into distinct layers.
+
+**General Sequence Flow**
+
+![General sequence flow diagram](documentation/diagrams/general_sequence_flow_diagram.png)
+
+A sequence diagram showing the general flow of a request from the GUI through the API client, Flask API, and repository, and back.
+
+**Alternate Architecture Diagram**
+
+![Alternate architecture diagram](documentation/diagrams/alternate_architecture_diagram.png)
+
+An alternate diagram representing the architecture with a focus on
+the upwards flow of data from the CSV file to the GUI, and the user interaction that triggers it.
 
 ___
 
 ## Future Improvements
+
 In the future, I would consider implementing more features, such as **goal setting**, **progress visualization**,
 and a **to-do list**. I could also explore **integrating** with other platforms (e.g., LinkedIn) to automatically 
 track career milestones and achievements.
 If I want to tailor the app more towards apprentices, I could consider features such as a **KSB tracker**
-and **portfolio evidence storage**, along with reminders to keep these updated and other apprentice resources.
+and **portfolio evidence storage**, along with **reminders** to keep these updated and other apprentice **resources**.
 
 I would like to add more **accessibility features** to the app, such as **keyboard navigation**, 
 **complete screen reader support**, and an **accessibility tool menu**
 to allow users to easily adjust the app's settings to suit their needs. 
 I would also like to make the designs **responsive** for different screen sizes.
 
-- I chose to use **Flask** for the API because I am familiar with it, and it is lightweight.
-
-- I chose to use **Tkinter** for the GUI because it is a built-in library in **Python** and allows for 
-quick development of a simple user interface.
-I would consider implementing a **React** frontend, however, I am unfamiliar with it, so this would have a 
-steep learning curve and would require more time than I had available for this project.
-
-
-- I chose to use a **CSV file** for data storage in this project for simplicity and ease of implementation.
-I would consider implementing a proper database, however I am most familiar with **SQL & MySQL** and this would have 
-required the assignment marker to set up a MySQL database for the project.
-I did consider **SQLite**, which does not require a separate server, but I am have not used it before,
-so it would have required additional time to learn and implement.
 ___
 
 ## Additional Notes
 *See the documentation folder for further supporting materials, 
 including the SRS document, statement on AI use, accompanying project poster, 
-and any other relevant files/diagrams.*
+and any other relevant files/diagrams (including wireframes, which I have not included in this README file).*
 
 I have learned how to use AI to my advantage, extended my knowledge of PEP 8 standards & architecture,
 and understood the value of logs.
