@@ -231,7 +231,7 @@ class SearchScreen(Screen):
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             label = self._create_label(
                 self.inner_frame, row=row + 1,
-                text=f"{field.replace('_', ' ').title()}: {value.capitalize() if value else 'N/A'}",
+                text=f"{field.replace('_', ' ').title()}: {value if value else 'N/A'}",
                 font=self.italic_font, bg=self.INNER_FRAME_COLOR,
                 anchor="w", pad_y=5
             )
