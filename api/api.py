@@ -64,7 +64,6 @@ class API:
         def post_entry():
             """Create a new entry. Return 201 Created on success, 400 Bad Request for invalid input,
             or 409 Conflict if an entry with the same date already exists."""
-
             self._logger.debug("POST request received to create a new entry")
             data = request.get_json()
             if not data:
@@ -98,7 +97,6 @@ class API:
             PUT request replaces entire entry, even if some fields are unchanged.
             Return 200 OK on success, 400 Bad Request for invalid input,
             404 Not Found if entry does not exist for the specified date, or 503 if file unavailable."""
-
             self._logger.debug("PUT request received to replace entry with date: %s", date)
             data = request.get_json()
 
@@ -124,8 +122,6 @@ class API:
             The benefit to PATCH over PUT is that the request body can be smaller and performance may be improved.
             Return 200 OK on success, 400 Bad Request for invalid input,
             404 Not Found if entry does not exist for the specified date, or 503 if file unavailable."""
-
-            print(f"Received PATCH request for date: {date} with body: {request.get_data()}")
             self._logger.debug("PATCH request received to partially update entry with date: %s", date)
             update_request = request.get_json()
             if not update_request:
@@ -160,7 +156,6 @@ class API:
         def delete_entry(date):
             """Delete an entry by date.
             Return 204 No Content on success, 404 if entry not found, or 503 if file unavailable."""
-
             self._logger.debug("DELETE request received to delete entry with date: %s", date)
             try:
                 self._repository.delete_entry(date)
@@ -173,7 +168,8 @@ class API:
                 return jsonify({"error": f"Delete unsuccessful: {e}"}), 404
 
     def _file_unavailable_response(self, date, e):
-        """Helper method to handle file unavailable errors consistently across endpoints."""
+        """Helper method to handle file unavailable errors consistently
+        across endpoints."""
         self._logger.error(
             "File unavailable when attempting to access entry for date: %s. Error: %s",
             date, e
@@ -181,7 +177,8 @@ class API:
         return jsonify({"error": "File unavailable"}), 503
 
 
-# Run directly to start the API server; importing this module elsewhere will not start the server
+# Run directly to start the API server
+# Importing this module elsewhere will not start the server
 if __name__ == "__main__":
     api = API()
     api.app.run(debug=True)
