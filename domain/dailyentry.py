@@ -48,10 +48,8 @@ class DailyEntry:
 
     @classmethod
     def from_partial_update_request(cls, update_dict):
-        """
-        Construct an entry from a partial update (PATCH) without validating non-empty fields,
+        """Construct an entry from a partial update (PATCH) without validating non-empty fields,
         since the patch may be intended to clear out values.
         Could just call the constructor directly, but this method is provided for consistency
-        and explicitness as the other routes have their own class methods.
-        """
+        and explicitness as the other routes have their own class methods."""
         return cls(**update_dict)
