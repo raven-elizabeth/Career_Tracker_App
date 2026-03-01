@@ -42,9 +42,10 @@ class CsvDatabaseRepository(DatabaseRepository):
         df = self._set_date_index(df)
 
         file_size = self.file_path.stat().st_size
+        file_empty = file_size == 0
 
         # Check for duplicate entry by date before saving
-        if file_size > 0:
+        if not file_empty:
             entry_date = str(entry.entry_dict["date"])
             if self._entry_exists(entry_date):
                 self._logger.warning(
@@ -54,7 +55,7 @@ class CsvDatabaseRepository(DatabaseRepository):
                 raise DuplicateEntryError(f"An entry with date {entry.entry_dict['date']} already exists.")
 
         # Only write the header if the file is empty (i.e. no entries have been saved yet)
-        header = file_size == 0
+        header = file_empty
         df.to_csv(self.file_path, mode="a", header=header, lineterminator="\n")
         self._logger.info("Entry saved successfully for date: %s", entry.entry_dict["date"])
 
