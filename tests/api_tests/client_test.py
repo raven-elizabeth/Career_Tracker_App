@@ -11,7 +11,7 @@ AI was used to help write the initial test structure; tests were then manually e
 import unittest
 from unittest.mock import patch, MagicMock
 
-from data_access.api_client.client import ApiClient
+from gui.api_client.client import ApiClient
 
 # Reusable sample entry data representing a full, valid entry
 # Not using setUp since this is the only test data needed, making it simpler to define as a constant
