@@ -12,7 +12,6 @@ from data_access.api_client.client_config import base_url
 
 
 class ApiClient:
-    BASE_URL = base_url
 
     @staticmethod
     def _get_error_message(response):
@@ -26,7 +25,7 @@ class ApiClient:
         """Returns a DailyEntry object for the given date, or None if no entry exists.
         Raises ValueError if the file is unavailable or the server is unreachable."""
         try:
-            response = requests.get(f"{self.BASE_URL}/{date}")
+            response = requests.get(f"{base_url}/{date}")
         except requests.exceptions.ConnectionError:
             raise ValueError("Could not connect to server. Make sure the API server is running.")
         if response.status_code == 200:
@@ -39,7 +38,7 @@ class ApiClient:
 
     def save_entry(self, entry_data):
         """Saves a new entry with the given data. Returns the saved entry data if successful."""
-        response = requests.post(self.BASE_URL, json=entry_data)
+        response = requests.post(base_url, json=entry_data)
         if response.status_code == 201:
             return response.json().get("data")
         else:
@@ -52,7 +51,7 @@ class ApiClient:
         if not date:
             raise ValueError("Date is required for replacement")
 
-        response = requests.put(f"{self.BASE_URL}/{date}", json=updated_data)
+        response = requests.put(f"{base_url}/{date}", json=updated_data)
         if response.status_code == 200:
             return response.json().get("data")
         else:
@@ -64,15 +63,14 @@ class ApiClient:
         if not date:
             raise ValueError("Date is required for partial update")
 
-        response = requests.patch(f"{self.BASE_URL}/{date}", json=update_data)
+        response = requests.patch(f"{base_url}/{date}", json=update_data)
         if response.status_code == 200:
             return response.json().get("data")
         else:
-            print(f"Response status: {response.status_code}, content: {response.content}")
             raise ValueError(f"Failed to update entry: {self._get_error_message(response)}")
 
     def delete_entry(self, date):
         """Deletes the entry for the given date."""
-        response = requests.delete(f"{self.BASE_URL}/{date}")
+        response = requests.delete(f"{base_url}/{date}")
         if response.status_code != 204:
-            raise ValueError(f"Failed to delete entry: {response.json().get('error', 'Unknown error')}")
+            raise ValueError(f"Failed to delete entry: {self._get_error_message(response)}")
