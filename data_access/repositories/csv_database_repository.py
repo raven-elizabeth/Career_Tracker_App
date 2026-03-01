@@ -17,7 +17,7 @@ from logs.logging_config import get_logger
 class CsvDatabaseRepository(DatabaseRepository):
     def __init__(self, file_path=None, logger=None):
         super().__init__()
-        file_path = file_path if file_path is not None else Path(__file__).parent/"entries.csv"
+        file_path = file_path if file_path is not None else Path(__file__).parents[2] / "data" / "entries.csv"
         self.file_path = Path(file_path)
         self._logger = logger if logger is not None else get_logger(__name__)
         self._logger.debug("CsvDatabaseRepository initialized with file path: %s", self.file_path)
@@ -93,7 +93,10 @@ class CsvDatabaseRepository(DatabaseRepository):
             entry_data = df.loc[date].to_dict()
             # Ensure the date is included in the entry data
             entry_data["date"] = date
-            return DailyEntry(**entry_data)
+            # Stored data is generally trusted, but as a user could edit the CSV file manually,
+            # we should still validate that the entry contains at least one non-empty value (besides date)
+            # before creating the Entry object
+            return DailyEntry.from_create_entry_request(entry_data)
 
         self._logger.warning("No entry found for date: %s", date)
         return None
@@ -117,6 +120,17 @@ class CsvDatabaseRepository(DatabaseRepository):
             self._logger.warning("No entry found to replace for date: %s", date)
             raise ValueError(f"No entry found for date: {date}")
 
+    @staticmethod
+    def _get_merged_entry(update_request, df):
+        """Merge patch fields into the existing row, skipping any keys not in df.columns (e.g. date)."""
+        date = update_request["date"]
+        existing = df.loc[date].to_dict()
+        return {
+            field: update_request[field] if field in update_request else value
+            for field, value in existing.items()
+            if field in df.columns
+        }
+
     def partially_update_entry(self, update_request):
         """Partially updates an existing entry with the given date and fields to update.
         Raises ValueError if no entry is found for the given date."""
@@ -126,15 +140,19 @@ class CsvDatabaseRepository(DatabaseRepository):
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
 
         if date in df.index:
-            for field, value in update_request.items():
-                if field in df.columns:
+            merged_entry = self._get_merged_entry(update_request, df)
+
+            # Guard: reject the patch if the merged result would leave all fields empty
+            if not any(merged_entry.values()):
+                self._logger.warning(
+                    "PATCH for date %s rejected: merged result would have no non-empty fields", date
+                )
+                raise ValueError("Patch would result in an empty entry: at least one field must remain non-empty")
+
+            # Write only the changed fields — merged_entry keys are already valid columns (date excluded)
+            for field, value in merged_entry.items():
+                if field in update_request:
                     df.at[date, field] = value
-                else:
-                    self._logger.debug(
-                        "Field '%s' not found in existing entry for date: %s. Skipping update for this field.",
-                        field,
-                        date
-                    )
             df.to_csv(self.file_path)
             self._logger.info("Entry partially updated successfully for date: %s", date)
             return self.get_entry_by_date(date)

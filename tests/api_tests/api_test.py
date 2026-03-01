@@ -248,9 +248,9 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn("Partial update unsuccessful", response.get_json().get("error"))
 
-    def test_partial_update_entry_with_empty_fields_does_not_overwrite_existing_data(self):
-        """Test that PATCH request to partially update entry with empty fields does not overwrite existing data 
-        with empty values."""
+    def test_partial_update_entry_clears_field_when_merged_result_still_has_data(self):
+        """Test that PATCH request with an empty string for one field clears that field
+        when the merged result would still have at least one non-empty field."""
         # Arrange
         self.client.post("/api/csv/entries", json=self.entry)
 
@@ -261,7 +261,7 @@ class TestAPI(unittest.TestCase):
 
         expected_entry = {
             "date": "2025-01-02",
-            "work_contribution": "Completed unit tests for Flask routes",
+            "work_contribution": "",
             "learning": "",
             "win": "",
             "challenge": "",
@@ -270,15 +270,36 @@ class TestAPI(unittest.TestCase):
 
         # Act
         response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
-        entry = self.client.get("/api/csv/entries/2025-01-02").get_json()
 
-        # Assert
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            "Invalid data for Entry class: Unable to create entry: At least one value must not be empty",
-            response.get_json().get("error")
-        )
-        self.assertEqual(entry.get("data"), expected_entry)
+        # Assert — field is cleared; next_steps still present so entry is valid
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json().get("message"), "Entry partially updated successfully")
+        self.assertEqual(response.get_json().get("data"), expected_entry)
+
+    def test_partial_update_entry_with_all_empty_fields_returns_bad_request(self):
+        """Test that PATCH request where all non-date fields in the merged result would be empty
+        returns a bad request response and does not overwrite existing data."""
+        # Arrange — entry with only next_steps set
+        single_field_entry = {
+            "date": "2025-01-02",
+            "next_steps": "Continue with testing"
+        }
+        self.client.post("/api/csv/entries", json=single_field_entry)
+
+        # Patch that would clear the only non-empty field
+        updated_entry = {
+            "date": "2025-01-02",
+            "next_steps": ""
+        }
+
+        # Act
+        patch_response = self.client.patch("/api/csv/entries/2025-01-02", json=updated_entry)
+        get_response = self.client.get("/api/csv/entries/2025-01-02")
+
+        # Assert — patch rejected; original data unchanged
+        self.assertEqual(patch_response.status_code, 400)
+        self.assertIn("Patch would result in an empty entry", patch_response.get_json().get("error"))
+        self.assertEqual(get_response.get_json().get("data")["next_steps"], "Continue with testing")
 
     def test_partial_update_empty_file_returns_service_unavailable_status_code(self):
         """Test that PATCH request to partially update entry returns service unavailable status code 

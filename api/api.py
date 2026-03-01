@@ -72,8 +72,8 @@ class API:
                 return jsonify({"error": "Invalid JSON body"}), 400
 
             try:
-                # JSON dictionary data is unpacked into keyword arguments for the Entry constructor
-                entry = DailyEntry(**data)
+                # data dict is passed directly; from_create_entry_request validates and constructs the entry
+                entry = DailyEntry.from_create_entry_request(data)
             except ValueError as e:
                 self._logger.warning("POST request contains invalid data for Entry class: %s", e)
                 return jsonify({"error": f"Invalid data for Entry class: {e}"}), 400
@@ -147,6 +147,12 @@ class API:
             except (FileNotFoundError, FileEmptyError) as e:
                 return self._file_unavailable_response(date, e)
             except ValueError as e:
+                error_msg = str(e)
+                # Merged-empty check raises a specific message from the repository; return 400.
+                # All other ValueErrors from the repository indicate a missing entry; return 404.
+                if "Patch would result in an empty entry" in error_msg:
+                    self._logger.warning("PATCH rejected for date %s: %s", date, error_msg)
+                    return jsonify({"error": error_msg}), 400
                 self._logger.warning("Failed to partially update entry for date: %s. %s", date, e)
                 return jsonify({"error": f"Partial update unsuccessful: {e}"}), 404
 
