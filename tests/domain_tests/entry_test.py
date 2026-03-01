@@ -50,9 +50,20 @@ class TestEntry(unittest.TestCase):
 
         self.assertEqual(str(context.exception), "Unable to create entry: No date provided")
 
-    def test_no_values_raises_value_error(self):
+    def test_no_values_raises_value_error_from_replace_request(self):
         """Test that providing a date but no other values raises a ValueError with the expected message."""
         with self.assertRaises(ValueError) as context:
-            DailyEntry(date="2026-02-17")
+            DailyEntry.from_replace_request({"date": "2026-02-17", "work_contribution": "", "learning": "", "win": "", "challenge": "", "next_steps": ""})
 
         self.assertEqual("Unable to create entry: At least one value must not be empty", str(context.exception))
+
+    def test_no_values_raises_value_error_from_create_entry_request(self):
+        """Test that providing a date but no other values raises a ValueError with the expected message."""
+        with self.assertRaises(ValueError) as context:
+            DailyEntry.from_create_entry_request({"date": "2026-02-17"})
+
+        self.assertEqual("Unable to create entry: At least one value must not be empty", str(context.exception))
+
+
+if __name__ == "__main__":
+    unittest.main()

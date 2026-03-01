@@ -235,3 +235,7 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             self._repo._validate_file()
 
         self.assertEqual(str(context.exception), f"No data found in file: {self._repo.file_path}")
+
+
+if __name__ == "__main__":
+    unittest.main()
