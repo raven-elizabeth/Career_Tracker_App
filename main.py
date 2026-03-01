@@ -6,7 +6,7 @@ The App class manages the navigation between screens and handles interactions wi
 It cannot be run without the Flask API server running, so make sure to run api.py first.
 """
 
-from data_access.api_client.client import ApiClient
+from gui.api_client.client import ApiClient
 from gui.root import Root
 from gui.screens.home_screen import HomeScreen
 from gui.screens.new_entry_screen import NewEntryScreen
