@@ -10,13 +10,18 @@ although it is particularly designed with apprentices and those in their early c
 
 ___
 
-## To run the app:
+## To run the app...
 
 1. Clone the repository
 2. Install the required dependencies using `pip install -r requirements.txt`
 3. Run the Flask api using `python -m api.api` (keep it running - without this the app WILL NOT WORK)
 4. Run the main app in a separate terminal by using `python main.py`
 
+### Sample entry data:
+I have included two sample entries in `data/entries.csv` to demonstrate the app's functionality.
+The dates of these entries are `2026-02-23` and `2026-02-25`.
+You can use these dates to test the search, update, and delete functionality of the app.
+To test the creation of new entries, simply use the "New Entry" screen to add an entry for a new date.
 ___
 
 ## Endpoints
@@ -179,6 +184,10 @@ so it would have required additional time to learn and implement.
 ___
 
 ## Additional Notes
-See the documentation folder for further supporting materials, 
+*See the documentation folder for further supporting materials, 
 including the SRS document, statement on AI use, accompanying project poster, 
-and any other relevant files/diagrams.
+and any other relevant files/diagrams.*
+
+I have learned how to use AI to my advantage, extended my knowledge of PEP 8 standards & architecture,
+and understood the value of logs.
+I have been able to practise using an API & implementing design patterns.
