@@ -6,7 +6,6 @@ The layout adapts responsively to different window sizes, switching between adja
 
 import datetime
 from tkinter import Frame, messagebox
-
 from tkcalendar import Calendar
 
 from gui.screens.screen import Screen

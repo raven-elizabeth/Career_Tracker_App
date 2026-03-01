@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 from api.api import API
-from database.csv_database_repository import CsvDatabaseRepository
+from data_access.repositories.csv_database_repository import CsvDatabaseRepository
 
 
 class TestAPI(unittest.TestCase):

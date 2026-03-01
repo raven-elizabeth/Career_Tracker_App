@@ -1,4 +1,4 @@
-"""This class implements the DatabaseRepository interface for a CSV file database (CRUD operations).
+"""This class implements the DatabaseRepository interface for a CSV file data_access (CRUD operations).
 Pandas handles the file operations, with to_csv() automatically closing the file after writing
 and using mode "a" to append rather than overwrite.
 Using Pandas DataFrame simplifies the data manipulation and date indexing results in O(1) lookups"""
@@ -7,11 +7,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from database.database_repository import DatabaseRepository
-from database.exceptions import FileEmptyError, DuplicateEntryError
+from data_access.repositories.database_repository import DatabaseRepository
+from data_access.repositories.exceptions import FileEmptyError, DuplicateEntryError
 from domain.dailyentry import DailyEntry
 from domain.fields import FIELDS
-from logging_config import get_logger
+from logs.logging_config import get_logger
 
 
 class CsvDatabaseRepository(DatabaseRepository):

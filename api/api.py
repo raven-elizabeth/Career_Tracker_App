@@ -23,10 +23,10 @@ Logging will capture details of any exceptions for debugging purposes.
 
 from flask import Flask, jsonify, request
 
-from database.csv_database_repository import CsvDatabaseRepository
-from database.exceptions import FileEmptyError, DuplicateEntryError
+from data_access.repositories.csv_database_repository import CsvDatabaseRepository
+from data_access.repositories.exceptions import FileEmptyError, DuplicateEntryError
 from domain.dailyentry import DailyEntry
-from logging_config import get_logger
+from logs.logging_config import get_logger
 
 
 class API:

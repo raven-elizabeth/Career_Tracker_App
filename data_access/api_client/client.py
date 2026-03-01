@@ -8,7 +8,7 @@ domain objects and exceptions, not raw HTTP responses.
 import requests
 
 from domain.dailyentry import DailyEntry
-from gui.client_config import base_url
+from data_access.api_client.client_config import base_url
 
 
 class ApiClient:

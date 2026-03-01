@@ -5,7 +5,7 @@ while only showing info and above in the console.
 logger.debug is used for detailed info during dev debugging
 logger.info is used for general info about the application's operation
 logger.warning is used when something unexpected happens but the app can keep running, e.g. invalid requests
-logger.error is used when the app may fail, e.g. file not found, database connection issues, etc."""
+logger.error is used when the app may fail, e.g. file not found, data_access connection issues, etc."""
 
 import logging
 import sys

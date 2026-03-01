@@ -10,8 +10,8 @@ import os
 import tempfile
 import unittest
 
-from database.csv_database_repository import CsvDatabaseRepository
-from database.exceptions import FileEmptyError, DuplicateEntryError
+from data_access.repositories.csv_database_repository import CsvDatabaseRepository
+from data_access.repositories.exceptions import FileEmptyError, DuplicateEntryError
 from domain.dailyentry import DailyEntry
 
 

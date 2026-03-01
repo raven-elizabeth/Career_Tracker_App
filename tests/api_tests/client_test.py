@@ -11,7 +11,7 @@ AI was used to help write the initial test structure; tests were then manually e
 import unittest
 from unittest.mock import patch, MagicMock
 
-from gui.client import ApiClient
+from data_access.api_client.client import ApiClient
 
 # Reusable sample entry data representing a full, valid entry
 # Not using setUp since this is the only test data needed, making it simpler to define as a constant
@@ -43,7 +43,7 @@ class ClientTest(unittest.TestCase):
     @patch("gui.client.requests.get")
     def test_get_entry_by_date_not_found_returns_none(self, mock_get):
         """Test that get_entry_by_date returns None when the API responds with a 404 Not Found."""
-        # Arrange: Simulate a 404 response — the entry does not exist in the database
+        # Arrange: Simulate a 404 response — the entry does not exist in the data_access
         mock_get.return_value = MagicMock(status_code=404, json=lambda: {"error": "Not found"})
 
         # Act
