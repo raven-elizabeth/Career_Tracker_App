@@ -12,6 +12,8 @@ from tkinter import ttk
 
 from domain.fields import FIELDS
 from gui.screens.screen import Screen
+from gui.screens.strategies.partial_update_strategy import PartialUpdateStrategy
+from gui.screens.strategies.replace_strategy import ReplaceStrategy
 
 # Module constant depends on an import
 ENTRY_FIELDS = [field for field in FIELDS if field != "date"]
@@ -241,7 +243,7 @@ class NewEntryScreen(Screen):
         return valid
 
     @staticmethod
-    def _get_filtered_data(raw_data):
+    def _get_stripped_data(raw_data):
         """Strip leading/trailing whitespace from all field values before saving."""
         filtered_data = {
             field: value.strip() for field, value in raw_data.items()
@@ -254,9 +256,10 @@ class NewEntryScreen(Screen):
         if self._input_is_valid(new_data):
 
             if self._editing and self._original_data:
-                self._determine_update_route(new_data)
+                if self._is_update_required(new_data):
+                    self._determine_update_route(new_data)
             else:
-                filtered_data = self._get_filtered_data(new_data)
+                filtered_data = self._get_stripped_data(new_data)
                 self._client.save_entry(filtered_data)
 
             self._editing = False
@@ -265,19 +268,27 @@ class NewEntryScreen(Screen):
 
     def _determine_update_route(self, new_data):
         """Determine whether to use full replace (PUT) or partial update (PATCH) API route based on changed fields."""
-        if not self._is_update_required(new_data):
-            return
-
-        filtered_data = self._get_filtered_data(new_data)
+        filtered_data = self._get_stripped_data(new_data)
 
         # If all values are changed, use PUT (full replace), otherwise use PATCH (partial update)
-        if all(self._original_data.get(field) != value for field, value in new_data.items() if field != "date"):
-            self._client.replace_entry(filtered_data)
+        all_values_changed = all(
+            self._original_data.get(field) != value
+            for field, value in new_data.items()
+            if field != "date"
+        )
+
+        if all_values_changed:
+            strategy = ReplaceStrategy()
         else:
+            strategy = PartialUpdateStrategy()
             # Only send changed fields to the API for a PATCH request
-            cleaned_data = {field: value for field, value in filtered_data.items() if self._original_data.get(field) != value or field == "date"}
-            print("Cleaned data for PATCH request:", cleaned_data)  # Debug print to verify correct fields are included
-            self._client.partially_update_entry(cleaned_data)
+            filtered_data = {
+                field: value
+                for field, value in filtered_data.items()
+                if self._original_data.get(field) != value or field == "date"
+            }
+        strategy.update(self._client, filtered_data)
+
 
     def _is_update_required(self, new_data):
         """Check if any fields have changed compared to the original data"""
