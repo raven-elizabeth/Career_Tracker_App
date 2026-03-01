@@ -89,10 +89,10 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self._repo.save_entry(second_entry)
 
         # Act
-        response = self._repo.get_entry_by_date("2025-06-05")
+        entry = self._repo.get_entry_by_date("2025-06-05")
 
         # Assert
-        self.assertEqual(response.entry_dict, second_value)
+        self.assertEqual(entry.entry_dict, second_value)
 
     def test_none_returned_when_get_date_not_found(self):
         """Test that retrieving an entry by a date that does not exist returns None."""
@@ -124,13 +124,13 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             next_steps="Added next steps"
         )
 
-        # Act, Assert
-        response = self._repo.get_entry_by_date("2025-06-04")
-        self.assertEqual(response.entry_dict, self.expected)
+        # Act & Assert
+        entry = self._repo.get_entry_by_date("2025-06-04")
+        self.assertEqual(entry.entry_dict, self.expected)
 
         self._repo.replace_entry("2025-06-04", updated_entry)
-        response = self._repo.get_entry_by_date("2025-06-04")
-        self.assertEqual(response.entry_dict, updated_entry.entry_dict)
+        entry = self._repo.get_entry_by_date("2025-06-04")
+        self.assertEqual(entry.entry_dict, updated_entry.entry_dict)
 
     def test_replace_nonexistent_entry_raises_value_error(self):
         """Test that attempting to replace an entry that does not exist raises a ValueError."""
@@ -170,10 +170,10 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
         # Act
         self._repo.partially_update_entry(updated_entry_items)
-        response = self._repo.get_entry_by_date("2025-06-04")
+        entry = self._repo.get_entry_by_date("2025-06-04")
 
         # Assert
-        self.assertEqual(response.entry_dict, expected_entry)
+        self.assertEqual(entry.entry_dict, expected_entry)
 
     def test_partially_update_nonexistent_entry_raises_value_error(self):
         """Test that attempting to partially update an entry that does not exist raises a ValueError."""
@@ -192,15 +192,15 @@ class TestCsvDatabaseRepository(unittest.TestCase):
     def test_delete_existing_entry_deletes_entry(self):
         """Test that deleting an existing entry by date successfully removes the entry from the repository."""
         # Arrange
-        get_response = self._repo.get_entry_by_date("2025-06-04")
-        self.assertEqual(get_response.entry_dict, self.expected)
+        entry = self._repo.get_entry_by_date("2025-06-04")
+        self.assertEqual(entry.entry_dict, self.expected)
 
         # Act
         self._repo.delete_entry("2025-06-04")
-        deleted_entry_get_response = self._repo.get_entry_by_date("2025-06-04")
+        deleted_entry = self._repo.get_entry_by_date("2025-06-04")
 
         # Assert
-        self.assertIsNone(deleted_entry_get_response)
+        self.assertIsNone(deleted_entry)
 
     def test_delete_nonexistent_entry_raises_value_error(self):
         """Test that attempting to delete an entry that does not exist raises a ValueError."""
