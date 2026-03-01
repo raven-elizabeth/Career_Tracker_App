@@ -18,7 +18,8 @@ ___
 ### 3. <mark>**Run the Flask api**</mark> using `python -m api.api` (<u>**keep it running - without this the app WILL NOT WORK**</u>)
 ### 4. <mark>**Run the main app in a separate terminal**</mark> by using `python main.py`
 
-#### *You can also run the files directly in your IDE if you prefer, just make sure to run `api.py` first and keep it running before running `main.py`.*
+#### *NOTE: You can also run the files directly in your IDE if you prefer, just make sure to run `api.py` first and keep it running before running `main.py`.*
+#### *NOTE: I have set the debug mode to 'False' in `api/api.py` to simulate a production environment, where you would want to avoid security risks. If you want to view the console logs, change `debug=False` to `debug=True`*
 
 ___
 

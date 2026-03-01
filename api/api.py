@@ -179,6 +179,7 @@ class API:
 
 # Run directly to start the API server
 # Importing this module elsewhere will not start the server
+# LOGS: If you want to see logs when running the API, change debug=True
 if __name__ == "__main__":
     api = API()
-    api.app.run(debug=True)
+    api.app.run(debug=False)
