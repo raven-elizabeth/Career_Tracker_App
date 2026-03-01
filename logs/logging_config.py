@@ -1,11 +1,13 @@
-"""Logging is important for tracking the behavior of an application, especially for debugging and monitoring purposes.
+"""
+Logging is important for tracking the behavior of an application, especially for debugging and monitoring purposes.
 This logging configuration sets up a logger that writes detailed debug information to a file,
 while only showing info and above in the console.
 
 logger.debug is used for detailed info during dev debugging
 logger.info is used for general info about the application's operation
 logger.warning is used when something unexpected happens but the app can keep running, e.g. invalid requests
-logger.error is used when the app may fail, e.g. file not found, data_access connection issues, etc."""
+logger.error is used when the app may fail, e.g. file not found, data_access connection issues, etc.
+"""
 
 import logging
 import sys
@@ -13,7 +15,7 @@ from pathlib import Path
 
 # Path(__file__).parent resolves to the logs/ directory where this file lives — log files are stored here.
 LOG_DIR = Path(__file__).parent
-
+LOG_DIR.mkdir(exist_ok=True)  # Ensure the log directory exists, creating it if necessary
 
 def get_logger(name) -> logging.Logger:
     """Set up and return a logger with the specified name,
