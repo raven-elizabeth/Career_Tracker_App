@@ -1,7 +1,9 @@
-"""This class implements the DatabaseRepository interface for a CSV file data_access (CRUD operations).
+"""
+This class implements the DatabaseRepository interface for a CSV file data_access (CRUD operations).
 Pandas handles the file operations, with to_csv() automatically closing the file after writing
 and using mode "a" to append rather than overwrite.
-Using Pandas DataFrame simplifies the data manipulation and date indexing results in O(1) lookups"""
+Using Pandas DataFrame simplifies the data manipulation and date indexing results in O(1) lookups
+"""
 
 from pathlib import Path
 
@@ -39,11 +41,10 @@ class CsvDatabaseRepository(DatabaseRepository):
         df = pd.DataFrame([data])
         df = self._set_date_index(df)
 
-        file_exists = self.file_path.exists()
-        file_size = self.file_path.stat().st_size if file_exists else 0
+        file_size = self.file_path.stat().st_size
 
         # Check for duplicate entry by date before saving
-        if file_exists and file_size > 0:
+        if file_size > 0:
             entry_date = str(entry.entry_dict["date"])
             if self._entry_exists(entry_date):
                 self._logger.warning(
@@ -53,7 +54,7 @@ class CsvDatabaseRepository(DatabaseRepository):
                 raise DuplicateEntryError(f"An entry with date {entry.entry_dict['date']} already exists.")
 
         # Only write the header if the file is empty (i.e. no entries have been saved yet)
-        header = not file_exists or file_size == 0
+        header = file_size == 0
         df.to_csv(self.file_path, mode="a", header=header, lineterminator="\n")
         self._logger.info("Entry saved successfully for date: %s", entry.entry_dict["date"])
 
@@ -77,12 +78,11 @@ class CsvDatabaseRepository(DatabaseRepository):
         return df
 
     def get_entry_by_date(self, date):
-        """
-        Retrieve an entry by its date. Returns None if no entry is found.
-        Does not raise for a missing entry — this is intentional, as the method
-        is called during date selection in the GUI where no entry is a valid state.
-        Raises FileNotFoundError or FileEmptyError if the file is unavailable.
-        """
+        """Retrieve an entry by its date. Returns None if no entry is found.
+        Does not raise for a missing entry — this is intentional, as the
+        method is called during date selection in the GUI where no entry is
+        a valid state.Raises FileNotFoundError or FileEmptyError
+        if the file is unavailable."""
         self._logger.debug("Searching for entry with date: %s", date)
         self._validate_file()
         df = pd.read_csv(self.file_path, index_col="date", dtype=str, na_filter=False)
