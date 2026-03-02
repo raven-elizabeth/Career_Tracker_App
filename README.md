@@ -12,11 +12,13 @@ ___
 
 ## ❗️To run the app...
 
-### 1. <mark>**Clone the repository**</mark> 
-*See instructions:* https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
-### 2. <mark>**Install the required dependencies**</mark> using `pip install -r requirements.txt`
-### 3. <mark>**Run the Flask api**</mark> using `python -m api.api` (<u>**keep it running - without this the app WILL NOT WORK**</u>)
-### 4. <mark>**Run the main app in a separate terminal**</mark> by using `python main.py`
+### 1. **Download the ZIP file or clone the repository**
+*See instructions for cloning: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository*
+
+*GitHub repository link: https://github.com/raven-elizabeth/Career_Tracker_App*
+### 2. **Install the required dependencies** using `pip install -r requirements.txt`
+### 3. **Run the Flask api** using `python -m api.api` (<u>**keep it running - without this the app WILL NOT WORK**</u>)
+### 4. **Run the main app in a separate terminal** by using `python main.py`
 
 #### *NOTE: You can also run the files directly in your IDE if you prefer, just make sure to run `api.py` first and keep it running before running `main.py`.*
 #### *NOTE: I have set the debug mode to 'False' in `api/api.py` to simulate a production environment, where you would want to avoid security risks. If you want to view the console logs, change `debug=False` to `debug=True`*
@@ -118,10 +120,10 @@ ___
 
 ### API
 - **Flask** — Micro web framework used to build and serve the REST API (`api/api.py`). Chosen for its simplicity and familiarity.
-- **Requests** — HTTP client library used by the API client (`data_access/api_client/client.py`) to make GET, POST, PUT, PATCH, and DELETE requests to the Flask API.
+- **Requests** — HTTP client library used by the API client (`gui/api_client/client.py`) to make GET, POST, PUT, PATCH, and DELETE requests to the Flask API.
 
 ### GUI
-- **Tkinter** — Python's built-in GUI library, used to build all screens (`gui/`). Chosen for its availability as a standard library with no extra install required.
+- **Tkinter** — Python's built-in GUI library, used to build all screens(`gui/`). Chosen for its availability as a standard library with no extra install required.
 - **Tkcalendar** — Third-party calendar widget for Tkinter, used in the search and new entry screens to allow date selection.
 
 ### Data
@@ -326,6 +328,11 @@ ___
 In the future, I would consider implementing more features, such as **goal setting**, **progress visualization**,
 and a **to-do list**. I could also explore **integrating** with other platforms (e.g., LinkedIn) to automatically 
 track career milestones and achievements.
+
+I would like to add a `get_all_entries` endpoint to the API to allow retrieval of all entries at once,
+which could have multiple benefits, including enabling date colour-coding in the calendar widget 
+for dates with saved entries.
+
 If I want to tailor the app more towards apprentices, I could consider features such as a **KSB tracker**
 and **portfolio evidence storage**, along with **reminders** to keep these updated and other apprentice **resources**.
 
@@ -337,10 +344,14 @@ I would also like to make the designs **responsive** for different screen sizes.
 ___
 
 ## Additional Notes
-*See the documentation folder for further supporting materials, 
-including the SRS document, statement on AI use, accompanying project poster, 
-and any other relevant files/diagrams (including wireframes, which I have not included in this README file).*
+- I aimed to adhere to PEP 8 standards within reason of the project scope
+- I weighed the benefits of each design decision against added complexity and learning benefits
+  - I did not want to over-engineer, but I also wanted to demonstrate good design principles and be able to practise implementing design patterns and architecture - hence the use of the Strategy Pattern.
 
 I have learned how to use AI to my advantage, extended my knowledge of PEP 8 standards & architecture,
 and understood the value of logs.
 I have been able to practise using an API & implementing design patterns.
+
+*See the documentation folder for further supporting materials, 
+including the SRS document, statement on AI use, accompanying project poster, 
+and any other relevant files/diagrams (including wireframes, which I have not included in this README file).*
