@@ -71,12 +71,13 @@ class HomeScreen(Screen):
         self.options_label = self._create_label(
             self.options_frame, frame_row, "What would you like to do?",
             self.subheading_font, self.SECONDARY_COLOR,
-            pad_y=(10, 0), pad_x=self.OUTER_PADDING, anchor="w"
+            pad_y=(self.SMALL_PAD, 0), pad_x=self.SCREEN_EDGE_PADDING,
+            anchor="w"
         )
         frame_row += 1
 
         self._create_separator(
-            self.options_frame, frame_row, pad_x=self.OUTER_PADDING
+            self.options_frame, frame_row, pad_x=self.SCREEN_EDGE_PADDING
         )
         frame_row += 1
 
