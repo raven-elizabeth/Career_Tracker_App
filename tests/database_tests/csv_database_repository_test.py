@@ -295,5 +295,100 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         )
 
 
+    def test_csv_injection_prefixes_are_sanitised_on_save(self):
+        """Test that field values starting with formula-trigger characters
+        are prefixed with a single quote when saved, preventing spreadsheet
+        formula injection."""
+        # Arrange: each value starts with a different injection trigger
+        injection_entry = DailyEntry(
+            date="2025-07-01",
+            work_contribution="=SUM(A1:A10)",
+            learning="-malicious",
+            win="+cmd",
+            challenge="@formula",
+            next_steps="=HYPERLINK(\"http://evil.com\")",
+        )
+
+        # Act
+        self._repo.save_entry(injection_entry)
+
+        # Assert: values are prefixed with ' in the CSV
+        with open(self._repo.file_path, "r") as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+        saved = next(r for r in rows if r["date"] == "2025-07-01")
+        self.assertEqual(saved["work_contribution"], "'=SUM(A1:A10)")
+        self.assertEqual(saved["learning"], "'-malicious")
+        self.assertEqual(saved["win"], "'+cmd")
+        self.assertEqual(saved["challenge"], "'@formula")
+        self.assertEqual(
+            saved["next_steps"], "'=HYPERLINK(\"http://evil.com\")"
+        )
+
+    def test_safe_values_are_not_modified_on_save(self):
+        """Test that ordinary field values are stored unchanged — the
+        sanitisation must not affect non-formula values."""
+        # Arrange
+        safe_entry = DailyEntry(
+            date="2025-07-02",
+            work_contribution="Completed code review",
+            learning="Learned about CSV injection",
+        )
+
+        # Act
+        self._repo.save_entry(safe_entry)
+
+        # Assert
+        with open(self._repo.file_path, "r") as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+        saved = next(r for r in rows if r["date"] == "2025-07-02")
+        self.assertEqual(saved["work_contribution"], "Completed code review")
+        self.assertEqual(saved["learning"], "Learned about CSV injection")
+
+    def test_csv_injection_sanitised_on_replace(self):
+        """Test that formula-trigger values are sanitised when an entry
+        is replaced via replace_entry."""
+        # Arrange
+        replacement = DailyEntry(
+            date="2025-06-04",
+            work_contribution="=CMD|' /C calc'!A0",
+            learning="normal value",
+            win="normal value",
+            challenge="normal value",
+            next_steps="normal value",
+        )
+
+        # Act
+        self._repo.replace_entry("2025-06-04", replacement)
+
+        # Assert
+        with open(self._repo.file_path, "r") as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+        saved = next(r for r in rows if r["date"] == "2025-06-04")
+        self.assertEqual(
+            saved["work_contribution"], "'=CMD|' /C calc'!A0"
+        )
+
+    def test_csv_injection_sanitised_on_partial_update(self):
+        """Test that formula-trigger values are sanitised when an entry
+        is partially updated via partially_update_entry."""
+        # Act
+        self._repo.partially_update_entry({
+            "date": "2025-06-04",
+            "win": "=IMPORTRANGE(\"url\",\"sheet\")",
+        })
+
+        # Assert
+        with open(self._repo.file_path, "r") as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+        saved = next(r for r in rows if r["date"] == "2025-06-04")
+        self.assertEqual(
+            saved["win"], "'=IMPORTRANGE(\"url\",\"sheet\")"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

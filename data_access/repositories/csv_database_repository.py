@@ -22,6 +22,10 @@ from logs.logging_config import get_logger
 
 
 class CsvDatabaseRepository(DatabaseRepository):
+    # Characters that trigger formula execution when a CSV is opened in
+    # a spreadsheet application (Excel, LibreOffice Calc, etc.)
+    _CSV_INJECTION_PREFIXES = ("=", "-", "+", "@", "\t", "\r")
+
     def __init__(self, file_path=None, logger=None):
         super().__init__()
         file_path = (
@@ -52,9 +56,36 @@ class CsvDatabaseRepository(DatabaseRepository):
             self._logger.info(
                 "Initialising CSV file at: %s", self.file_path
             )
+            # Ensure the parent directory exists before writing — guards
+            # against the data/ folder being deleted at runtime
+            self.file_path.parent.mkdir(parents=True, exist_ok=True)
             pd.DataFrame(columns=FIELDS).set_index("date").to_csv(
                 self.file_path
             )
+
+    @staticmethod
+    def _sanitise_for_csv(value):
+        """Prefix any field value that starts with a formula-trigger
+        character with a single quote, preventing spreadsheet applications
+        from interpreting it as a formula if the CSV is opened externally.
+        The date field is excluded at call sites as it is always YYYY-MM-DD.
+        """
+        if isinstance(value, str) and value.startswith(
+            CsvDatabaseRepository._CSV_INJECTION_PREFIXES
+        ):
+            return f"'{value}"
+        return value
+
+    def _sanitise_entry_dict(self, entry_dict):
+        """Return a copy of entry_dict with all non-date values sanitised
+        against CSV injection."""
+        return {
+            field: (
+                value if field == "date"
+                else self._sanitise_for_csv(value)
+            )
+            for field, value in entry_dict.items()
+        }
 
     def save_entry(self, entry):
         """Saves a new entry to the CSV file.
@@ -63,7 +94,7 @@ class CsvDatabaseRepository(DatabaseRepository):
         self._logger.debug(
             "Saving entry with date: %s", entry.entry_dict["date"]
         )
-        data = entry.entry_dict
+        data = self._sanitise_entry_dict(entry.entry_dict)
         df = pd.DataFrame([data]).set_index("date")
 
         file_size = self.file_path.stat().st_size
@@ -143,8 +174,9 @@ class CsvDatabaseRepository(DatabaseRepository):
         )
 
         if date in df.index:
-            updated_data = updated_entry.entry_dict
-
+            updated_data = self._sanitise_entry_dict(
+                updated_entry.entry_dict
+            )
             for field, value in updated_data.items():
                 if field != "date":
                     df.at[date, field] = value
@@ -204,11 +236,10 @@ class CsvDatabaseRepository(DatabaseRepository):
                     "field must remain non-empty"
                 )
 
-            # Write only the changed fields — merged_entry keys are already
-            # valid columns (date excluded)
+            # Write only the changed fields — sanitise before writing
             for field, value in merged_entry.items():
                 if field in update_request:
-                    df.at[date, field] = value
+                    df.at[date, field] = self._sanitise_for_csv(value)
             df.to_csv(self.file_path)
             self._logger.info(
                 "Entry partially updated successfully for date: %s", date
@@ -244,7 +275,9 @@ class CsvDatabaseRepository(DatabaseRepository):
 
     def _validate_file(self):
         """Helper method to validate the existence and non-emptiness of the
-        CSV file before performing read/write operations."""
+        CSV file before performing read/write operations.
+        Also catches pd.errors.EmptyDataError for files that pass the size
+        check but contain only whitespace or a malformed header."""
         if not self.file_path.exists():
             self._logger.error("File not found: %s", self.file_path)
             raise FileNotFoundError(
@@ -253,6 +286,20 @@ class CsvDatabaseRepository(DatabaseRepository):
         elif self.file_path.stat().st_size == 0:
             self._logger.error(
                 "No data found in file: %s", self.file_path
+            )
+            raise FileEmptyError(
+                f"No data found in file: {self.file_path}"
+            )
+        # A file with only whitespace or a blank line passes the size check
+        # but raises EmptyDataError when pandas tries to parse it
+        try:
+            pd.read_csv(
+                self.file_path, index_col="date",
+                dtype=str, na_filter=False, nrows=0
+            )
+        except pd.errors.EmptyDataError:
+            self._logger.error(
+                "File contains no parseable data: %s", self.file_path
             )
             raise FileEmptyError(
                 f"No data found in file: {self.file_path}"
