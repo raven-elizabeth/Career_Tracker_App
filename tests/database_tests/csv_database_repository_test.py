@@ -70,15 +70,6 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             rows = list(reader)
 
             self.assertEqual(len(rows), 1)
-
-            # The code below was modified with the help of GitHub Copilot;
-            # The assertion accepts both the "YYYY-MM-DD" or
-            # "YYYY-MM-DD 00:00:00" format that may be returned from pandas
-            self.assertTrue(
-                rows[0]['date'].startswith(self.expected['date'])
-            )
-            # The original suggestion for the line below was unnecessarily
-            # complex, comparing each field separately
             self.assertEqual(self.expected, rows[0])
 
     def test_saving_existing_entry_raises_duplicate_error(self):

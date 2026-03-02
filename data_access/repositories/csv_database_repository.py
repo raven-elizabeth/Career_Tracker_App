@@ -64,8 +64,7 @@ class CsvDatabaseRepository(DatabaseRepository):
             "Saving entry with date: %s", entry.entry_dict["date"]
         )
         data = entry.entry_dict
-        df = pd.DataFrame([data])
-        df = self._set_date_index(df)
+        df = pd.DataFrame([data]).set_index("date")
 
         file_size = self.file_path.stat().st_size
         file_empty = file_size == 0
@@ -105,18 +104,6 @@ class CsvDatabaseRepository(DatabaseRepository):
             exists,
         )
         return exists
-
-    @staticmethod
-    def _set_date_index(df):
-        """Set the 'date' column as the DataFrame index.
-
-        Converts to datetime first to normalise any date format variations,
-        then immediately converts back to a date string to prevent pandas
-        from appending time data (e.g. '2025-01-01 00:00:00').
-        """
-        df["date"] = pd.to_datetime(df["date"]).dt.date.astype(str)
-        df = df.set_index("date")
-        return df
 
     def get_entry_by_date(self, date):
         """Retrieve an entry by its date. Returns None if no entry is found.
