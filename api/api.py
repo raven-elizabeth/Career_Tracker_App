@@ -150,7 +150,7 @@ class API:
                 self._logger.warning(
                     "Failed to save entry for date: %s. %s",
                     entry.entry_dict["date"],
-                    e,
+                    e
                 )
                 return (
                     jsonify({"error": "Save unsuccessful"}),
@@ -169,6 +169,12 @@ class API:
                 date
             )
             data = request.get_json()
+            if not data:
+                self._logger.warning("PUT request missing JSON body")
+                return (
+                    jsonify({"error": "Invalid JSON body"}),
+                    HTTP_BAD_REQUEST,
+                )
 
             try:
                 updated_entry = DailyEntry.from_replace_request(data)
@@ -214,6 +220,7 @@ class API:
                 "date: %s",
                 date,
             )
+
             update_request = request.get_json()
             if not update_request:
                 self._logger.warning("PATCH request missing JSON body")
@@ -305,7 +312,7 @@ class API:
             "File unavailable when attempting to access entry for date: "
             "%s. Error: %s",
             date,
-            e,
+            e
         )
         return (
             jsonify({"error": "File unavailable"}),

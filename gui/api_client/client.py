@@ -61,11 +61,17 @@ class ApiClient:
     def save_entry(self, entry_data):
         """Saves a new entry with the given data.
         Returns the saved entry data if successful."""
-        response = requests.post(
-            base_url,
-            json=entry_data,
-            timeout=self.REQUEST_TIMEOUT
-        )
+        try:
+            response = requests.post(
+                base_url,
+                json=entry_data,
+                timeout=self.REQUEST_TIMEOUT
+            )
+        except requests.exceptions.ConnectionError:
+            raise ValueError(
+                "Could not connect to server. "
+                "Make sure the API server is running."
+            )
         if response.status_code == HTTP_CREATED:
             return response.json().get("data")
         else:
@@ -76,17 +82,21 @@ class ApiClient:
     def replace_entry(self, updated_data):
         """Replaces an existing entry with the given data.
         Returns the updated entry data if successful."""
-        # Default date to empty string
-        # — passes any missing date error to the API to handle
         date = updated_data.get("date")
         if not date:
             raise ValueError("Date is required for replacement")
 
-        response = requests.put(
-            f"{base_url}/{date}",
-            json=updated_data,
-            timeout=self.REQUEST_TIMEOUT
-        )
+        try:
+            response = requests.put(
+                f"{base_url}/{date}",
+                json=updated_data,
+                timeout=self.REQUEST_TIMEOUT
+            )
+        except requests.exceptions.ConnectionError:
+            raise ValueError(
+                "Could not connect to server. "
+                "Make sure the API server is running."
+            )
         if response.status_code == HTTP_OK:
             return response.json().get("data")
         else:
@@ -102,11 +112,17 @@ class ApiClient:
         if not date:
             raise ValueError("Date is required for partial update")
 
-        response = requests.patch(
-            f"{base_url}/{date}",
-            json=update_data,
-            timeout=self.REQUEST_TIMEOUT
-        )
+        try:
+            response = requests.patch(
+                f"{base_url}/{date}",
+                json=update_data,
+                timeout=self.REQUEST_TIMEOUT
+            )
+        except requests.exceptions.ConnectionError:
+            raise ValueError(
+                "Could not connect to server. "
+                "Make sure the API server is running."
+            )
         if response.status_code == HTTP_OK:
             return response.json().get("data")
         else:
@@ -117,10 +133,16 @@ class ApiClient:
 
     def delete_entry(self, date):
         """Deletes the entry for the given date."""
-        response = requests.delete(
-            f"{base_url}/{date}",
-            timeout=self.REQUEST_TIMEOUT
-        )
+        try:
+            response = requests.delete(
+                f"{base_url}/{date}",
+                timeout=self.REQUEST_TIMEOUT
+            )
+        except requests.exceptions.ConnectionError:
+            raise ValueError(
+                "Could not connect to server. "
+                "Make sure the API server is running."
+            )
         if response.status_code != HTTP_NO_CONTENT:
             raise ValueError(
                 f"Failed to delete entry: "
