@@ -11,6 +11,7 @@ manually edited and commented for clarity.
 """
 
 import unittest
+import requests
 from unittest.mock import patch, MagicMock
 
 from gui.api_client.client import ApiClient
@@ -89,9 +90,21 @@ class ClientTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             ApiClient().get_entry_by_date("2024-01-01")
 
+    @patch("gui.api_client.client.requests.post")
+    def test_connection_error_raises_value_error(self, mock_post):
+        """Test that a ConnectionError from requests is converted to a
+        ValueError by _make_request, so GUI callers only handle one
+        exception type."""
+        # Arrange: Simulate the server being unreachable
+        mock_post.side_effect = (
+            requests.exceptions.ConnectionError("Connection refused")
+        )
+
         # Act & Assert
-        with self.assertRaises(ValueError):
-            ApiClient().get_entry_by_date("2024-01-01")
+        with self.assertRaises(ValueError) as context:
+            ApiClient().save_entry(SAMPLE_ENTRY)
+
+        self.assertIn("Could not connect to server", str(context.exception))
 
     @patch("gui.api_client.client.requests.post")
     def test_save_entry_returns_data(self, mock_post):
