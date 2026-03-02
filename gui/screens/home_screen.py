@@ -37,27 +37,31 @@ class HomeScreen(Screen):
 
         self.icon = self._create_label(
             self.header_frame, frame_row, "📖",
-            self.heading_font, self.SECONDARY_COLOR, pad_y=10
+            self.heading_font, self.SECONDARY_COLOR,
+            pad_y=self.SMALL_PAD
         )
         frame_row += 1
 
         self.header = self._create_label(
             self.header_frame, frame_row, "Career Tracker App",
-            self.heading_font, self.SECONDARY_COLOR, pad_y=(0, 10)
+            self.heading_font, self.SECONDARY_COLOR,
+            pad_y=(0, self.SMALL_PAD)
         )
         frame_row += 1
 
         self.welcome_msg = self._create_label(
             self.header_frame, frame_row,
             "WELCOME TO YOUR PERSONAL TRACKER APP",
-            self.subheading_font, self.SECONDARY_COLOR, pad_y=(0, 10)
+            self.subheading_font, self.SECONDARY_COLOR,
+            pad_y=(0, self.SMALL_PAD)
         )
         frame_row += 1
 
         self.description = self._create_label(
             self.header_frame, frame_row,
             "Document your work & track your career progress",
-            self.italic_font, self.SECONDARY_COLOR, pad_y=(0, 20)
+            self.italic_font, self.SECONDARY_COLOR,
+            pad_y=(0, self.SMALL_PAD * 2)
         )
 
     def _create_options_frame(self):
