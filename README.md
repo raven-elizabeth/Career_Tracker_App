@@ -114,6 +114,20 @@ Raises an error if no entry exists for that date.
 ___
 
 ## Libraries & Tools Used
+### AI Use
+**See my full statement on AI use in `documentation/statement_on_AI_use.pdf`**, but in summary:
+
+I used AI tools (primarily GitHub Copilot) for explanations and suggestions, that I then verified and adapted as needed.
+I used it for code completion, and for generation to speed up the development process, but only after I had implemented 
+my core struture, asking it to model anything it produced off of the existing codebase.
+I then reviewed, modified, and tested all AI-generated code to ensure I understood every line and that the code 
+was acceptable (it often needed tweaking and tried to over-complicate solutions).
+
+Key examples of AI use include:
+- Code reviews, with suggestions for improvements and explanations of errors
+- Boilerplate for the New Entry screen
+- Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
+- CSV injection solution & tests for this
 
 ### Language
 - **Python** — The programming language used for both the API and GUI.
@@ -344,7 +358,9 @@ I would also like to make the designs **responsive** for different screen sizes.
 ___
 
 ## Additional Notes
-- I aimed to adhere to PEP 8 standards within reason of the project scope
+- I aimed to adhere to **PEP 8** standards within reason of the project scope
+- I used **Test-Driven Development** for the backend development
+- I aimed to use **defensive programming practices**, such as validating inputs and handling errors gracefully, to make the app more robust and user-friendly.
 - I weighed the benefits of each design decision against added complexity and learning benefits
   - I did not want to over-engineer, but I also wanted to demonstrate good design principles and be able to practise implementing design patterns and architecture - hence the use of the Strategy Pattern.
 
