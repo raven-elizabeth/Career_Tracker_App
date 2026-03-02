@@ -379,6 +379,12 @@ I would also like to make the designs **responsive** for different screen sizes.
 ___
 
 ## Additional Notes
+- No `POST` request will be made if a user saves an existing entry with no changes
+- Entries will not be saved if they have no other data than the date - and existing entries will not be replaced with an empty one
+- `PUT` requests will be called if all fields are changed in an existing entry
+- `PATCH` requests will be called if at least one field is changed in an existing entry, but not all fields
+
+
 - I aimed to adhere to **PEP 8** standards within reason of the project scope
 - I used **Test-Driven Development** for the backend development
 - I aimed to use **defensive programming practices**, such as validating inputs and handling errors gracefully, to make the app more robust and user-friendly.
