@@ -246,14 +246,14 @@ ___
 ## Architecture
 ### N-Tier Architecture
 The app follows an N-Tier architecture, separating the GUI (presentation), 
-API & domain logic (application), and CSV repository & file (data) into distinct layers.
+API & domain logic (application/business), and CSV repository & file (data) into distinct layers.
 This promotes separation of concerns, making the codebase easier to understand and maintain.
 Each layer has a single responsibility, and changes in one layer 
 (e.g. switching from CSV to SQL) will not affect the others.
 
 The app is split into two core processes: a **Flask REST API** (`api/api.py`) and a **Tkinter GUI** (`main.py`).
 The GUI never accesses the CSV data directly — all data operations go through HTTP requests via 
-`ApiClient` (`data_access/api_client/client.py`).
+`ApiClient` (`gui/api_client/client.py`).
 Similarly, the Flask API never accesses the CSV file directly — it interacts with an implementation
 of the `DatabaseRepository` interface (`CsvDatabaseRepository`), 
 which abstracts away the storage mechanism.
