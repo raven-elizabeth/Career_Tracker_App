@@ -282,6 +282,27 @@ This means the storage mechanism (CSV, SQL, etc.) can be swapped without changin
 The repository is injected into the API via dependency injection, which also makes it easy to pass 
 a temporary test file in during testing without modifying production code.
 
+### Strategy Pattern
+Although not required for this project, I implemented an adapted strategy pattern in the `NewEntryScreen`.
+I did this to embrace the opportunity to practise implementing this design pattern.
+The strategy pattern works with an ABC `UpdateStrategy` (`gui/screens/strategies/update_strategy.py`) 
+that defines the interface for updating an entry, and two concrete strategies: 
+`PartialUpdateStrategy` and `ReplaceStrategy`. Both implement the abstract method `update()`
+that takes an API client and data as parameters. `PartialUpdateStrategy` calls `client.partially_update_entry(data)`,
+while `ReplaceStrategy` calls `client.replace_entry(data)` - `_determine_update_route()` in `NewEntryScreen` decides 
+which strategy to use based on the amount of changed fields in an edited entry.
+
+The benefit to the strategy pattern is that the update logic is decoupled from the screen.
+It enhances encapsulation and adheres to SOLID principles. My implementation is adapted because I do not have a 
+typical context class that holds the reference to the strategy - instead, the screen determines which strategy to use.
+Adding a context class would have added unnecessary complexity for this project.
+
+### MVC Influence
+The app is not a strict implementation of the MVC pattern, but there are some influences:
+- Model: `DailyEntry` class represents the data structure of an entry.
+- View: Tkinter screens (`gui/screens/`) represent the user interface.
+- Controller: The API routes in `api/api.py` act as controllers, processing requests and interacting with the `DailyEntry` model and the database repository.
+
 ### Domain Model
 `DailyEntry` (`domain/dailyentry.py`) is the single representation of an entry throughout the app.
 Fields are defined separately in `domain/fields.py`, meaning adding a new field only requires updating one place and all other code (entry construction, CSV headers, GUI display) adapts automatically.
@@ -362,7 +383,7 @@ ___
 - I used **Test-Driven Development** for the backend development
 - I aimed to use **defensive programming practices**, such as validating inputs and handling errors gracefully, to make the app more robust and user-friendly.
 - I weighed the benefits of each design decision against added complexity and learning benefits
-  - I did not want to over-engineer, but I also wanted to demonstrate good design principles and be able to practise implementing design patterns and architecture - hence the use of the Strategy Pattern.
+  - I did not want to over-engineer, but I also wanted to demonstrate good design principles and be able to practise implementing design patterns and architecture - hence the use of the strategy pattern.
 
 I have learned how to use AI to my advantage, extended my knowledge of PEP 8 standards & architecture,
 and understood the value of logs.
