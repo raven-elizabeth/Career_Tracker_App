@@ -21,7 +21,7 @@ ___
 ### 4. **Run the main app in a separate terminal** by using `python main.py`
 
 #### *NOTE: You can also run the files directly in your IDE if you prefer, just make sure to run `api.py` first and keep it running before running `main.py`.*
-#### *NOTE: I have set the debug mode to 'False' in `api/api.py` to simulate a production environment, where you would want to avoid security risks. If you want to view the console logs, change `debug=False` to `debug=True`*
+#### *NOTE: `debug=False` in `api/api.py` disables Flask's interactive debugger and auto-reloader to simulate a production environment. Console logs will always appear in the API window regardless of this setting — they come from the logging configuration in `logs/logging_config.py`, not from Flask. To suppress DEBUG-level logs from the console, raise the console handler level in `logging_config.py`.*
 
 ___
 
@@ -114,6 +114,20 @@ Raises an error if no entry exists for that date.
 ___
 
 ## Libraries & Tools Used
+### AI Use
+**See my full statement on AI use in `documentation/statement_on_AI_use.pdf`**, but in summary:
+
+I used AI tools (primarily GitHub Copilot) for explanations and suggestions, that I then verified and adapted as needed.
+I used it for code completion, and for generation to speed up the development process, but only after I had implemented 
+my core struture, asking it to model anything it produced off of the existing codebase.
+I then reviewed, modified, and tested all AI-generated code to ensure I understood every line and that the code 
+was acceptable (it often needed tweaking and tried to over-complicate solutions).
+
+Key examples of AI use include:
+- Code reviews, with suggestions for improvements and explanations of errors
+- Boilerplate for the New Entry screen
+- Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
+- CSV injection solution & tests for this
 
 ### Language
 - **Python** — The programming language used for both the API and GUI.
@@ -246,14 +260,14 @@ ___
 ## Architecture
 ### N-Tier Architecture
 The app follows an N-Tier architecture, separating the GUI (presentation), 
-API & domain logic (application), and CSV repository & file (data) into distinct layers.
+API & domain logic (application/business), and CSV repository & file (data) into distinct layers.
 This promotes separation of concerns, making the codebase easier to understand and maintain.
 Each layer has a single responsibility, and changes in one layer 
 (e.g. switching from CSV to SQL) will not affect the others.
 
 The app is split into two core processes: a **Flask REST API** (`api/api.py`) and a **Tkinter GUI** (`main.py`).
 The GUI never accesses the CSV data directly — all data operations go through HTTP requests via 
-`ApiClient` (`data_access/api_client/client.py`).
+`ApiClient` (`gui/api_client/client.py`).
 Similarly, the Flask API never accesses the CSV file directly — it interacts with an implementation
 of the `DatabaseRepository` interface (`CsvDatabaseRepository`), 
 which abstracts away the storage mechanism.
@@ -267,6 +281,27 @@ This means the storage mechanism (CSV, SQL, etc.) can be swapped without changin
 — only a new repository class would be needed.
 The repository is injected into the API via dependency injection, which also makes it easy to pass 
 a temporary test file in during testing without modifying production code.
+
+### Strategy Pattern
+Although not required for this project, I implemented an adapted strategy pattern in the `NewEntryScreen`.
+I did this to embrace the opportunity to practise implementing this design pattern.
+The strategy pattern works with an ABC `UpdateStrategy` (`gui/screens/strategies/update_strategy.py`) 
+that defines the interface for updating an entry, and two concrete strategies: 
+`PartialUpdateStrategy` and `ReplaceStrategy`. Both implement the abstract method `update()`
+that takes an API client and data as parameters. `PartialUpdateStrategy` calls `client.partially_update_entry(data)`,
+while `ReplaceStrategy` calls `client.replace_entry(data)` - `_determine_update_route()` in `NewEntryScreen` decides 
+which strategy to use based on the amount of changed fields in an edited entry.
+
+The benefit to the strategy pattern is that the update logic is decoupled from the screen.
+It enhances encapsulation and adheres to SOLID principles. My implementation is adapted because I do not have a 
+typical context class that holds the reference to the strategy - instead, the screen determines which strategy to use.
+Adding a context class would have added unnecessary complexity for this project.
+
+### MVC Influence
+The app is not a strict implementation of the MVC pattern, but there are some influences:
+- Model: `DailyEntry` class represents the data structure of an entry.
+- View: Tkinter screens (`gui/screens/`) represent the user interface.
+- Controller: The API routes in `api/api.py` act as controllers, processing requests and interacting with the `DailyEntry` model and the database repository.
 
 ### Domain Model
 `DailyEntry` (`domain/dailyentry.py`) is the single representation of an entry throughout the app.
@@ -344,9 +379,17 @@ I would also like to make the designs **responsive** for different screen sizes.
 ___
 
 ## Additional Notes
-- I aimed to adhere to PEP 8 standards within reason of the project scope
+- No `POST` request will be made if a user saves an existing entry with no changes
+- Entries will not be saved if they have no other data than the date - and existing entries will not be replaced with an empty one
+- `PUT` requests will be called if all fields are changed in an existing entry
+- `PATCH` requests will be called if at least one field is changed in an existing entry, but not all fields
+
+
+- I aimed to adhere to **PEP 8** standards within reason of the project scope
+- I used **Test-Driven Development** for the backend development
+- I aimed to use **defensive programming practices**, such as validating inputs and handling errors gracefully, to make the app more robust and user-friendly.
 - I weighed the benefits of each design decision against added complexity and learning benefits
-  - I did not want to over-engineer, but I also wanted to demonstrate good design principles and be able to practise implementing design patterns and architecture - hence the use of the Strategy Pattern.
+  - I did not want to over-engineer, but I also wanted to demonstrate good design principles and be able to practise implementing design patterns and architecture - hence the use of the strategy pattern.
 
 I have learned how to use AI to my advantage, extended my knowledge of PEP 8 standards & architecture,
 and understood the value of logs.
