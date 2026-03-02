@@ -1,8 +1,8 @@
 """
 Unit tests for the DailyEntry domain class.
 
-Covers construction with full and partial data, default values for missing fields,
-and validation errors for missing date or empty values.
+Covers construction with full and partial data, default values for missing
+fields, and validation errors for missing date or empty values.
 """
 
 import unittest
@@ -13,16 +13,24 @@ from domain.fields import FIELDS
 
 class TestEntry(unittest.TestCase):
     def test_all_values_create_full_entry(self):
-        """Test that providing all values creates an entry with the expected dictionary representation.
-        Not necessary to test the value types as user input is always a string"""
+        """Test that providing all values creates an entry with the expected
+        dictionary representation.
+        Not necessary to test the value types as user input is always a
+        string."""
         # Arrange
         provided_values = {
             "date": "2025-12-31",
-            "work_contribution": "Completed unit tests for domain layer",
-            "learning": "Learned to use unittest framework for testing",
+            "work_contribution": (
+                "Completed unit tests for domain layer"
+            ),
+            "learning": (
+                "Learned to use unittest framework for testing"
+            ),
             "win": "Successfully ran all tests on first try",
             "challenge": "Had to learn how to use unittest framework",
-            "next_steps": "Continue adding more tests and refactor code as needed"
+            "next_steps": (
+                "Continue adding more tests and refactor code as needed"
+            )
         }
 
         # Act
@@ -32,10 +40,18 @@ class TestEntry(unittest.TestCase):
         self.assertEqual(entry.entry_dict, provided_values)
 
     def test_missing_optional_values_defaults_to_empty_string(self):
-        """Test that missing optional values default to empty strings in the entry's dictionary representation."""
+        """Test that missing optional values default to empty strings in
+        the entry's dictionary representation."""
         # Arrange
-        provided_values = {"date": "2026-02-17", "work_contribution": "Completed unit tests for whole codebase"}
-        expected = {value: provided_values.get(value, "") for value in FIELDS}
+        provided_values = {
+            "date": "2026-02-17",
+            "work_contribution": (
+                "Completed unit tests for whole codebase"
+            ),
+        }
+        expected = {
+            value: provided_values.get(value, "") for value in FIELDS
+        }
 
         # Act
         entry = DailyEntry(**provided_values)
@@ -44,15 +60,47 @@ class TestEntry(unittest.TestCase):
         self.assertEqual(entry.entry_dict, expected)
 
     def test_no_date_raises_value_error(self):
-        """Test that not providing a date raises a ValueError with the expected message."""
+        """Test that not providing a date raises a ValueError with the
+        expected message."""
         with self.assertRaises(ValueError) as context:
             DailyEntry()
 
-        self.assertEqual(str(context.exception), "Unable to create entry: No date provided")
+        self.assertEqual(
+            str(context.exception),
+            "Unable to create entry: No date provided",
+        )
 
-    def test_no_values_raises_value_error(self):
-        """Test that providing a date but no other values raises a ValueError with the expected message."""
+    def test_no_values_raises_value_error_from_replace_request(self):
+        """Test that providing a date but no other values raises a
+        ValueError with the expected message."""
         with self.assertRaises(ValueError) as context:
-            DailyEntry(date="2026-02-17")
+            DailyEntry.from_replace_request({
+                "date": "2026-02-17",
+                "work_contribution": "",
+                "learning": "",
+                "win": "",
+                "challenge": "",
+                "next_steps": "",
+            })
 
-        self.assertEqual("Unable to create entry: At least one value must not be empty", str(context.exception))
+        self.assertEqual(
+            "Unable to create entry: At least one value must not be empty",
+            str(context.exception),
+        )
+
+    def test_no_values_raises_value_error_from_create_entry_request(self):
+        """Test that providing a date but no other values raises a
+        ValueError with the expected message."""
+        with self.assertRaises(ValueError) as context:
+            DailyEntry.from_create_entry_request(
+                {"date": "2026-02-17"}
+            )
+
+        self.assertEqual(
+            "Unable to create entry: At least one value must not be empty",
+            str(context.exception),
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

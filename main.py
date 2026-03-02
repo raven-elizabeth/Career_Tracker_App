@@ -1,17 +1,20 @@
 """
-This is the main application file that connects all the app components together.
-It initializes the API client, creates the main window (Root),
-and sets up the different screens (HomeScreen, NewEntryScreen, SearchScreen).
-The App class manages the navigation between screens and handles interactions with the API client for CRUD operations.
-It cannot be run without the Flask API server running, so make sure to run api.py first.
+This is the main application file that connects all the app components
+together. It initializes the API client, creates the main window (Root),
+and sets up the different screens (HomeScreen, NewEntryScreen,
+SearchScreen).
+The App class manages the navigation between screens and handles
+interactions with the API client for CRUD operations.
+It cannot be run without the Flask API server running, so make sure to
+run api.py first.
 """
 
-from gui.client import ApiClient
+from gui.api_client.client import ApiClient
 from gui.root import Root
 from gui.screens.home_screen import HomeScreen
 from gui.screens.new_entry_screen import NewEntryScreen
 from gui.screens.search_screen import SearchScreen
-from logging_config import get_logger
+from logs.logging_config import get_logger
 
 
 class App:
@@ -26,7 +29,8 @@ class App:
             on_new_entry=self.show_new_entry,
             on_search=self.show_search
         )
-        # NewEntryScreen must be created before SearchScreen so _edit_entry can reference it
+        # NewEntryScreen must be created before SearchScreen so
+        # _edit_entry can reference it
         self._new_entry_screen = NewEntryScreen(
             self._root,
             client=self._api_client,
@@ -43,9 +47,14 @@ class App:
 
     def _show_screen(self, screen):
         """Helper to hide all screens and display the given screen."""
-        for s in (self._home_screen, self._search_screen, self._new_entry_screen):
+        for s in (
+            self._home_screen,
+            self._search_screen,
+            self._new_entry_screen,
+        ):
             s.pack_forget()
-        # fill=both fills the window horizontally and vertically; expand=True allows the screen to resize with the window
+        # fill=both fills the window horizontally and vertically;
+        # expand=True allows the screen to resize with the window
         screen.pack(fill="both", expand=True)
 
     def show_home(self):
@@ -66,9 +75,12 @@ class App:
         self._show_screen(self._new_entry_screen)
 
     def _edit_entry(self, entry_dict):
-        """Navigate to the new entry screen pre-populated with the selected entry's date."""
+        """Navigate to the new entry screen pre-populated with the selected
+        entry's date."""
         date = entry_dict.get("date")
-        self._logger.info("Navigating to edit entry for date: %s", date)
+        self._logger.info(
+            "Navigating to edit entry for date: %s", date
+        )
         self._new_entry_screen.refresh_screen(date=date)
         self._show_screen(self._new_entry_screen)
 
@@ -77,6 +89,8 @@ class App:
         self._root.mainloop()
 
 
+# Note that you MUST run the Flask API server (api.api.py) before running
+# this app, otherwise it will not work.
 if __name__ == "__main__":
     app = App()
     app.run()
