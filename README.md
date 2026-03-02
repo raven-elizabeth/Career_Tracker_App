@@ -21,7 +21,7 @@ ___
 ### 4. **Run the main app in a separate terminal** by using `python main.py`
 
 #### *NOTE: You can also run the files directly in your IDE if you prefer, just make sure to run `api.py` first and keep it running before running `main.py`.*
-#### *NOTE: I have set the debug mode to 'False' in `api/api.py` to simulate a production environment, where you would want to avoid security risks. If you want to view the console logs, change `debug=False` to `debug=True`*
+#### *NOTE: `debug=False` in `api/api.py` disables Flask's interactive debugger and auto-reloader to simulate a production environment. Console logs will always appear in the API window regardless of this setting — they come from the logging configuration in `logs/logging_config.py`, not from Flask. To suppress DEBUG-level logs from the console, raise the console handler level in `logging_config.py`.*
 
 ___
 

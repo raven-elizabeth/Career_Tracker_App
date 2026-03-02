@@ -322,7 +322,9 @@ class API:
 
 # Run directly to start the API server.
 # Importing this module elsewhere will not start the server.
-# LOGS: If you want to see logs when running the API, change debug=True.
+# NOTE: debug=False disables Flask's Werkzeug debugger and auto-reloader.
+# Console logs come from logging_config.py, not Flask's debug mode,
+# and will appear regardless of this setting.
 if __name__ == "__main__":
     api = API()
     api.app.run(debug=False)
