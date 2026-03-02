@@ -343,7 +343,11 @@ class SearchScreen(Screen):
 
     def _delete_entry(self, date):
         """Delete the entry for the given date and reset the display."""
-        self._client.delete_entry(date)
+        try:
+            self._client.delete_entry(date)
+        except ValueError as e:
+            self._show_error("Delete failed", str(e))
+            return
         self._reset_display_frame(default=True)
 
     # The wrap configuration methods below are designed to stack the display

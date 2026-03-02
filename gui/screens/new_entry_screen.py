@@ -315,13 +315,16 @@ class NewEntryScreen(Screen):
         """Collect field values and submit via the save callback."""
         new_data = self.get_entry_data()
         if self._input_is_valid(new_data):
-
-            if self._editing and self._original_data:
-                if self._is_update_required(new_data):
-                    self._determine_update_route(new_data)
-            else:
-                filtered_data = self._get_stripped_data(new_data)
-                self._client.save_entry(filtered_data)
+            try:
+                if self._editing and self._original_data:
+                    if self._is_update_required(new_data):
+                        self._determine_update_route(new_data)
+                else:
+                    filtered_data = self._get_stripped_data(new_data)
+                    self._client.save_entry(filtered_data)
+            except ValueError as e:
+                self._show_error("Save failed", str(e))
+                return
 
             self._editing = False
             self._original_data = None
