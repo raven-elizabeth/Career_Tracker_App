@@ -9,7 +9,7 @@ import requests
 
 from domain.dailyentry import DailyEntry
 from gui.api_client.client_config import base_url
-from api.http_status_codes import (
+from http_status_codes import (
     HTTP_OK,
     HTTP_CREATED,
     HTTP_NO_CONTENT,
@@ -33,21 +33,28 @@ class ApiClient:
                 f"Unexpected response (status {response.status_code}), {e}"
             )
 
-    def get_entry_by_date(self, date):
-        """Returns a DailyEntry object for the given date, or None if no
-        entry exists.
-        Raises ValueError if the file is unavailable or the server is
-        unreachable."""
+    @staticmethod
+    def _make_request(method, *args, **kwargs):
+        """Wrap a requests call, converting ConnectionError to ValueError
+        so callers only need to handle one exception type."""
         try:
-            response = requests.get(
-                f"{base_url}/{date}",
-                timeout=self.REQUEST_TIMEOUT
-            )
+            return method(*args, **kwargs)
         except requests.exceptions.ConnectionError:
             raise ValueError(
                 "Could not connect to server. "
                 "Make sure the API server is running."
             )
+
+    def get_entry_by_date(self, date):
+        """Returns a DailyEntry object for the given date, or None if no
+        entry exists.
+        Raises ValueError if the file is unavailable or the server is
+        unreachable."""
+        response = self._make_request(
+            requests.get,
+            f"{base_url}/{date}",
+            timeout=self.REQUEST_TIMEOUT,
+        )
         if response.status_code == HTTP_OK:
             data = response.json().get("data")
             return DailyEntry(**data)
@@ -61,17 +68,12 @@ class ApiClient:
     def save_entry(self, entry_data):
         """Saves a new entry with the given data.
         Returns the saved entry data if successful."""
-        try:
-            response = requests.post(
-                base_url,
-                json=entry_data,
-                timeout=self.REQUEST_TIMEOUT
-            )
-        except requests.exceptions.ConnectionError:
-            raise ValueError(
-                "Could not connect to server. "
-                "Make sure the API server is running."
-            )
+        response = self._make_request(
+            requests.post,
+            base_url,
+            json=entry_data,
+            timeout=self.REQUEST_TIMEOUT,
+        )
         if response.status_code == HTTP_CREATED:
             return response.json().get("data")
         else:
@@ -86,17 +88,12 @@ class ApiClient:
         if not date:
             raise ValueError("Date is required for replacement")
 
-        try:
-            response = requests.put(
-                f"{base_url}/{date}",
-                json=updated_data,
-                timeout=self.REQUEST_TIMEOUT
-            )
-        except requests.exceptions.ConnectionError:
-            raise ValueError(
-                "Could not connect to server. "
-                "Make sure the API server is running."
-            )
+        response = self._make_request(
+            requests.put,
+            f"{base_url}/{date}",
+            json=updated_data,
+            timeout=self.REQUEST_TIMEOUT,
+        )
         if response.status_code == HTTP_OK:
             return response.json().get("data")
         else:
@@ -112,17 +109,12 @@ class ApiClient:
         if not date:
             raise ValueError("Date is required for partial update")
 
-        try:
-            response = requests.patch(
-                f"{base_url}/{date}",
-                json=update_data,
-                timeout=self.REQUEST_TIMEOUT
-            )
-        except requests.exceptions.ConnectionError:
-            raise ValueError(
-                "Could not connect to server. "
-                "Make sure the API server is running."
-            )
+        response = self._make_request(
+            requests.patch,
+            f"{base_url}/{date}",
+            json=update_data,
+            timeout=self.REQUEST_TIMEOUT,
+        )
         if response.status_code == HTTP_OK:
             return response.json().get("data")
         else:
@@ -133,16 +125,11 @@ class ApiClient:
 
     def delete_entry(self, date):
         """Deletes the entry for the given date."""
-        try:
-            response = requests.delete(
-                f"{base_url}/{date}",
-                timeout=self.REQUEST_TIMEOUT
-            )
-        except requests.exceptions.ConnectionError:
-            raise ValueError(
-                "Could not connect to server. "
-                "Make sure the API server is running."
-            )
+        response = self._make_request(
+            requests.delete,
+            f"{base_url}/{date}",
+            timeout=self.REQUEST_TIMEOUT,
+        )
         if response.status_code != HTTP_NO_CONTENT:
             raise ValueError(
                 f"Failed to delete entry: "
