@@ -2,7 +2,8 @@
 Unit tests for the CsvDatabaseRepository class.
 
 Tests cover all CRUD operations using a temporary file to ensure isolation
-and avoid side effects on real data. Tests follow the AAA (Arrange, Act, Assert) pattern.
+and avoid side effects on real data. Tests follow the AAA
+(Arrange, Act, Assert) pattern.
 """
 
 import csv
@@ -10,29 +11,45 @@ import os
 import tempfile
 import unittest
 
-from data_access.repositories.csv_database_repository import CsvDatabaseRepository
-from data_access.repositories.exceptions import FileEmptyError, DuplicateEntryError
+from data_access.repositories.csv_database_repository import (
+    CsvDatabaseRepository,
+)
+from data_access.repositories.exceptions import (
+    DuplicateEntryError,
+    FileEmptyError,
+)
 from domain.dailyentry import DailyEntry
 
 
 class TestCsvDatabaseRepository(unittest.TestCase):
     def setUp(self):
         """Set up a temporary file and repository instance for testing.
-        Set up sample entry and expected response for use in multiple test cases."""
+        Set up sample entry and expected response for use in multiple test
+        cases."""
         self._test_dir = tempfile.TemporaryDirectory()
-        self._test_file_path = os.path.join(self._test_dir.name, "test_entries.csv")
-        self._repo = CsvDatabaseRepository(file_path=self._test_file_path)
+        self._test_file_path = os.path.join(
+            self._test_dir.name, "test_entries.csv"
+        )
+        self._repo = CsvDatabaseRepository(
+            file_path=self._test_file_path
+        )
 
         self.entry = DailyEntry(
             date="2025-06-04",
-            work_contribution="Completed unit tests for whole codebase",
-            learning="Discovered how to use setUp and tearDown in unittest",
+            work_contribution=(
+                "Completed unit tests for whole codebase"
+            ),
+            learning=(
+                "Discovered how to use setUp and tearDown in unittest"
+            ),
             win="Refactored code to be cleaner"
         )
         self.expected = {
             "date": "2025-06-04",
             "work_contribution": "Completed unit tests for whole codebase",
-            "learning": "Discovered how to use setUp and tearDown in unittest",
+            "learning": (
+                "Discovered how to use setUp and tearDown in unittest"
+            ),
             "win": "Refactored code to be cleaner",
             "challenge": "",
             "next_steps": ""
@@ -45,8 +62,8 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self._test_dir.cleanup()
 
     def test_save_partial_entry_saves_all_fields_with_defaults(self):
-        """Test that saving an entry with only required fields correctly saves all fields,
-        with defaults for optional fields."""
+        """Test that saving an entry with only required fields correctly
+        saves all fields, with defaults for optional fields."""
         # Assert
         with open(self._repo.file_path, 'r') as file:
             reader = csv.DictReader(file)
@@ -54,13 +71,19 @@ class TestCsvDatabaseRepository(unittest.TestCase):
 
             self.assertEqual(len(rows), 1)
 
-            # The code below was modified with the help of GitHub Copilot; The assertion accepts both the "YYYY-MM-DD" or "YYYY-MM-DD 00:00:00" format that may be returned from pandas
-            self.assertTrue(rows[0]['date'].startswith(self.expected['date']))
-            # The original suggestion for the line below was unnecessarily complex, comparing each field separately
+            # The code below was modified with the help of GitHub Copilot;
+            # The assertion accepts both the "YYYY-MM-DD" or
+            # "YYYY-MM-DD 00:00:00" format that may be returned from pandas
+            self.assertTrue(
+                rows[0]['date'].startswith(self.expected['date'])
+            )
+            # The original suggestion for the line below was unnecessarily
+            # complex, comparing each field separately
             self.assertEqual(self.expected, rows[0])
 
     def test_saving_existing_entry_raises_duplicate_error(self):
-        """Test that attempting to save an entry with a date that already exists raises a DuplicateEntryError."""
+        """Test that attempting to save an entry with a date that already
+        exists raises a DuplicateEntryError."""
         # Arrange
         duplicate_entry = DailyEntry(
             date="2025-06-04",
@@ -72,18 +95,28 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             self._repo.save_entry(duplicate_entry)
 
         # Assert
-        self.assertEqual(str(context.exception), "An entry with date 2025-06-04 already exists.")
+        self.assertEqual(
+            str(context.exception),
+            "An entry with date 2025-06-04 already exists.",
+        )
 
     def test_get_existing_entry_by_date_returns_entry(self):
-        """Test that retrieving an existing entry by date returns the correct entry."""
+        """Test that retrieving an existing entry by date returns the
+        correct entry."""
         # Arrange
         second_value = {
             "date": "2025-06-05",
-            "work_contribution": "Completed unit tests for get_entries method",
+            "work_contribution": (
+                "Completed unit tests for get_entries method"
+            ),
             "learning": "Discovered how to use temp file",
             "win": "Successfully retrieved entry by date",
-            "challenge": "Had to learn how to use temp file module for testing",
-            "next_steps": "Continue adding more tests and refactor code as needed"
+            "challenge": (
+                "Had to learn how to use temp file module for testing"
+            ),
+            "next_steps": (
+                "Continue adding more tests and refactor code as needed"
+            )
         }
         second_entry = DailyEntry(**second_value)
         self._repo.save_entry(second_entry)
@@ -95,7 +128,8 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(entry.entry_dict, second_value)
 
     def test_none_returned_when_get_date_not_found(self):
-        """Test that retrieving an entry by a date that does not exist returns None."""
+        """Test that retrieving an entry by a date that does not exist
+        returns None."""
         # Act
         entry = self._repo.get_entry_by_date("2025-06-06")
 
@@ -103,7 +137,8 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertIsNone(entry)
 
     def test_get_entry_empty_file_raises_file_empty_error(self):
-        """Test that retrieving an entry when the file is completely empty raises FileEmptyError."""
+        """Test that retrieving an entry when the file is completely empty
+        raises FileEmptyError."""
         # Arrange
         with open(self._test_file_path, "w") as f:
             f.close()
@@ -113,7 +148,8 @@ class TestCsvDatabaseRepository(unittest.TestCase):
             self._repo.get_entry_by_date("2025-06-04")
 
     def test_replace_entry_updates_existing_entry(self):
-        """Test that replacing an existing entry with new data correctly updates the entry."""
+        """Test that replacing an existing entry with new data correctly
+        updates the entry."""
         # Arrange
         updated_entry = DailyEntry(
             date="2025-06-04",
@@ -133,7 +169,8 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(entry.entry_dict, updated_entry.entry_dict)
 
     def test_replace_nonexistent_entry_raises_value_error(self):
-        """Test that attempting to replace an entry that does not exist raises a ValueError."""
+        """Test that attempting to replace an entry that does not exist
+        raises a ValueError."""
         # Arrange
         updated_entry = DailyEntry(
             date="2025-06-07",
@@ -148,21 +185,28 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             self._repo.replace_entry("2025-06-07", updated_entry)
 
-        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
+        self.assertEqual(
+            str(context.exception),
+            "No entry found for date: 2025-06-07",
+        )
 
     def test_partially_update_entry_updates_only_provided_fields(self):
-        """Test that partially updating an existing entry with only some fields provided
-        correctly updates only those fields"""
+        """Test that partially updating an existing entry with only some
+        fields provided correctly updates only those fields."""
         # Arrange
         updated_entry_items = {
             "date": "2025-06-04",
-            "work_contribution": "Partially update for work contribution"
+            "work_contribution": (
+                "Partially update for work contribution"
+            )
         }
 
         expected_entry = {
             "date": "2025-06-04",
             "work_contribution": "Partially update for work contribution",
-            "learning": "Discovered how to use setUp and tearDown in unittest",
+            "learning": (
+                "Discovered how to use setUp and tearDown in unittest"
+            ),
             "win": "Refactored code to be cleaner",
             "challenge": "",
             "next_steps": ""
@@ -176,7 +220,8 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertEqual(entry.entry_dict, expected_entry)
 
     def test_partially_update_nonexistent_entry_raises_value_error(self):
-        """Test that attempting to partially update an entry that does not exist raises a ValueError."""
+        """Test that attempting to partially update an entry that does not
+        exist raises a ValueError."""
         # Arrange
         updated_entry = DailyEntry(
             date="2025-06-07",
@@ -187,10 +232,14 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             self._repo.partially_update_entry(updated_entry.entry_dict)
 
-        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-07")
+        self.assertEqual(
+            str(context.exception),
+            "No entry found for date: 2025-06-07",
+        )
 
     def test_delete_existing_entry_deletes_entry(self):
-        """Test that deleting an existing entry by date successfully removes the entry from the repository."""
+        """Test that deleting an existing entry by date successfully removes
+        the entry from the repository."""
         # Arrange
         entry = self._repo.get_entry_by_date("2025-06-04")
         self.assertEqual(entry.entry_dict, self.expected)
@@ -203,30 +252,45 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         self.assertIsNone(deleted_entry)
 
     def test_delete_nonexistent_entry_raises_value_error(self):
-        """Test that attempting to delete an entry that does not exist raises a ValueError."""
+        """Test that attempting to delete an entry that does not exist
+        raises a ValueError."""
         # Arrange
         with self.assertRaises(ValueError) as context:
             # Act
             self._repo.delete_entry("2025-06-08")
 
         # Assert
-        self.assertEqual(str(context.exception), "No entry found for date: 2025-06-08")
+        self.assertEqual(
+            str(context.exception),
+            "No entry found for date: 2025-06-08",
+        )
 
-    def test_validate_file_raises_file_not_found_error_if_file_does_not_exist(self):
-        """Test that validating a file that does not exist raises a FileNotFoundError."""
-        # Arrange: create the repo (which creates the file), then delete the file to simulate it being missing
-        test_repo = CsvDatabaseRepository(file_path=self._test_file_path)
+    def test_validate_file_raises_file_not_found_error_if_file_does_not_exist(
+        self,
+    ):
+        """Test that validating a file that does not exist raises a
+        FileNotFoundError."""
+        # Arrange: create the repo (which creates the file), then delete
+        # the file to simulate it being missing
+        test_repo = CsvDatabaseRepository(
+            file_path=self._test_file_path
+        )
         test_repo.file_path.unlink()
 
         # Act & Assert
         with self.assertRaises(FileNotFoundError) as context:
             test_repo._validate_file()
 
-        self.assertEqual(str(context.exception), f"File not found: {test_repo.file_path}")
+        self.assertEqual(
+            str(context.exception),
+            f"File not found: {test_repo.file_path}",
+        )
 
     def test_validate_file_raises_file_empty_error_if_file_is_empty(self):
-        """Test that validating a file that exists but is empty raises a FileEmptyError."""
-        # Arrange: empty the file without going through the repository (which would re-initialise it)
+        """Test that validating a file that exists but is empty raises a
+        FileEmptyError."""
+        # Arrange: empty the file without going through the repository
+        # (which would re-initialise it)
         with open(self._test_file_path, "w") as file:
             file.close()
 
@@ -234,7 +298,10 @@ class TestCsvDatabaseRepository(unittest.TestCase):
         with self.assertRaises(FileEmptyError) as context:
             self._repo._validate_file()
 
-        self.assertEqual(str(context.exception), f"No data found in file: {self._repo.file_path}")
+        self.assertEqual(
+            str(context.exception),
+            f"No data found in file: {self._repo.file_path}",
+        )
 
 
 if __name__ == "__main__":

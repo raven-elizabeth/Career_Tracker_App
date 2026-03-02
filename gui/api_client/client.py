@@ -9,38 +9,54 @@ import requests
 
 from domain.dailyentry import DailyEntry
 from gui.api_client.client_config import base_url
+from api.http_status_codes import (
+    HTTP_OK,
+    HTTP_CREATED,
+    HTTP_NO_CONTENT,
+    HTTP_NOT_FOUND,
+)
 
 
 class ApiClient:
-    REQUEST_TIMEOUT = 10 # Sets a default timeout in seconds for all requests
-    # to prevent hanging if the server is unresponsive
+    # Sets a default timeout in seconds for all requests to prevent
+    # hanging if the server is unresponsive
+    REQUEST_TIMEOUT = 10
 
     @staticmethod
     def _get_error_message(response):
-        """Safely extract an error message from a response,
-        falling back to the status code if JSON is unavailable."""
+        """Safely extract an error message from a response, falling back to
+        the status code if JSON is unavailable."""
         try:
             return response.json().get("error", "Unknown error")
         except Exception as e:
-            return f"Unexpected response (status {response.status_code}), {e}"
+            return (
+                f"Unexpected response (status {response.status_code}), {e}"
+            )
 
     def get_entry_by_date(self, date):
-        """Returns a DailyEntry object for the given date, or None if no entry exists.
-        Raises ValueError if the file is unavailable or the server is unreachable."""
+        """Returns a DailyEntry object for the given date, or None if no
+        entry exists.
+        Raises ValueError if the file is unavailable or the server is
+        unreachable."""
         try:
             response = requests.get(
                 f"{base_url}/{date}",
                 timeout=self.REQUEST_TIMEOUT
             )
         except requests.exceptions.ConnectionError:
-            raise ValueError("Could not connect to server. Make sure the API server is running.")
-        if response.status_code == 200:
+            raise ValueError(
+                "Could not connect to server. "
+                "Make sure the API server is running."
+            )
+        if response.status_code == HTTP_OK:
             data = response.json().get("data")
             return DailyEntry(**data)
-        elif response.status_code == 404:
+        elif response.status_code == HTTP_NOT_FOUND:
             return None
         else:
-            raise ValueError(f"Failed to get entry: {self._get_error_message(response)}")
+            raise ValueError(
+                f"Failed to get entry: {self._get_error_message(response)}"
+            )
 
     def save_entry(self, entry_data):
         """Saves a new entry with the given data.
@@ -50,10 +66,12 @@ class ApiClient:
             json=entry_data,
             timeout=self.REQUEST_TIMEOUT
         )
-        if response.status_code == 201:
+        if response.status_code == HTTP_CREATED:
             return response.json().get("data")
         else:
-            raise ValueError(f"Failed to save entry: {self._get_error_message(response)}")
+            raise ValueError(
+                f"Failed to save entry: {self._get_error_message(response)}"
+            )
 
     def replace_entry(self, updated_data):
         """Replaces an existing entry with the given data.
@@ -69,11 +87,12 @@ class ApiClient:
             json=updated_data,
             timeout=self.REQUEST_TIMEOUT
         )
-        if response.status_code == 200:
+        if response.status_code == HTTP_OK:
             return response.json().get("data")
         else:
             raise ValueError(
-                f"Failed to replace entry: {self._get_error_message(response)}"
+                f"Failed to replace entry: "
+                f"{self._get_error_message(response)}"
             )
 
     def partially_update_entry(self, update_data):
@@ -88,11 +107,12 @@ class ApiClient:
             json=update_data,
             timeout=self.REQUEST_TIMEOUT
         )
-        if response.status_code == 200:
+        if response.status_code == HTTP_OK:
             return response.json().get("data")
         else:
             raise ValueError(
-                f"Failed to update entry: {self._get_error_message(response)}"
+                f"Failed to update entry: "
+                f"{self._get_error_message(response)}"
             )
 
     def delete_entry(self, date):
@@ -101,7 +121,8 @@ class ApiClient:
             f"{base_url}/{date}",
             timeout=self.REQUEST_TIMEOUT
         )
-        if response.status_code != 204:
+        if response.status_code != HTTP_NO_CONTENT:
             raise ValueError(
-                f"Failed to delete entry: {self._get_error_message(response)}"
+                f"Failed to delete entry: "
+                f"{self._get_error_message(response)}"
             )

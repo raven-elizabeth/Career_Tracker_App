@@ -1,7 +1,10 @@
 """
-This screen allows users to select a date from a calendar and view the corresponding entry if one exists.
-It also provides options to edit or delete the entry, with a confirmation dialog for deletions.
-The layout adapts responsively to different window sizes, switching between adjacent and wrap layouts as needed.
+This screen allows users to select a date from a calendar and view the
+corresponding entry if one exists.
+It also provides options to edit or delete the entry, with a confirmation
+dialog for deletions.
+The layout adapts responsively to different window sizes, switching between
+adjacent and wrap layouts as needed.
 """
 
 import datetime
@@ -13,7 +16,21 @@ from gui.screens.screen import Screen
 
 class SearchScreen(Screen):
     WRAP_LAYOUT_WIDTH = 1000
-    INNER_PADDING = 20
+
+    # Gap between the calendar frame and the display frame in adjacent layout
+    FRAME_GAP = 20
+
+    # Gap between the two action buttons (half of FRAME_GAP)
+    BUTTON_GAP = FRAME_GAP // 2
+
+    # Vertical padding for each entry field label row (quarter of FRAME_GAP)
+    ENTRY_LABEL_PAD_Y = FRAME_GAP // 4
+
+    # Padding for the grid row that holds the action buttons.
+    # ACTION_ROW_PAD_X is a deliberate standalone layout value.
+    # ACTION_ROW_PAD_Y uses FRAME_GAP top and half FRAME_GAP bottom.
+    ACTION_ROW_PAD_X = 40
+    ACTION_ROW_PAD_Y = (FRAME_GAP, FRAME_GAP // 2)
 
     def __init__(self, *args, client, on_home, on_edit, **kwargs):
         super().__init__(*args, **kwargs)
@@ -34,14 +51,18 @@ class SearchScreen(Screen):
 
     def refresh_display(self, event=None):
         """
-        Refresh the display frame based on the currently selected calendar date.
-        Fetch and display entry for the selected date, or show default message if no entry exists.
-        When called with no event (navigating to the screen), the calendar is reset to today by default.
+        Refresh the display frame based on the currently selected calendar
+        date. Fetch and display entry for the selected date, or show default
+        message if no entry exists.
+        When called with no event (navigating to the screen), the calendar
+        is reset to today by default.
         """
         if not event:
             self.calendar.selection_set(datetime.date.today())
         selected_date = self.calendar.get_date()
-        date = datetime.datetime.strptime(selected_date, "%m/%d/%y").strftime("%Y-%m-%d")
+        date = datetime.datetime.strptime(
+            selected_date, "%m/%d/%y"
+        ).strftime("%Y-%m-%d")
         try:
             entry = self._client.get_entry_by_date(date)
             if entry:
@@ -67,19 +88,21 @@ class SearchScreen(Screen):
             self._wrap_layout = False
 
     def _configure_adjacent_grid(self):
-        """Two equal columns; calendar and display frame share the main row."""
+        """Two equal columns; calendar and display frame share the main
+        row."""
         self._configure_responsive_grid(
             column_weights={0: 1, 1: 1},
             row_weights={0: 0, 1: 1, 2: 10, 3: 1}
         )
 
     def _apply_adjacent_layout(self):
-        """Grid and position calendar and display frame side by side in the main row."""
+        """Grid and position calendar and display frame side by side in the
+        main row."""
         self._configure_adjacent_grid()
         self._position_calendar(row=2, column_span=1)
         self._position_frame(
             self.display_frame, row=2, column=1, column_span=1,
-            pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
+            pad_x=(self.FRAME_GAP, self.SCREEN_EDGE_PADDING)
         )
 
     def _setup_back_button(self):
@@ -92,30 +115,43 @@ class SearchScreen(Screen):
         )
         self._position_button(
             back_button,
-            row=0, column_span=2, pad_y=(20, 10), sticky="w"
+            row=0, column_span=2,
+            pad_y=(self.INNER_FRAME_PADDING, self.SMALL_PAD),
+            sticky="w",
         )
 
     def _setup_calendar(self):
-        """Create calendar widget with max date of today and bind date selection event."""
-        self.calendar = Calendar(self, selectmode="day", maxdate=datetime.date.today())
+        """Create calendar widget with max date of today and bind date
+        selection event."""
+        self.calendar = Calendar(
+            self, selectmode="day", maxdate=datetime.date.today()
+        )
         self._position_calendar(row=2, column_span=1)
         self.calendar.bind("<<CalendarSelected>>", self.refresh_display)
 
     def _position_calendar(self, row, column_span):
         """Grid the calendar with consistent padding."""
-        pad_x = (self.OUTER_PADDING, self.INNER_PADDING) if column_span == 1 else self.INNER_PADDING
-        pad_y = (self.OUTER_PADDING, self.INNER_PADDING) if column_span == 2 else self.OUTER_PADDING
+        pad_x = (
+            (self.SCREEN_EDGE_PADDING, self.FRAME_GAP)
+            if column_span == 1
+            else self.FRAME_GAP
+        )
+        pad_y = (
+            (self.SCREEN_EDGE_PADDING, self.FRAME_GAP)
+            if column_span == 2
+            else self.SCREEN_EDGE_PADDING
+        )
         self.calendar.grid(
             row=row, column=0, columnspan=column_span,
             padx=pad_x, pady=pad_y, sticky="nsew"
         )
 
     def _setup_display_frame(self):
-        """Create the display frame with an inner frame for content"""
+        """Create the display frame with an inner frame for content."""
         self.display_frame = self._create_frame(row=2, column_span=1)
         self._position_frame(
             self.display_frame, row=2, column=1, column_span=1,
-            pad_x=(self.INNER_PADDING, self.OUTER_PADDING)
+            pad_x=(self.FRAME_GAP, self.SCREEN_EDGE_PADDING)
         )
         # Prevent outer frame from resizing to fit content from entry data
         self.display_frame.grid_propagate(False)
@@ -125,8 +161,8 @@ class SearchScreen(Screen):
         self._setup_action_buttons()
 
     def _setup_inner_frame(self, parent):
-        """Create an inner frame within the display frame to hold entry details and action buttons,
-        with spacers for centering."""
+        """Create an inner frame within the display frame to hold entry
+        details and action buttons, with spacers for centering."""
         self.inner_frame = self._create_inner_frame(parent)
 
         # Prevent inner frame from resizing to fit content from entry data
@@ -138,19 +174,26 @@ class SearchScreen(Screen):
         self.inner_frame.grid_rowconfigure(2, weight=1)  # Bottom spacer
 
     def _setup_default_message(self):
-        """Create a default message label that is shown when a date with no entry is selected"""
+        """Create a default message label that is shown when a date with no
+        entry is selected."""
         self.default_msg = self._create_label(
-            self.inner_frame, row=1, text="Select a date to view your entries...",
-            font=self.italic_font, bg="white", pad_y=10
+            self.inner_frame, row=1,
+            text="Select a date to view your entries...",
+            font=self.italic_font, bg="white", pad_y=self.SMALL_PAD
         )
         self.default_msg.grid_configure(columnspan=2)
 
     def _create_action_buttons(self):
-        """Create edit and delete stylised buttons of equal size, centred in the inner frame.
+        """Create edit and delete stylised buttons of equal size, centred in
+        the inner frame.
         Using the same uniform ensures they will always be of equal size."""
         btn_frame = Frame(self.inner_frame, bg="white")
-        btn_frame.grid_columnconfigure(0, weight=1, uniform="action_button")
-        btn_frame.grid_columnconfigure(1, weight=1, uniform="action_button")
+        btn_frame.grid_columnconfigure(
+            0, weight=1, uniform="action_button"
+        )
+        btn_frame.grid_columnconfigure(
+            1, weight=1, uniform="action_button"
+        )
 
         edit_btn = self._create_stylised_button(
             parent=btn_frame,
@@ -158,7 +201,11 @@ class SearchScreen(Screen):
             subtitle="Edit this entry",
             func=lambda: self._on_edit(self._current_entry.entry_dict)
         )
-        edit_btn.grid(row=0, column=0, padx=(0, 5), sticky="ew")
+        edit_btn.grid(
+            row=0, column=0,
+            padx=(0, self.BUTTON_GAP),
+            sticky="ew",
+        )
 
         delete_btn = self._create_stylised_button(
             parent=btn_frame,
@@ -166,26 +213,32 @@ class SearchScreen(Screen):
             subtitle="Delete this entry",
             func=self._show_delete_confirmation
         )
-        delete_btn.grid(row=0, column=1, padx=(5, 0), sticky="ew")
+        delete_btn.grid(
+            row=0, column=1,
+            padx=(self.BUTTON_GAP, 0),
+            sticky="ew",
+        )
 
         return btn_frame
 
     def _setup_action_buttons(self):
-        """Create the action buttons frame but do not grid it yet,
-        as it should only be shown when an entry is displayed."""
+        """Create the action buttons frame but do not grid it yet, as it
+        should only be shown when an entry is displayed."""
         self._action_buttons = self._create_action_buttons()
         # Hidden until an entry is displayed
         self._action_buttons.grid_remove()
 
     def _on_valid_date(self, entry):
-        """Display the entry details and show action buttons for editing or deleting the entry."""
+        """Display the entry details and show action buttons for editing or
+        deleting the entry."""
         self._reset_display_frame(default=False)
         self._current_entry = entry
         self._display_entry(entry)
         self._display_entry_action_buttons(entry)
 
     def _reset_widgets(self):
-        """Clear the display frame and reset to default state, optionally showing the default message."""
+        """Clear the display frame and reset to default state, optionally
+        showing the default message."""
         widgets = self.inner_frame.winfo_children()
         widgets.remove(self.default_msg)
         widgets.remove(self._action_buttons)
@@ -193,7 +246,8 @@ class SearchScreen(Screen):
             widget.destroy()
 
     def _reset_inner_frame(self):
-        """Clear the inner frame of all entry details and action buttons, and reset any layout bindings."""
+        """Clear the inner frame of all entry details and action buttons,
+        and reset any layout bindings."""
         # Remove per-entry wrap length bindings added in _display_entry
         self.inner_frame.unbind("<Configure>")
 
@@ -201,14 +255,19 @@ class SearchScreen(Screen):
         self.inner_frame.grid_rowconfigure(0, weight=0)
         self.inner_frame.grid_rowconfigure(2, weight=0)
 
-        # Reset the trailing spacer row added after the last entry label
-        # Check for existence of _last_entry_row as this will only be set if an entry was previously displayed,
-        # and we want to avoid accidentally resetting a spacer row if the user clicks different dates with no entries
+        # Reset the trailing spacer row added after the last entry label.
+        # Check for existence of _last_entry_row as this will only be set if
+        # an entry was previously displayed, and we want to avoid accidentally
+        # resetting a spacer row if the user clicks different dates with no
+        # entries.
         if hasattr(self, "_last_entry_row"):
-            self.inner_frame.grid_rowconfigure(self._last_entry_row, weight=0)
+            self.inner_frame.grid_rowconfigure(
+                self._last_entry_row, weight=0
+            )
 
     def _reset_display_frame(self, default=False):
-        """Clear the display frame and reset to default state, optionally showing the default message."""
+        """Clear the display frame and reset to default state, optionally
+        showing the default message."""
         self._reset_widgets()
         self._reset_inner_frame()
 
@@ -220,38 +279,54 @@ class SearchScreen(Screen):
             self.default_msg.grid_remove()
         else:
             self._current_entry = None
-            # Restore spacer rows for centered default message
+            # Reset spacer rows to center default message
+            # vertically in the inner frame
             self.inner_frame.grid_rowconfigure(0, weight=1)
             self.inner_frame.grid_rowconfigure(2, weight=1)
-            self.default_msg.grid(row=1, padx=10, pady=10)
+            self.default_msg.grid(
+                row=1, padx=self.SMALL_PAD,
+                pady=self.SMALL_PAD,
+            )
 
     def _display_entry(self, entry):
-        """Create labels for each field in the entry and display them in the inner frame."""
+        """Create labels for each field in the entry and display them in the
+        inner frame."""
         row = 0
         for row, (field, value) in enumerate(entry.entry_dict.items()):
             label = self._create_label(
                 self.inner_frame, row=row + 1,
-                text=f"{field.replace('_', ' ').title()}: {value if value else 'N/A'}",
+                text=(
+                    f"{field.replace('_', ' ').title()}: "
+                    f"{value if value else 'N/A'}"
+                ),
                 font=self.italic_font, bg=self.INNER_FRAME_COLOR,
-                anchor="w", pad_y=5
+                anchor="w", pad_y=self.ENTRY_LABEL_PAD_Y,
             )
             label.grid_configure(columnspan=2)
             self.inner_frame.bind(
                 "<Configure>",
-                # Maps event to alter wrap length of each label (in this case just the one)
-                # Padding is added to prevent label text overflowing the inner frame when window is resized smaller
-                lambda event, lbl=label: lbl.config(wraplength=event.width - self.INNER_PADDING),
-                # add="+" ensures this binding is added in addition to the default bindings created
-                # in _setup_inner_frame
-                add="+"
+                # Maps event to alter wrap length of each label (in this
+                # case just the one). Padding is added to prevent label text
+                # overflowing the inner frame when window is resized smaller.
+                lambda event, lbl=label: lbl.config(
+                    wraplength=event.width - self.FRAME_GAP
+                ),
+                # add="+" ensures this binding is added in addition to the
+                # default bindings created in _setup_inner_frame
+                add="+",
             )
-        # Store last row so _reset_inner_frame can reliably reset the trailing spacer row
+        # Store last row so _reset_inner_frame can reliably reset the
+        # trailing spacer row
         self._last_entry_row = row + 1
+
     def _display_entry_action_buttons(self, entry):
-        """Grid the Edit and Delete buttons below the entry details, centred and with consistent padding."""
+        """Grid the Edit and Delete buttons below the entry details, centred
+        and with consistent padding."""
         self._action_buttons.grid(
             row=len(entry.entry_dict) + 1, column=0, columnspan=2,
-            padx=40, pady=(20, 10), sticky="ew"
+            padx=self.ACTION_ROW_PAD_X,
+            pady=self.ACTION_ROW_PAD_Y,
+            sticky="ew",
         )
 
     def _show_delete_confirmation(self):
@@ -259,7 +334,9 @@ class SearchScreen(Screen):
         date = self._current_entry.entry_dict.get("date")
         confirm = messagebox.askyesno(
             title="Confirm delete",
-            message=f"Are you sure you want to delete the entry for {date}?"
+            message=(
+                f"Are you sure you want to delete the entry for {date}?"
+            ),
         )
         if confirm:
             self._delete_entry(date)
@@ -269,10 +346,12 @@ class SearchScreen(Screen):
         self._client.delete_entry(date)
         self._reset_display_frame(default=True)
 
-    # The wrap configuration methods below are designed to stack the display frame underneath the calendar
-    # on a smaller screen. They are currently not used as the min window size has been fixed before the wrap layout
-    # breakpoint. They remain for future development, when all screens can be properly configured for
-    # responsiveness on small screens, and the min window size can be reduced
+    # The wrap configuration methods below are designed to stack the display
+    # frame underneath the calendar on a smaller screen. They are currently
+    # not used as the min window size has been fixed before the wrap layout
+    # breakpoint. They remain for future development, when all screens can be
+    # properly configured for responsiveness on small screens, and the min
+    # window size can be reduced.
     def _configure_wrap_grid(self):
         """Single column; calendar and display frame stack vertically."""
         self._configure_responsive_grid(
@@ -281,11 +360,12 @@ class SearchScreen(Screen):
         )
 
     def _apply_wrap_layout(self):
-        """Grid and position calendar above the display frame, both spanning full width."""
+        """Grid and position calendar above the display frame, both spanning
+        full width."""
         self._configure_wrap_grid()
         self._position_calendar(row=2, column_span=2)
         self._position_frame(
             self.display_frame, row=3, column=0,
-            pad_x=self.INNER_PADDING,
-            pad_y=(self.INNER_PADDING, self.OUTER_PADDING)
+            pad_x=self.FRAME_GAP,
+            pad_y=(self.FRAME_GAP, self.SCREEN_EDGE_PADDING)
         )
