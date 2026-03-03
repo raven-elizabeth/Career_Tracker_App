@@ -7,7 +7,7 @@ domain objects and exceptions, not raw HTTP responses.
 
 import requests
 
-from domain.dailyentry import DailyEntry
+from domain.daily_entry import DailyEntry
 from gui.api_client.client_config import base_url
 from http_status_codes import (
     HTTP_OK,

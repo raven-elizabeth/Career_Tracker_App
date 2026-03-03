@@ -16,7 +16,7 @@ from data_access.repositories.exceptions import (
     DuplicateEntryError,
     FileEmptyError,
 )
-from domain.dailyentry import DailyEntry
+from domain.daily_entry import DailyEntry
 from domain.fields import FIELDS
 from logs.logging_config import get_logger
 

@@ -114,20 +114,22 @@ Raises an error if no entry exists for that date.
 ___
 
 ## Libraries & Tools Used
-### AI Use
+### AI Use 
 **See my full statement on AI use in `documentation/statement_on_AI_use.pdf`**, but in summary:
 
-I used AI tools (primarily GitHub Copilot) for explanations and suggestions, that I then verified and adapted as needed.
+I used GitHub Copilot for explanations and suggestions, that I then verified and adapted as needed.
 I used it for code completion, and for generation to speed up the development process, but only after I had implemented 
 my core struture, asking it to model anything it produced off of the existing codebase.
 I then reviewed, modified, and tested all AI-generated code to ensure I understood every line and that the code 
 was acceptable (it often needed tweaking and tried to over-complicate solutions).
 
+**Please see the docstring at the top of `domain/daily_entry.py` for a detailed explanation of example 3**
+
 Key examples of AI use include:
-- Code reviews, with suggestions for improvements and explanations of errors
-- Boilerplate for the New Entry screen
-- Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
-- CSV injection solution & tests for this
+1. Code reviews, with suggestions for improvements and explanations of errors
+2. Boilerplate for the New Entry screen
+3. Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
+4. CSV injection solution & tests for this
 
 ### Language
 - **Python** — The programming language used for both the API and GUI.
@@ -304,7 +306,7 @@ The app is not a strict implementation of the MVC pattern, but there are some in
 - Controller: The API routes in `api/api.py` act as controllers, processing requests and interacting with the `DailyEntry` model and the database repository.
 
 ### Domain Model
-`DailyEntry` (`domain/dailyentry.py`) is the single representation of an entry throughout the app.
+`DailyEntry` (`domain/daily_entry.py`) is the single representation of an entry throughout the app.
 Fields are defined separately in `domain/fields.py`, meaning adding a new field only requires updating one place and all other code (entry construction, CSV headers, GUI display) adapts automatically.
 Named constructors (`from_create_entry_request`, `from_replace_request`, `from_partial_update_request`) enforce the correct validation rules per operation at the domain level, keeping the API routes clean.
 

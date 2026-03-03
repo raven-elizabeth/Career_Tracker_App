@@ -18,7 +18,7 @@ from data_access.repositories.exceptions import (
     DuplicateEntryError,
     FileEmptyError,
 )
-from domain.dailyentry import DailyEntry
+from domain.daily_entry import DailyEntry
 
 
 class TestCsvDatabaseRepository(unittest.TestCase):

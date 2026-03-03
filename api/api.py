@@ -34,7 +34,7 @@ from data_access.repositories.exceptions import (
     DuplicateEntryError,
     FileEmptyError,
 )
-from domain.dailyentry import DailyEntry
+from domain.daily_entry import DailyEntry
 from http_status_codes import (
     HTTP_OK,
     HTTP_CREATED,

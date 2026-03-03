@@ -7,7 +7,7 @@ fields, and validation errors for missing date or empty values.
 
 import unittest
 
-from domain.dailyentry import DailyEntry
+from domain.daily_entry import DailyEntry
 from domain.fields import FIELDS
 
 
