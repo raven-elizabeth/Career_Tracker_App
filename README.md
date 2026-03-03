@@ -1,18 +1,19 @@
 # Career Tracker App
 ## Introduction
-The Career Tracker App is a web app designed to help users track their career progress, set goals
-and manage their professional development. 
+The Career Tracker App is a web app designed to help users track their career progress and manage their professional development. 
 The app provides tracking of daily activities, enabling users to keep a record and stay on track.
 
 ### TARGET AUDIENCE
 The app is ideal for all professionals who want to monitor their career growth,
 although it is particularly designed with apprentices and those in their early career in mind.
+It can be used to boost confidence and combat **imposter syndrome**.
 
 ___
 
 ## ❗️To run the app...
 
-### 1. **Download the ZIP file or clone the repository**
+### 1. **Download the ZIP file OR clone the repository**
+#### You must extract all the ZIP files to a folder, and then open the repository folder in an IDE (PyCharm, Visual Studio, VSC, etc.)
 *See instructions for cloning: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository*
 
 *GitHub repository link: https://github.com/raven-elizabeth/Career_Tracker_App*
@@ -123,13 +124,16 @@ my core struture, asking it to model anything it produced off of the existing co
 I then reviewed, modified, and tested all AI-generated code to ensure I understood every line and that the code 
 was acceptable (it often needed tweaking and tried to over-complicate solutions).
 
-**Please see the docstring at the top of `domain/daily_entry.py` for a detailed explanation of example 3**
-
 Key examples of AI use include:
-1. Code reviews, with suggestions for improvements and explanations of errors
-2. Boilerplate for the New Entry screen
-3. Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
-4. CSV injection solution & tests for this
+- Code reviews, with suggestions for improvements and explanations of errors
+- Boilerplate for the New Entry screen
+  - Please see the docstring at the top of `gui/screens/new_entry_screen.py` for a detailed explanation
+- Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
+  - Please see the docstring at the top of `domain/daily_entry.py` for a detailed explanation
+- CSV injection solution & tests for this
+  - Please see the docstring at the top of `data_access/repositories/csv_database_repository.py` for a detailed explanation
+- Logging implementation
+  - Please see the docstring at the top of `logs/logging_config.py` for a detailed explanation
 
 ### Language
 - **Python** — The programming language used for both the API and GUI.
@@ -377,6 +381,9 @@ I would like to add more **accessibility features** to the app, such as **keyboa
 **complete screen reader support**, and an **accessibility tool menu**
 to allow users to easily adjust the app's settings to suit their needs. 
 I would also like to make the designs **responsive** for different screen sizes.
+
+I would like to add further enhancements, including protecting endpoints from being called directly without valid data.
+For the scope of this project, I have been unable to add in every measure I would have liked to.
 
 ___
 

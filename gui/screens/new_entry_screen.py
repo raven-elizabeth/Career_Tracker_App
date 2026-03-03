@@ -6,6 +6,19 @@ Validation ensures meaningful input before saving.
 The screen tracks if the user is editing or not to determine the save action.
 If the user is editing, it checks what changes were made to determine whether
 to use the PATCH or PUT API route.
+
+NOTE ON AI USE:
+I created the basic implementations for the home & search screens first,
+but to speed up development, I asked Copilot to write the boilerplate for
+this new entry screen. In my prompt, I was clear that the file needed to be
+modelled after my own work so far.
+The boilerplate was reasonable, although much shorter than the current
+file. I think it was particularly successful in this because I had not
+asked it to do anything complex, and it gave me a good basis to build from.
+Since then, I have extensively modified through refinements as development
+has continued. I aimed to adhere to SOLID, within reason of the
+project size and scope, so separated some of the original functions based on
+the 'single responsibility' principle and have added extra ones as well.
 """
 
 import datetime

@@ -10,6 +10,29 @@ logger.warning is used when something unexpected happens but the app can
   keep running, e.g. invalid requests
 logger.error is used when the app may fail, e.g. file not found,
   data_access connection issues, etc.
+
+NOTE ON AI USE:
+I have not used logs across a wider project before, and have limited
+experience with them. I have been wanting to become more familiar and
+experiment with them, but due to the time constraints of this project,
+did not want to allocate too much time to implementing logging.
+
+After setting up my CSVDatabaseRepository and API, I asked Copilot to
+implement logging across my project. Much of what is in this configuration
+file is new to me, so I asked it to explain each line and did my own
+research online. I then added my own comments to help me remember what each
+part does.
+
+The actual logging in the other files was not unfamiliar to me, and I was
+confident with what was implemented, although I did modify some lines and
+double-checked whether I wanted a WARNING versus an ERROR log.
+
+After running the code and confirming the log output was as expected,
+I continued to use my console logs in particular throughout development. I
+discovered the logic bug with partial updates originally not allowing
+updates that only included deleting a field thanks to the logs. I have
+enjoyed using logging and feel that I now really understand the value
+of having logs in your code.
 """
 
 import logging
