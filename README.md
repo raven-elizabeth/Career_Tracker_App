@@ -1,18 +1,19 @@
 # Career Tracker App
 ## Introduction
-The Career Tracker App is a web app designed to help users track their career progress, set goals
-and manage their professional development. 
+The Career Tracker App is a web app designed to help users track their career progress and manage their professional development. 
 The app provides tracking of daily activities, enabling users to keep a record and stay on track.
 
 ### TARGET AUDIENCE
 The app is ideal for all professionals who want to monitor their career growth,
 although it is particularly designed with apprentices and those in their early career in mind.
+It can be used to boost confidence and combat **imposter syndrome**.
 
 ___
 
 ## ❗️To run the app...
 
-### 1. **Download the ZIP file or clone the repository**
+### 1. **Download the ZIP file OR clone the repository**
+#### You must extract all the ZIP files to a folder, and then open the repository folder in an IDE (PyCharm, Visual Studio, VSC, etc.)
 *See instructions for cloning: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository*
 
 *GitHub repository link: https://github.com/raven-elizabeth/Career_Tracker_App*
@@ -380,6 +381,9 @@ I would like to add more **accessibility features** to the app, such as **keyboa
 **complete screen reader support**, and an **accessibility tool menu**
 to allow users to easily adjust the app's settings to suit their needs. 
 I would also like to make the designs **responsive** for different screen sizes.
+
+I would like to add further enhancements, including protecting endpoints from being called directly without valid data.
+For the scope of this project, I have been unable to add in every measure I would have liked to.
 
 ___
 
