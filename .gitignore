@@ -173,7 +173,11 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+.idea/
+
+# Application log file — regenerated at runtime, not needed in version control
+# Explicitly ignore the log file, even if it's located in a subdirectory, to prevent accidentally committing it.
+logs/app.log
 
 # Abstra
 # Abstra is an AI-powered process automation framework.
