@@ -5,6 +5,16 @@ Pandas handles the file operations, with to_csv() automatically closing the
 file after writing and using mode "a" to append rather than overwrite.
 Using Pandas DataFrame simplifies the data manipulation and date indexing
 results in O(1) lookups.
+
+NOTE ON AI USE:
+I asked Copilot to generate code reviews on my codebase. A security
+suggestion it had was to increase my adherence to defensive programming
+practises by protecting against CSV injection.
+After researching CSV injection risk, I decided it would be best to
+implement this, and as it was a small filtering change, I asked Copilot to
+produce the solution.
+The solution produced follows the style of my other functions and appears
+straightforward; after testing, I decided to keep this implementation.
 """
 
 from pathlib import Path
