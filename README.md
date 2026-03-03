@@ -123,13 +123,16 @@ my core struture, asking it to model anything it produced off of the existing co
 I then reviewed, modified, and tested all AI-generated code to ensure I understood every line and that the code 
 was acceptable (it often needed tweaking and tried to over-complicate solutions).
 
-**Please see the docstring at the top of `domain/daily_entry.py` for a detailed explanation of example 3**
-
 Key examples of AI use include:
-1. Code reviews, with suggestions for improvements and explanations of errors
-2. Boilerplate for the New Entry screen
-3. Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
-4. CSV injection solution & tests for this
+- Code reviews, with suggestions for improvements and explanations of errors
+- Boilerplate for the New Entry screen
+  - Please see the docstring at the top of `gui/screens/new_entry_screen.py` for a detailed explanation
+- Implementing the ability for a partial update to allow sending an update with empty values, so that data could be deleted if at least one non-empty value remained
+  - Please see the docstring at the top of `domain/daily_entry.py` for a detailed explanation
+- CSV injection solution & tests for this
+  - Please see the docstring at the top of `data_access/repositories/csv_database_repository.py` for a detailed explanation
+- Logging implementation
+  - Please see the docstring at the top of `logs/logging_config.py` for a detailed explanation
 
 ### Language
 - **Python** — The programming language used for both the API and GUI.
